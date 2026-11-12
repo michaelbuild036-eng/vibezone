@@ -3,98 +3,101 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#100b20">
-<title>VibeZone — Your world. Your vibe.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10091f">
+<title>VibeZone | Your world. Your vibe.</title>
 <style>
 :root {
-  --bg:#100b20; --panel:#1c1432; --panel2:#251a40;
-  --purple:#9b5cff; --pink:#ff4fa3; --blue:#43c9ff;
-  --white:#fff; --muted:#b9afcc;
+ --bg:#10091f;--panel:#1c1231;--panel2:#291a43;
+ --purple:#a15cff;--pink:#ff4fa3;--blue:#42caff;
+ --text:#fff;--muted:#bdb1d0;--line:#ffffff20;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
- margin:0;background:
- radial-gradient(ellipse at 10% 0%,#39205b 0,transparent 38%),
- radial-gradient(ellipse at 90% 25%,#172d58 0,transparent 35%),
- var(--bg);color:var(--white);
+ margin:0;color:var(--text);
+ background:radial-gradient(ellipse at 10% 0%,#452064 0,transparent 38%),
+ radial-gradient(ellipse at 90% 35%,#153c63 0,transparent 34%),var(--bg);
  font-family:Arial,Helvetica,sans-serif;
 }
-button,input{font:inherit}
+button,input,select{font:inherit}
 button{cursor:pointer}
 header{
- position:sticky;top:0;z-index:10;
- display:flex;align-items:center;justify-content:space-between;
- gap:15px;padding:15px 6%;
- background:#100b20eF;backdrop-filter:blur(14px);
- border-bottom:1px solid #ffffff18;
+ position:sticky;top:0;z-index:20;padding:14px 5%;
+ display:flex;justify-content:space-between;align-items:center;gap:15px;
+ background:#10091fee;backdrop-filter:blur(16px);
+ border-bottom:1px solid var(--line);
 }
-.logo{font-size:25px;font-weight:900;letter-spacing:-1px}
+.logo{font-weight:1000;font-size:26px;letter-spacing:-1px}
 .logo span{background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));background-clip:text;color:transparent}
-nav{display:flex;gap:20px;flex-wrap:wrap}
-nav a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:bold}
+nav{display:flex;gap:17px;flex-wrap:wrap}
+nav a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:bold}
 nav a:hover{color:white}
-.container{width:min(1120px,90%);margin:auto}
-.hero{padding:75px 0 55px;text-align:center}
-.eyebrow{color:#d5aaff;font-size:12px;font-weight:bold;letter-spacing:3px}
-.hero h1{font-size:clamp(42px,8vw,78px);line-height:1.02;margin:17px 0}
+.container{width:min(1120px,91%);margin:auto}
+.hero{text-align:center;padding:75px 0 50px}
+.eyebrow{color:#d8baff;font-size:12px;font-weight:bold;letter-spacing:3px}
+.hero h1{font-size:clamp(45px,8vw,82px);line-height:1;margin:20px 0}
 .gradient{background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));background-clip:text;color:transparent}
-.hero p{color:var(--muted);font-size:18px;line-height:1.6;max-width:600px;margin:0 auto 25px}
+.hero p{max-width:620px;margin:0 auto 25px;color:var(--muted);font-size:18px;line-height:1.6}
 .btn{
- border:0;border-radius:13px;padding:13px 20px;font-weight:bold;
- color:white;background:linear-gradient(110deg,var(--purple),var(--pink));
- box-shadow:0 7px 25px #9b5cff35;transition:.2s;
+ background:linear-gradient(110deg,var(--purple),var(--pink));color:white;
+ border:0;border-radius:13px;padding:13px 19px;font-weight:bold;
+ box-shadow:0 7px 25px #a15cff30;transition:.2s;
 }
-.btn:hover{transform:translateY(-2px);filter:brightness(1.12)}
-.btn.secondary{background:var(--panel2);border:1px solid #ffffff25;box-shadow:none}
-section{padding:32px 0 45px;scroll-margin-top:85px}
-.section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:20px}
-h2{font-size:27px;margin:0 0 7px}
-.section-head p,.muted{color:var(--muted);margin:0;line-height:1.5}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:17px}
-.card{
- background:linear-gradient(145deg,#251a40,#19132c);
- border:1px solid #ffffff17;border-radius:19px;padding:21px;
+.btn:hover{transform:translateY(-3px);filter:brightness(1.12)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.secondary{background:var(--panel2);border:1px solid var(--line);box-shadow:none}
+section{padding:34px 0 43px;scroll-margin-top:85px}
+.heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:20px}
+h2{margin:0 0 7px;font-size:27px}
+h3{margin:0 0 9px}
+p{line-height:1.55}
+.muted,.heading p{color:var(--muted);margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:17px}
+.card,.panel{
+ background:linear-gradient(145deg,#281a43,#191128);
+ border:1px solid var(--line);border-radius:19px;padding:21px;
  box-shadow:0 12px 35px #0002;
 }
-.game-card{min-height:185px;display:flex;flex-direction:column;align-items:flex-start}
-.emoji{font-size:34px;margin-bottom:13px}
-.card h3{margin:0 0 8px;font-size:19px}
-.card p{color:var(--muted);font-size:14px;line-height:1.5;flex:1;margin:0 0 17px}
-.ad{
- margin:20px 0;background:#ffffff08;border:1px dashed #ffffff35;
- border-radius:14px;padding:20px;text-align:center;color:#9f94b4;font-size:12px;
- letter-spacing:1px;
-}
-.panel{background:var(--panel);border:1px solid #ffffff20;border-radius:20px;padding:25px}
-.game-area{max-width:720px;margin:auto}
-.question{font-size:clamp(21px,4vw,30px);line-height:1.35;margin:18px 0 24px}
+.game-card{min-height:190px;display:flex;flex-direction:column;align-items:flex-start}
+.game-card p{font-size:14px;color:var(--muted);flex:1}
+.emoji{font-size:37px;margin-bottom:13px}
+.ad{margin:20px 0;padding:22px;text-align:center;border:1px dashed #ffffff35;border-radius:15px;color:#a99bbd;font-size:11px;letter-spacing:2px;background:#ffffff08}
+.gamebox{max-width:760px;margin:auto}
+.question{font-size:clamp(22px,4vw,31px);margin:20px 0;line-height:1.4}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.choice{
- background:var(--panel2);border:1px solid #ffffff25;border-radius:13px;
- padding:16px;color:white;text-align:left;font-weight:bold;
+.choice{background:var(--panel2);color:white;border:1px solid var(--line);border-radius:13px;padding:16px;text-align:left;font-weight:bold}
+.choice:hover{border-color:var(--pink);background:#42275b}
+.choice:disabled{opacity:.55}
+.answer{color:#e2c4ff;min-height:25px;margin:15px 0}
+input,select{
+ width:100%;background:#120b21;color:white;border:1px solid #ffffff35;
+ border-radius:12px;padding:14px;margin:9px 0 15px;
 }
-.choice:hover{border-color:var(--pink);background:#392653}
-.answer{color:#d7baff;min-height:25px;margin:15px 0}
-input{
- width:100%;padding:14px;border-radius:12px;background:#120d22;
- border:1px solid #ffffff30;color:white;margin:10px 0 15px;
-}
-select{background:#120d22;color:white;border:1px solid #ffffff30;border-radius:10px;padding:12px}
-.profile-row{display:flex;gap:15px;align-items:center;flex-wrap:wrap}
-.avatar{font-size:38px;background:var(--panel2);padding:12px;border-radius:15px}
-.score{font-size:24px;font-weight:900;color:#e5b9ff}
-footer{padding:35px 5%;border-top:1px solid #ffffff18;text-align:center;color:var(--muted);font-size:13px;line-height:1.7}
+select{width:auto}
 .small{font-size:12px;color:var(--muted)}
 .hidden{display:none!important}
+.stat{font-size:27px;font-weight:900;color:#e0baff}
+.profile{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.avatar{font-size:38px;background:var(--panel2);border-radius:15px;padding:12px}
+.leader-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}
+.leader-row:last-child{border:0}
+.chat{background:#120b21;border-radius:13px;padding:15px;margin:15px 0;max-height:280px;overflow:auto}
+.chat p{padding:10px 13px;border-radius:12px;background:#281b40;margin:8px 0;overflow-wrap:anywhere}
+.chat .me{background:#53307b}
+.pulse{animation:pulse 2.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 #a15cff00}50%{box-shadow:0 0 35px #a15cff30}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.float{animation:float 4s ease-in-out infinite}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.pop{animation:pop .35s ease}
+footer{padding:35px 5%;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:13px;line-height:1.8}
 @media(max-width:650px){
- header{padding:13px 5%;align-items:flex-start;flex-direction:column}
- nav{gap:13px}
- nav a{font-size:12px}
- .hero{padding:55px 0 35px}
+ header{align-items:flex-start;flex-direction:column}
+ nav{gap:12px}nav a{font-size:12px}
+ .hero{padding:53px 0 35px}
  .choices{grid-template-columns:1fr}
- .section-head{align-items:flex-start;flex-direction:column}
+ .heading{align-items:flex-start;flex-direction:column}
 }
 </style>
 </head>
@@ -102,267 +105,364 @@ footer{padding:35px 5%;border-top:1px solid #ffffff18;text-align:center;color:va
 <header>
  <div class="logo">Vibe<span>Zone</span> ✦</div>
  <nav>
-  <a href="#home">Home</a>
-  <a href="#games">Play</a>
-  <a href="#vibeai">VibeAI</a>
-  <a href="#challenges">Challenges</a>
-  <a href="#profile">Profile</a>
+  <a href="#home">Home</a><a href="#games">Games</a>
+  <a href="#vibeai">VibeAI</a><a href="#challenges">Challenges</a>
+  <a href="#leaderboard">Leaderboard</a><a href="#profile">Profile</a>
  </nav>
 </header>
 
 <main class="container">
 <section class="hero" id="home">
- <div class="eyebrow">WELCOME TO YOUR NEW FAVOURITE PLACE</div>
+ <div class="eyebrow">YOUR ONLINE HANGOUT STARTS HERE</div>
  <h1>Your world.<br><span class="gradient">Your vibe.</span></h1>
- <p>Play games, discover your personality, take on daily challenges and have fun with your squad. It's all happening here.</p>
- <button class="btn" onclick="document.getElementById('games').scrollIntoView()">🎮 Play now</button>
- <button class="btn secondary" onclick="document.getElementById('vibeai').scrollIntoView()">Meet VibeAI</button>
- <div class="ad">ADVERTISEMENT SPACE · FUTURE AD PARTNER</div>
+ <p>Play games, test your brain, discover your personality and take on daily challenges. Bring your squad and make every visit count.</p>
+ <button class="btn pulse" onclick="go('games')">🎮 Explore games</button>
+ <button class="btn secondary" onclick="go('vibeai')">Meet VibeAI</button>
+ <div class="ad">ADVERTISEMENT · AD SPACE</div>
 </section>
 
 <section id="games">
- <div class="section-head">
-  <div><h2>🎮 Enter the game zone</h2><p>Pick a game. Challenge yourself. Have fun.</p></div>
- </div>
+ <div class="heading"><div><h2>🎮 The Game Zone</h2><p>Choose your challenge. Earn points. Beat your best score.</p></div></div>
  <div class="grid">
-  <div class="card game-card"><div class="emoji">⚡</div><h3>Would You Rather?</h3><p>Two choices. One impossible decision. What would you pick?</p><button class="btn" onclick="startGame('rather')">Play game</button></div>
-  <div class="card game-card"><div class="emoji">🧩</div><h3>Guess the Emoji</h3><p>Can you crack the emoji clues?</p><button class="btn" onclick="startGame('emoji')">Play game</button></div>
-  <div class="card game-card"><div class="emoji">🧠</div><h3>Trivia Challenge</h3><p>Test your knowledge across different topics.</p><button class="btn" onclick="startGame('trivia')">Play game</button></div>
-  <div class="card game-card"><div class="emoji">🎲</div><h3>Truth or Dare</h3><p>Fun, friendly prompts for your group.</p><button class="btn" onclick="startGame('truth')">Play game</button></div>
-  <div class="card game-card"><div class="emoji">✨</div><h3>Personality Quiz</h3><p>Discover your fun personality type.</p><button class="btn" onclick="startGame('personality')">Play game</button></div>
+  <div class="card game-card"><div class="emoji">⚡</div><h3>Would You Rather</h3><p>Two choices. Which side are you on?</p><button class="btn" onclick="start('rather')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">🧩</div><h3>Guess the Emoji</h3><p>Crack the emoji clues.</p><button class="btn" onclick="start('emoji')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">🧠</div><h3>Trivia Challenge</h3><p>Show off what you know.</p><button class="btn" onclick="start('trivia')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">🎲</div><h3>Truth or Dare</h3><p>Fun, friendly party prompts.</p><button class="btn" onclick="start('truth')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">✨</div><h3>Personality Quiz</h3><p>Discover your vibe.</p><button class="btn" onclick="start('personality')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">🧠</div><h3>Memory Match</h3><p>Find matching emoji pairs.</p><button class="btn" onclick="start('memory')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">⏱️</div><h3>Reaction Test</h3><p>How fast are your reactions?</p><button class="btn" onclick="start('reaction')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">✊</div><h3>Rock Paper Scissors</h3><p>Can you beat the computer?</p><button class="btn" onclick="start('rps')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">🔤</div><h3>Word Scramble</h3><p>Unscramble the mystery word.</p><button class="btn" onclick="start('word')">Play now</button></div>
  </div>
 </section>
 
 <section id="playarea" class="hidden">
- <div class="game-area panel">
-  <div class="section-head"><div><h2 id="gameTitle">Game</h2><p id="gameDescription">Let's play.</p></div><button class="btn secondary" onclick="closeGame()">✕ Close</button></div>
+ <div class="gamebox panel pop">
+  <div class="heading"><div><h2 id="gameTitle">Game</h2><p id="gameDesc">Let's play!</p></div><button class="btn secondary" onclick="closeGame()">✕ Close</button></div>
   <div id="gameContent"></div>
  </div>
 </section>
 
 <section id="vibeai">
- <div class="section-head"><div><h2>🤖 Meet VibeAI</h2><p>Choose a character and start a fun conversation.</p></div></div>
+ <div class="heading"><div><h2>🤖 VibeAI Corner</h2><p>Pick a character for a fun conversation.</p></div></div>
  <div class="grid">
-  <div class="card"><div class="emoji">🚀</div><h3>Hype Friend</h3><p>Positive energy, motivation and good vibes.</p><button class="btn" onclick="chooseAI('hype')">Chat now</button></div>
-  <div class="card"><div class="emoji">📚</div><h3>Study Buddy</h3><p>Study tips, revision ideas and learning motivation.</p><button class="btn" onclick="chooseAI('study')">Chat now</button></div>
-  <div class="card"><div class="emoji">🎨</div><h3>Story Maker</h3><p>Creative ideas and imaginative adventures.</p><button class="btn" onclick="chooseAI('story')">Chat now</button></div>
+  <div class="card"><div class="emoji">🚀</div><h3>Hype Friend</h3><p class="muted">Motivation, positivity and big energy.</p><button class="btn" onclick="chooseAI('hype')">Chat</button></div>
+  <div class="card"><div class="emoji">📚</div><h3>Study Buddy</h3><p class="muted">Study ideas and learning motivation.</p><button class="btn" onclick="chooseAI('study')">Chat</button></div>
+  <div class="card"><div class="emoji">🎨</div><h3>Story Maker</h3><p class="muted">Creative ideas and imaginative adventures.</p><button class="btn" onclick="chooseAI('story')">Chat</button></div>
  </div>
- <div id="aiPanel" class="panel hidden" style="margin-top:18px">
+ <div class="panel hidden" id="aiPanel" style="margin-top:18px">
   <h3 id="aiName">VibeAI</h3>
-  <p class="small">Fictional character demo. These are preset responses, not a live AI service. Don't share private information.</p>
-  <div id="chatMessages" style="min-height:100px;max-height:250px;overflow:auto;margin:15px 0"></div>
-  <input id="aiInput" placeholder="Say something..." maxlength="180">
-  <button class="btn" onclick="sendAI()">Send message</button>
+  <p class="small">Fictional demo characters with preset replies. Not a live AI. Don't share private information.</p>
+  <div class="chat" id="chat"></div>
+  <input id="aiInput" maxlength="180" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendAI()">
+  <button class="btn" onclick="sendAI()">Send ✦</button>
  </div>
 </section>
 
 <section id="challenges">
- <div class="section-head"><div><h2>🔥 Daily challenge</h2><p>A fresh little mission for today.</p></div></div>
+ <div class="heading"><div><h2>🔥 Daily Challenges</h2><p>A new mini mission to complete every day.</p></div></div>
  <div class="panel">
-  <div class="emoji">🌟</div>
-  <h3 id="dailyTitle">Today's challenge</h3>
-  <p id="dailyText" class="muted"></p>
+  <div class="emoji float">🌟</div>
+  <h3 id="dailyTitle">Today's mission</h3>
+  <p class="muted" id="dailyText"></p>
   <p class="small" id="dailyDate"></p>
-  <button class="btn" id="dailyButton" onclick="completeDaily()">I did it! +10 points</button>
-  <p id="dailyMessage" class="answer"></p>
+  <button class="btn" id="dailyButton" onclick="completeDaily()">Complete challenge · +10 points</button>
+  <p class="answer" id="dailyMessage"></p>
+ </div>
+</section>
+
+<section id="leaderboard">
+ <div class="heading"><div><h2>🏆 Leaderboard</h2><p>Your top scores saved on this device.</p></div><button class="btn secondary" onclick="shareSite()">Share VibeZone ↗</button></div>
+ <div class="panel">
+  <div id="leaders"></div>
+  <p class="small">This is a local leaderboard on this browser, not a worldwide ranking.</p>
  </div>
 </section>
 
 <section id="profile">
- <div class="section-head"><div><h2>👤 Your VibeZone profile</h2><p>Your nickname and points are saved on this device.</p></div></div>
+ <div class="heading"><div><h2>👤 Your Profile</h2><p>Choose your nickname and avatar.</p></div></div>
  <div class="panel">
-  <div class="profile-row">
-   <div class="avatar" id="profileAvatar">😎</div>
-   <div><h3 id="profileName">Guest Player</h3><div class="score"><span id="profilePoints">0</span> points</div></div>
+  <div class="profile">
+   <div class="avatar" id="avatarView">😎</div>
+   <div><h3 id="nameView">Guest Player</h3><div class="stat"><span id="pointsView">0</span> points</div></div>
   </div>
-  <label for="nickname">Your nickname</label>
-  <input id="nickname" maxlength="18" placeholder="Choose a nickname">
-  <label for="avatarSelect">Choose your avatar</label><br>
-  <select id="avatarSelect">
-   <option>😎</option><option>🦋</option><option>🐼</option><option>🐸</option><option>🦄</option><option>👾</option><option>🐯</option><option>🌻</option>
-  </select>
+  <label>Nickname</label><input id="nickname" maxlength="18" placeholder="Your nickname">
+  <label>Avatar</label><br>
+  <select id="avatar">
+   <option>😎</option><option>🦋</option><option>🐼</option><option>🐸</option><option>🦄</option><option>👾</option><option>🐯</option><option>🌻</option><option>🐱</option><option>🐉</option>
+  </select><br>
   <button class="btn" onclick="saveProfile()">Save profile</button>
-  <p class="small">This profile is stored only in this browser. It is not a public account.</p>
+  <p class="small">Your profile is stored in this browser only. No public account is created.</p>
  </div>
 </section>
+<div class="ad">ADVERTISEMENT · AD SPACE</div>
 </main>
 
 <footer>
  <div class="logo">Vibe<span>Zone</span> ✦</div>
  Your world. Your vibe.<br>
- Have fun, respect others and keep your personal information private.<br>
- VibeAI characters are fictional demonstrations, not real AI assistants.<br>
- <span class="small">VibeZone is free to use. Advertisement spaces are placeholders, not live advertisements.</span>
+ Have fun, respect others and keep personal information private.<br>
+ VibeAI is a fictional demo. Profiles and scores are stored locally.<br>
+ <span class="small">VibeZone is free to use. Ad spaces are placeholders, not live advertisements.</span>
 </footer>
 
 <script>
-const $ = id => document.getElementById(id);
-const get = (key, fallback) => {
- try { const value=localStorage.getItem(key); return value===null?fallback:JSON.parse(value); }
- catch(e){return fallback;}
-};
-let points=get('vz_points',0);
-let profile=get('vz_profile',{name:'Guest Player',avatar:'😎'});
-let dailyDone=get('vz_daily','');
-let currentAI='hype',currentGame='',questionIndex=0,gameScore=0,personalityScore=0;
-
+const $=id=>document.getElementById(id);
+function read(k,d){try{let x=localStorage.getItem(k);return x===null?d:JSON.parse(x)}catch(e){return d}}
+let points=read('vz_points',0);
+let profile=read('vz_profile',{name:'Guest Player',avatar:'😎'});
+let records=read('vz_records',[]);
+let dailyDone=read('vz_daily','');
+let currentGame='',index=0,score=0,extra=0,currentAI='hype',reactionStart=0,reactionTimer=null,early=false;
+function go(id){$(id).scrollIntoView({behavior:'smooth'})}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function updateProfile(){
- $('profileName').textContent=profile.name;
- $('profileAvatar').textContent=profile.avatar;
- $('profilePoints').textContent=points;
- $('nickname').value=profile.name==='Guest Player'?'':profile.name;
- $('avatarSelect').value=profile.avatar;
+ $('nameView').textContent=profile.name;$('avatarView').textContent=profile.avatar;
+ $('pointsView').textContent=points;$('nickname').value=profile.name==='Guest Player'?'':profile.name;
+ $('avatar').value=profile.avatar;renderLeaders();
 }
-function addPoints(n){
- points+=n;localStorage.setItem('vz_points',JSON.stringify(points));updateProfile();
-}
+function addPoints(n){points+=n;save('vz_points',points);updateProfile()}
 function saveProfile(){
- profile={name:$('nickname').value.trim()||'Guest Player',avatar:$('avatarSelect').value};
- localStorage.setItem('vz_profile',JSON.stringify(profile));updateProfile();
- alert('Your profile has been saved!');
+ profile={name:$('nickname').value.trim().slice(0,18)||'Guest Player',avatar:$('avatar').value};
+ save('vz_profile',profile);updateProfile();alert('Profile saved!');
 }
-
+function renderLeaders(){
+ let sorted=[...records].sort((a,b)=>b.points-a.points).slice(0,10);
+ $('leaders').innerHTML=sorted.length?sorted.map((r,i)=>`<div class="leader-row"><b>${['🥇','🥈','🥉'][i]||'#'+(i+1)} ${safe(r.name)}</b><span class="stat">${r.points}</span></div>`).join(''):'<p class="muted">Play a game to get your first score on the board!</p>';
+}
+function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function recordScore(n){
+ if(n<=0)return;
+ addPoints(n);
+ records.push({name:profile.name,points:n,game:currentGame,date:Date.now()});
+ save('vz_records',records);renderLeaders();
+}
 const rather=[
  ['Explore the ocean 🌊','Explore outer space 🚀'],
- ['Always have free snacks 🍕','Always have free music 🎧'],
+ ['Free snacks forever 🍕','Free music forever 🎧'],
  ['Travel to the past ⏳','Travel to the future 🔮'],
- ['Be able to fly 🦅','Be able to breathe underwater 🐬'],
- ['Have a pet dragon 🐉','Have a pet robot 🤖']
+ ['Fly like a bird 🦅','Swim underwater 🐬'],
+ ['Have a dragon 🐉','Have a robot 🤖'],
+ ['Be famous 🎤','Be super smart 🧠'],
+ ['Live by the beach 🏖️','Live in the mountains 🏔️']
 ];
-const emojiQuestions=[
- {q:'🌧️ + 🌈',a:['Rainbow','Storm','Waterfall'],correct:0},
- {q:'🎂 + 🎉',a:['Birthday party','Cooking show','Wedding'],correct:0},
- {q:'🕷️ + 👨',a:['Ant-Man','Spider-Man','Batman'],correct:1},
- {q:'🌙 + 🚶',a:['Night walk','Morning run','Dream house'],correct:0},
- {q:'🐝 + 🍯',a:['Bee honey','Sweet shop','Flower garden'],correct:0}
+const emojis=[
+ {q:'🌧️ + 🌈',a:['Rainbow','Thunder','Waterfall'],c:0},
+ {q:'🎂 + 🎉',a:['Birthday party','Cooking','Wedding'],c:0},
+ {q:'🕷️ + 👨',a:['Batman','Spider-Man','Ant-Man'],c:1},
+ {q:'🌙 + 🚶',a:['Night walk','Morning run','Dream home'],c:0},
+ {q:'🐝 + 🍯',a:['Honey','Sweet shop','Flower garden'],c:0},
+ {q:'⭐ + 🐟',a:['Starfish','Goldfish','Space fish'],c:0}
 ];
 const trivia=[
  {q:'Which planet is known as the Red Planet?',a:['Venus','Mars','Jupiter'],c:1},
  {q:'How many sides does a hexagon have?',a:['Five','Six','Eight'],c:1},
- {q:'What is the largest ocean on Earth?',a:['Atlantic','Indian','Pacific'],c:2},
- {q:'Which animal is the tallest?',a:['Elephant','Giraffe','Camel'],c:1},
- {q:'What is the chemical symbol for water?',a:['CO2','H2O','O2'],c:1}
+ {q:'What is the largest ocean?',a:['Atlantic','Indian','Pacific'],c:2},
+ {q:'Which animal is tallest?',a:['Elephant','Giraffe','Camel'],c:1},
+ {q:'What is the chemical formula for water?',a:['CO2','H2O','O2'],c:1},
+ {q:'Which continent is South Africa in?',a:['Asia','Africa','Europe'],c:1},
+ {q:'How many minutes are in one hour?',a:['30','60','100'],c:1},
+ {q:'Which gas do plants absorb?',a:['Oxygen','Carbon dioxide','Helium'],c:1}
 ];
-const truth=[
- ['truth','What is one skill you wish you could learn instantly?'],
- ['dare','Do your best superhero pose for 10 seconds.'],
- ['truth','What is your funniest school memory?'],
- ['dare','Try to say the alphabet backwards as far as you can.'],
- ['truth','What is one place you would love to visit?'],
- ['dare','Make up a new dance move and name it.'],
- ['truth','What always makes you laugh?'],
- ['dare','Describe your day using only three emojis.']
+const truths=[
+ ['Truth','What skill would you love to learn?'],['Dare','Do your best superhero pose for ten seconds.'],
+ ['Truth','What is your funniest school memory?'],['Dare','Invent a new dance move and name it.'],
+ ['Truth','Where would you love to travel?'],['Dare','Describe your day using only three emojis.'],
+ ['Truth','What always makes you laugh?'],['Dare','Say five words that rhyme with cat.'],
+ ['Truth','What is one thing you are proud of?'],['Dare','Make up a silly slogan for your favourite food.']
 ];
-const personalities=[
- {q:'Your ideal weekend?',a:['Adventure with friends','Creative time','Chill and recharge'],v:[0,1,2]},
- {q:'In a group, you are usually...',a:['The organiser','The idea person','The calm one'],v:[0,1,2]},
- {q:'Choose a superpower.',a:['Super speed','Create anything','Read the weather'],v:[0,1,2]},
- {q:'Your friends would call you...',a:['Energetic','Imaginative','Thoughtful'],v:[0,1,2]}
+const personality=[
+ ['Your ideal weekend?',['Adventure with friends','Creative time','Relax and recharge']],
+ ['In a group you are...',['The organiser','The idea person','The calm one']],
+ ['Choose a superpower.',['Super speed','Create anything','Understand animals']],
+ ['Your friends might call you...',['Energetic','Imaginative','Thoughtful']]
 ];
-function startGame(type){
- currentGame=type;questionIndex=0;gameScore=0;personalityScore=0;
+const words=[
+ ['TCA','CAT'],['LEPPA','APPLE'],['NUS','SUN'],['KOBO','BOOK'],
+ ['RAST','STAR'],['NIRAB','BRAIN'],['DNUOS','SOUND']
+];
+function start(type){
+ closeReaction();
+ currentGame=type;index=0;score=0;extra=0;
  $('playarea').classList.remove('hidden');
  $('playarea').scrollIntoView({behavior:'smooth'});
- const names={rather:'Would You Rather?',emoji:'Guess the Emoji',trivia:'Trivia Challenge',truth:'Truth or Dare',personality:'Personality Quiz'};
- $('gameTitle').textContent=names[type];$('gameDescription').textContent='Have fun and earn points!';
- renderGame();
+ const names={rather:'Would You Rather?',emoji:'Guess the Emoji',trivia:'Trivia Challenge',truth:'Truth or Dare',personality:'Personality Quiz',memory:'Memory Match',reaction:'Reaction Test',rps:'Rock Paper Scissors',word:'Word Scramble'};
+ $('gameTitle').textContent=names[type];$('gameDesc').textContent='Play for fun and collect points!';
+ render();
 }
-function closeGame(){$('playarea').classList.add('hidden')}
-function renderGame(){
+function closeGame(){closeReaction();$('playarea').classList.add('hidden')}
+function closeReaction(){if(reactionTimer){clearTimeout(reactionTimer);reactionTimer=null}}
+function finish(pointsEarned,message){
+ closeReaction();
+ $('gameContent').innerHTML=`<div class="question">🎉 ${message||'Game complete!'}</div><p>You earned <b>${pointsEarned}</b> points!</p><button class="btn" onclick="collect(${pointsEarned})">Collect points</button> <button class="btn secondary" onclick="start('${currentGame}')">Play again</button>`;
+}
+function collect(n){recordScore(n);closeGame()}
+function render(){
  const area=$('gameContent');area.innerHTML='';
  if(currentGame==='rather'){
-  if(questionIndex>=rather.length)return finishGame();
-  const pair=rather[questionIndex];
-  area.innerHTML=`<p class="small">QUESTION ${questionIndex+1} OF ${rather.length}</p><div class="question">Would you rather...</div><div class="choices"><button class="choice" onclick="answerGame()">${pair[0]}</button><button class="choice" onclick="answerGame()">${pair[1]}</button></div><p class="answer">There are no wrong answers!</p>`;
+  if(index>=rather.length)return finish(score*3,'That was fun!');
+  let q=rather[index];
+  area.innerHTML=`<p class="small">QUESTION ${index+1} OF ${rather.length}</p><div class="question">Would you rather...</div><div class="choices">${q.map(x=>`<button class="choice" onclick="nextRather()">${x}</button>`).join('')}</div><p class="answer">No wrong answers here!</p>`;
  }
  if(currentGame==='emoji'||currentGame==='trivia'){
-  const list=currentGame==='emoji'?emojiQuestions:trivia;
-  if(questionIndex>=list.length)return finishGame();
-  const q=list[questionIndex];
-  area.innerHTML=`<p class="small">QUESTION ${questionIndex+1} OF ${list.length}</p><div class="question">${q.q}</div><div class="choices">${q.a.map((a,i)=>`<button class="choice" onclick="checkAnswer(${i})">${a}</button>`).join('')}</div><p id="feedback" class="answer"></p>`;
+  let list=currentGame==='emoji'?emojis:trivia;
+  if(index>=list.length)return finish(score*5,'Challenge complete!');
+  let q=list[index];
+  area.innerHTML=`<p class="small">QUESTION ${index+1} OF ${list.length}</p><div class="question">${q.q}</div><div class="choices">${q.a.map((x,i)=>`<button class="choice" onclick="answer(${i})">${x}</button>`).join('')}</div><p class="answer" id="feedback"></p>`;
  }
  if(currentGame==='truth'){
-  const item=truth[Math.floor(Math.random()*truth.length)];
-  area.innerHTML=`<div class="question">${item[0]==='truth'?'💬 Truth':'🎲 Dare'}<br>${item[1]}</div><button class="btn" onclick="addPoints(2);renderGame()">Next prompt</button><p class="small">Keep it friendly. You can always skip a prompt.</p>`;
+  let q=truth[Math.floor(Math.random()*truth.length)];
+  area.innerHTML=`<div class="question">🎲 ${q[0]}<br>${q[1]}</div><button class="btn" onclick="score+=2;render()">Next prompt</button><p class="small">Keep it friendly. You can always skip any prompt.</p>`;
  }
  if(currentGame==='personality'){
-  if(questionIndex>=personalities.length)return finishPersonality();
-  const q=personalities[questionIndex];
-  area.innerHTML=`<p class="small">QUESTION ${questionIndex+1} OF ${personalities.length}</p><div class="question">${q.q}</div><div class="choices">${q.a.map((a,i)=>`<button class="choice" onclick="personalityAnswer(${i})">${a}</button>`).join('')}</div>`;
+  if(index>=personality.length)return finishPersonality();
+  let q=personality[index];
+  area.innerHTML=`<p class="small">QUESTION ${index+1} OF ${personality.length}</p><div class="question">${q[0]}</div><div class="choices">${q[1].map((x,i)=>`<button class="choice" onclick="personAnswer(${i})">${x}</button>`).join('')}</div>`;
+ }
+ if(currentGame==='memory')renderMemory();
+ if(currentGame==='reaction')renderReaction();
+ if(currentGame==='rps')renderRPS();
+ if(currentGame==='word')renderWord();
+}
+function nextRather(){score++;index++;render()}
+function answer(i){
+ let list=currentGame==='emoji'?emojis:trivia,q=list[index];
+ if(i===q.c){score++;$('feedback').textContent='Correct! 🎉'}
+ else $('feedback').textContent='Good try! Answer: '+q.a[q.c];
+ document.querySelectorAll('#gameContent .choice').forEach(b=>b.disabled=true);
+ let b=document.createElement('button');b.className='btn';b.textContent='Next question';b.onclick=()=>{index++;render()};$('gameContent').appendChild(b);
+}
+function personAnswer(i){extra+=i;index++;render()}
+function finishPersonality(){
+ let result=[['🔥 The Firestarter','Energetic, bold and ready for adventure.'],['🎨 The Creative Soul','Imaginative, curious and full of ideas.'],['🌙 The Calm Thinker','Thoughtful, steady and a great listener.']][extra%3];
+ $('gameContent').innerHTML=`<div class="question">${result[0]}</div><p class="muted">${result[1]}</p><button class="btn" onclick="recordScore(15);closeGame()">Collect 15 points</button> <button class="btn secondary" onclick="shareText('My VibeZone personality: '+${JSON.stringify(result[0])})">Share result</button>`;
+}
+let memoryCards=[],memoryOpen=[],memoryMatches=0,memoryMoves=0,memoryLocked=false;
+function renderMemory(){
+ memoryCards=['🐸','🐸','🌈','🌈','🚀','🚀','🍕','🍕','🐼','🐼','⭐','⭐'].sort(()=>Math.random()-.5);
+ memoryOpen=[];memoryMatches=0;memoryMoves=0;memoryLocked=false;
+ drawMemory();
+}
+function drawMemory(){
+ $('gameContent').innerHTML=`<p class="muted">Find all matching pairs. Moves: ${memoryMoves}</p><div class="grid" id="memoryGrid" style="grid-template-columns:repeat(4,1fr)"></div>`;
+ memoryCards.forEach((c,i)=>{
+  let b=document.createElement('button');b.className='choice';b.style.textAlign='center';b.style.fontSize='26px';b.style.minHeight='65px';
+  b.textContent=memoryOpen.includes(i)||memoryCards[i]===null?c:'❔';
+  b.disabled=memoryCards[i]===null||memoryOpen.includes(i);
+  b.onclick=()=>flipMemory(i);$('memoryGrid').appendChild(b);
+ });
+}
+function flipMemory(i){
+ if(memoryLocked||memoryOpen.length===2)return;
+ memoryOpen.push(i);drawMemory();
+ if(memoryOpen.length===2){
+  memoryMoves++;
+  let [a,b]=memoryOpen;
+  if(memoryCards[a]===memoryCards[b]){
+   memoryCards[a]=null;memoryCards[b]=null;memoryMatches++;memoryOpen=[];
+   drawMemory();
+   if(memoryMatches===6){$('gameContent').innerHTML=`<div class="question">🧠 Memory master!</div><p>You completed the board in ${memoryMoves} moves.</p><button class="btn" onclick="finish(${Math.max(10,60-memoryMoves*3)},'Memory complete!')">Collect points</button>`}
+  }else{
+   memoryLocked=true;
+   setTimeout(()=>{memoryOpen=[];memoryLocked=false;drawMemory()},750);
+  }
  }
 }
-function answerGame(){gameScore++;questionIndex++;renderGame()}
-function checkAnswer(i){
- const q=(currentGame==='emoji'?emojiQuestions:trivia)[questionIndex];
- const feedback=$('feedback');
- if(i===q.correct){gameScore++;feedback.textContent='Correct! 🎉';}
- else feedback.textContent='Good try! The answer was '+q.a[q.correct]+'.';
- document.querySelectorAll('#gameContent .choice').forEach(b=>b.disabled=true);
- const next=document.createElement('button');next.className='btn';next.textContent='Next question';
- next.onclick=()=>{questionIndex++;renderGame()};$('gameContent').appendChild(next);
+function renderReaction(){
+ $('gameContent').innerHTML=`<div class="question">⚡ Reaction Test</div><p class="muted">Wait until the panel turns green, then tap as quickly as possible.</p><button class="choice" id="reactionButton" style="width:100%;min-height:150px;text-align:center;font-size:22px" onclick="reactionTap()">Press start</button><p class="answer" id="reactionResult"></p>`;
+ $('reactionButton').onclick=beginReaction;
 }
-function personalityAnswer(i){personalityScore+=i;questionIndex++;renderGame()}
-function finishGame(){
- const bonus=gameScore*5;
- $('gameContent').innerHTML=`<div class="question">🎉 Game complete!</div><p>You earned ${bonus} points.</p><button class="btn" onclick="addPoints(${bonus});closeGame()">Collect points</button> <button class="btn secondary" onclick="startGame('${currentGame}')">Play again</button>`;
+function beginReaction(){
+ closeReaction();early=false;
+ let b=$('reactionButton');b.style.background='#71344f';b.textContent='Wait for green...';
+ b.onclick=()=>{early=true;b.textContent='Too soon! Try again.';$('reactionResult').textContent='Wait for green before tapping.';};
+ reactionTimer=setTimeout(()=>{
+  reactionStart=performance.now();b.style.background='#176a4d';b.textContent='TAP NOW!';
+  b.onclick=reactionTap;
+ },1200+Math.random()*2800);
 }
-function finishPersonality(){
- const results=[
-  ['🔥 The Firestarter','You bring energy, courage and action.'],
-  ['🎨 The Creative Soul','Your imagination makes life interesting.'],
-  ['🌙 The Calm Thinker','You bring thoughtful and peaceful energy.']
- ];
- const result=results[personalityScore%3];
- $('gameContent').innerHTML=`<div class="question">${result[0]}</div><p class="muted">${result[1]}</p><button class="btn" onclick="addPoints(15);closeGame()">Collect 15 points</button> <button class="btn secondary" onclick="shareResult('${result[0]}')">Share result</button>`;
+function reactionTap(){
+ if(early)return;
+ if(!reactionStart){beginReaction();return}
+ let ms=Math.round(performance.now()-reactionStart);
+ reactionStart=0;closeReaction();
+ $('reactionButton').textContent=ms+' ms · Try again';
+ $('reactionResult').textContent=ms<300?'Lightning fast! ⚡':'Nice try! Can you beat that?';
+ $('reactionButton').onclick=beginReaction;
+ let earned=ms<250?20:ms<350?15:ms<500?10:5;
+ $('gameContent').insertAdjacentHTML('beforeend',`<p>You earned ${earned} points for this attempt.</p><button class="btn" onclick="recordScore(${earned});closeGame()">Collect points</button>`);
 }
-async function shareResult(result){
- const message='My VibeZone personality is '+result+'! Discover yours on VibeZone.';
- try{if(navigator.share)await navigator.share({text:message});else if(navigator.clipboard){await navigator.clipboard.writeText(message);alert('Result copied!');}else alert(message);}
- catch(e){}
+function renderRPS(){
+ $('gameContent').innerHTML=`<div class="question">✊ Rock Paper Scissors</div><p class="muted">Choose your move.</p><div class="choices">${[['✊','Rock'],['✋','Paper'],['✌️','Scissors']].map(x=>`<button class="choice" onclick="playRPS('${x[1]}')">${x[0]} ${x[1]}</button>`).join('')}</div><p class="answer" id="rpsResult"></p>`;
+}
+function playRPS(choice){
+ let list=['Rock','Paper','Scissors'],computer=list[Math.floor(Math.random()*3)];
+ let result=choice===computer?'Tie!':(choice==='Rock'&&computer==='Scissors'||choice==='Paper'&&computer==='Rock'||choice==='Scissors'&&computer==='Paper')?'You win! 🎉':'Computer wins this round!';
+ $('rpsResult').textContent=`You: ${choice} · Computer: ${computer} · ${result}`;
+ if(result.startsWith('You win'))score+=5;
+ let b=document.createElement('button');b.className='btn';b.textContent='Play again';b.onclick=renderRPS;$('gameContent').appendChild(b);
+ let c=document.createElement('button');c.className='btn secondary';c.textContent='Finish';c.style.marginLeft='8px';c.onclick=()=>finish(score,'Round complete!');$('gameContent').appendChild(c);
+}
+function renderWord(){
+ let q=words[index%words.length];
+ $('gameContent').innerHTML=`<p class="small">WORD ${index+1}</p><div class="question">🔤 ${q[0].split('').join(' ')}</div><input id="wordAnswer" placeholder="Type your answer" maxlength="12"><button class="btn" onclick="checkWord('${q[1]}')">Check answer</button><p class="answer" id="wordFeedback"></p>`;
+}
+function checkWord(answer){
+ let value=$('wordAnswer').value.trim().toUpperCase();
+ if(value===answer){
+  score+=5;$('wordFeedback').textContent='Correct! 🎉 +5 points';
+ }else $('wordFeedback').textContent='Not quite. Try again!';
+ let b=document.createElement('button');b.className='btn secondary';b.textContent='Next word';b.onclick=()=>{index++;renderWord()};$('gameContent').appendChild(b);
+ let f=document.createElement('button');f.className='btn';f.textContent='Finish';f.onclick=()=>finish(score,'Word challenge complete!');$('gameContent').appendChild(f);
 }
 
-const aiReplies={
- hype:['You have got this! Keep showing up for yourself. 🚀','That is the energy! Small steps can lead to big things.','Remember: your vibe is your own. Keep being you! ✨','What is one fun thing you want to try this week?'],
- study:['Try studying for 25 minutes, then take a short break. 📚','Turn your notes into questions and quiz yourself.','Start with the topic that feels most confusing. You can do it!','Want a study challenge? Explain a topic in three simple sentences.'],
- story:['Imagine a city where the stars come down to visit. What happens next? 🌌','Your main character discovers a mysterious glowing key...','What if your story began with a message from the future?','Add a surprising twist: the hero was the narrator all along!']
+const replies={
+ hype:['You have got this! Keep showing up for yourself. 🚀','Big energy! Small steps can lead to big things.','Your vibe is your own. Keep being you! ✨','What is one fun thing you want to try this week?'],
+ study:['Try studying for 25 minutes, then take a short break. 📚','Turn your notes into questions and quiz yourself.','Start with the topic that feels most confusing.','Explain a topic in three simple sentences to practise.'],
+ story:['Imagine a city where the stars come down to visit. What happens next? 🌌','Your main character discovers a mysterious glowing key...','What if your story began with a message from the future?','Add a surprise twist to your story!']
 };
 function chooseAI(type){
  currentAI=type;$('aiPanel').classList.remove('hidden');
  $('aiName').textContent={hype:'🚀 Hype Friend',study:'📚 Study Buddy',story:'🎨 Story Maker'}[type];
- $('chatMessages').innerHTML='<p class="muted">Hey! 👋 I am your '+$('aiName').textContent+'. What is on your mind?</p>';
+ $('chat').innerHTML='<p>'+$('aiName').textContent+': Hey! 👋 What shall we talk about?</p>';
  $('aiPanel').scrollIntoView({behavior:'smooth'});
 }
 function sendAI(){
- const input=$('aiInput'),message=input.value.trim();if(!message)return;
- const chat=$('chatMessages');
- const user=document.createElement('p');user.textContent='You: '+message;chat.appendChild(user);
- const reply=document.createElement('p');reply.style.color='#d5aaff';
- reply.textContent=$('aiName').textContent+': '+aiReplies[currentAI][Math.floor(Math.random()*aiReplies[currentAI].length)];
- chat.appendChild(reply);input.value='';chat.scrollTop=chat.scrollHeight;
+ let input=$('aiInput'),msg=input.value.trim();if(!msg)return;
+ let p=document.createElement('p');p.className='me';p.textContent='You: '+msg;$('chat').appendChild(p);
+ let r=document.createElement('p');r.textContent=$('aiName').textContent+': '+replies[currentAI][Math.floor(Math.random()*replies[currentAI].length)];$('chat').appendChild(r);
+ input.value='';$('chat').scrollTop=$('chat').scrollHeight;
 }
-
-const dailyChallenges=[
+const daily=[
  ['🎨 Creative mode','Draw a character using only five shapes.'],
  ['💬 Good vibes','Give someone a genuine compliment today.'],
  ['🧠 Brain power','Learn one new fact and explain it to someone.'],
  ['🎵 Music moment','Discover a new song or artist.'],
  ['🌟 Kindness mission','Do one small helpful thing for someone.'],
- ['📖 Curiosity quest','Read about something you have never learned before.'],
- ['😂 Laugh break','Share a clean joke with a friend.']
+ ['📖 Curiosity quest','Read about something new.'],
+ ['😂 Laugh break','Share a clean joke with a friend.'],
+ ['🚶 Fresh air','Take a short walk and notice three new things.']
 ];
+function todayKey(){let d=new Date();return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()}
 function loadDaily(){
- const now=new Date(),key=now.getFullYear()+'-'+now.getMonth()+'-'+now.getDate();
- const day=Math.floor(new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime()/86400000);
- const item=dailyChallenges[((day%dailyChallenges.length)+dailyChallenges.length)%dailyChallenges.length];
- $('dailyTitle').textContent=item[0];$('dailyText').textContent=item[1];$('dailyDate').textContent='Daily challenge · '+now.toLocaleDateString();
- if(dailyDone===key){$('dailyButton').disabled=true;$('dailyButton').textContent='Completed ✓';$('dailyMessage').textContent='You have already collected today’s points. See you tomorrow!';}
+ let day=Math.floor(new Date(new Date().toDateString()).getTime()/86400000);
+ let q=daily[((day%daily.length)+daily.length)%daily.length];
+ $('dailyTitle').textContent=q[0];$('dailyText').textContent=q[1];$('dailyDate').textContent='Daily challenge · '+new Date().toLocaleDateString();
+ if(dailyDone===todayKey()){$('dailyButton').disabled=true;$('dailyButton').textContent='Completed ✓';$('dailyMessage').textContent='You have collected today’s points. Come back tomorrow!'}
 }
 function completeDaily(){
- const now=new Date(),key=now.getFullYear()+'-'+now.getMonth()+'-'+now.getDate();
- if(dailyDone===key)return;
- dailyDone=key;localStorage.setItem('vz_daily',dailyDone);addPoints(10);
- $('dailyButton').disabled=true;$('dailyButton').textContent='Completed ✓';$('dailyMessage').textContent='Amazing! 10 points added. 🌟';
+ if(dailyDone===todayKey())return;
+ dailyDone=todayKey();save('vz_daily',dailyDone);addPoints(10);
+ $('dailyButton').disabled=true;$('dailyButton').textContent='Completed ✓';$('dailyMessage').textContent='Amazing! +10 points added. 🌟';
 }
+async function shareText(message){
+ try{
+  if(navigator.share)await navigator.share({title:'VibeZone',text:message,url:location.href});
+  else if(navigator.clipboard){await navigator.clipboard.writeText(message+' '+location.href);alert('Copied! Share it with your friends.')}
+  else alert(message+' '+location.href);
+ }catch(e){}
+}
+function shareSite(){shareText('Come hang out with me on VibeZone! Your world. Your vibe.')}
 updateProfile();loadDaily();
 </script>
 </body>
