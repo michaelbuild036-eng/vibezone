@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#10091f">
 <title>VibeZone | Your world. Your vibe.</title>
 <style>
-:root {
+:root{
  --bg:#10091f;--panel:#1c1231;--panel2:#291a43;
  --purple:#a15cff;--pink:#ff4fa3;--blue:#42caff;
  --text:#fff;--muted:#bdb1d0;--line:#ffffff20;
@@ -29,7 +29,10 @@ header{
  border-bottom:1px solid var(--line);
 }
 .logo{font-weight:1000;font-size:26px;letter-spacing:-1px}
-.logo span{background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));background-clip:text;color:transparent}
+.logo span{
+ background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));
+ background-clip:text;color:transparent
+}
 nav{display:flex;gap:17px;flex-wrap:wrap}
 nav a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:bold}
 nav a:hover{color:white}
@@ -37,18 +40,24 @@ nav a:hover{color:white}
 .hero{text-align:center;padding:75px 0 50px}
 .eyebrow{color:#d8baff;font-size:12px;font-weight:bold;letter-spacing:3px}
 .hero h1{font-size:clamp(45px,8vw,82px);line-height:1;margin:20px 0}
-.gradient{background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));background-clip:text;color:transparent}
+.gradient{
+ background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));
+ background-clip:text;color:transparent
+}
 .hero p{max-width:620px;margin:0 auto 25px;color:var(--muted);font-size:18px;line-height:1.6}
 .btn{
- background:linear-gradient(110deg,var(--purple),var(--pink));color:white;
- border:0;border-radius:13px;padding:13px 19px;font-weight:bold;
- box-shadow:0 7px 25px #a15cff30;transition:.2s;
+ background:linear-gradient(110deg,var(--purple),var(--pink));
+ color:white;border:0;border-radius:13px;padding:13px 19px;
+ font-weight:bold;box-shadow:0 7px 25px #a15cff30;transition:.2s;
 }
 .btn:hover{transform:translateY(-3px);filter:brightness(1.12)}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .secondary{background:var(--panel2);border:1px solid var(--line);box-shadow:none}
 section{padding:34px 0 43px;scroll-margin-top:85px}
-.heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:20px}
+.heading{
+ display:flex;justify-content:space-between;align-items:end;
+ gap:15px;margin-bottom:20px
+}
 h2{margin:0 0 7px;font-size:27px}
 h3{margin:0 0 9px}
 p{line-height:1.55}
@@ -62,17 +71,25 @@ p{line-height:1.55}
 .game-card{min-height:190px;display:flex;flex-direction:column;align-items:flex-start}
 .game-card p{font-size:14px;color:var(--muted);flex:1}
 .emoji{font-size:37px;margin-bottom:13px}
-.ad{margin:20px 0;padding:22px;text-align:center;border:1px dashed #ffffff35;border-radius:15px;color:#a99bbd;font-size:11px;letter-spacing:2px;background:#ffffff08}
+.ad{
+ margin:20px 0;padding:22px;text-align:center;
+ border:1px dashed #ffffff35;border-radius:15px;
+ color:#a99bbd;font-size:11px;letter-spacing:2px;background:#ffffff08
+}
 .gamebox{max-width:760px;margin:auto}
 .question{font-size:clamp(22px,4vw,31px);margin:20px 0;line-height:1.4}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.choice{background:var(--panel2);color:white;border:1px solid var(--line);border-radius:13px;padding:16px;text-align:left;font-weight:bold}
+.choice{
+ background:var(--panel2);color:white;border:1px solid var(--line);
+ border-radius:13px;padding:16px;text-align:left;font-weight:bold
+}
 .choice:hover{border-color:var(--pink);background:#42275b}
 .choice:disabled{opacity:.55}
 .answer{color:#e2c4ff;min-height:25px;margin:15px 0}
 input,select{
- width:100%;background:#120b21;color:white;border:1px solid #ffffff35;
- border-radius:12px;padding:14px;margin:9px 0 15px;
+ width:100%;background:#120b21;color:white;
+ border:1px solid #ffffff35;border-radius:12px;
+ padding:14px;margin:9px 0 15px
 }
 select{width:auto}
 .small{font-size:12px;color:var(--muted)}
@@ -80,18 +97,39 @@ select{width:auto}
 .stat{font-size:27px;font-weight:900;color:#e0baff}
 .profile{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .avatar{font-size:38px;background:var(--panel2);border-radius:15px;padding:12px}
-.leader-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}
+.leader-row{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:10px;padding:13px 0;border-bottom:1px solid var(--line)
+}
 .leader-row:last-child{border:0}
-.chat{background:#120b21;border-radius:13px;padding:15px;margin:15px 0;max-height:280px;overflow:auto}
-.chat p{padding:10px 13px;border-radius:12px;background:#281b40;margin:8px 0;overflow-wrap:anywhere}
+.chat{
+ background:#120b21;border-radius:13px;padding:15px;
+ margin:15px 0;max-height:280px;overflow:auto
+}
+.chat p{
+ padding:10px 13px;border-radius:12px;
+ background:#281b40;margin:8px 0;overflow-wrap:anywhere
+}
 .chat .me{background:#53307b}
 .pulse{animation:pulse 2.5s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 #a15cff00}50%{box-shadow:0 0 35px #a15cff30}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes pulse{
+ 0%,100%{box-shadow:0 0 0 #a15cff00}
+ 50%{box-shadow:0 0 35px #a15cff30}
+}
+@keyframes float{
+ 0%,100%{transform:translateY(0)}
+ 50%{transform:translateY(-9px)}
+}
 .float{animation:float 4s ease-in-out infinite}
-@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes pop{
+ from{opacity:0;transform:scale(.94)}
+ to{opacity:1;transform:scale(1)}
+}
 .pop{animation:pop .35s ease}
-footer{padding:35px 5%;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:13px;line-height:1.8}
+footer{
+ padding:35px 5%;border-top:1px solid var(--line);
+ text-align:center;color:var(--muted);font-size:13px;line-height:1.8
+}
 @media(max-width:650px){
  header{align-items:flex-start;flex-direction:column}
  nav{gap:12px}nav a{font-size:12px}
@@ -101,17 +139,22 @@ footer{padding:35px 5%;border-top:1px solid var(--line);text-align:center;color:
 }
 </style>
 </head>
+
 <body>
 <header>
  <div class="logo">Vibe<span>Zone</span> ✦</div>
  <nav>
-  <a href="#home">Home</a><a href="#games">Games</a>
-  <a href="#vibeai">VibeAI</a><a href="#challenges">Challenges</a>
-  <a href="#leaderboard">Leaderboard</a><a href="#profile">Profile</a>
+  <a href="#home">Home</a>
+  <a href="#games">Games</a>
+  <a href="#vibeai">VibeAI</a>
+  <a href="#challenges">Challenges</a>
+  <a href="#leaderboard">Leaderboard</a>
+  <a href="#profile">Profile</a>
  </nav>
 </header>
 
 <main class="container">
+
 <section class="hero" id="home">
  <div class="eyebrow">YOUR ONLINE HANGOUT STARTS HERE</div>
  <h1>Your world.<br><span class="gradient">Your vibe.</span></h1>
@@ -122,7 +165,9 @@ footer{padding:35px 5%;border-top:1px solid var(--line);text-align:center;color:
 </section>
 
 <section id="games">
- <div class="heading"><div><h2>🎮 The Game Zone</h2><p>Choose your challenge. Earn points. Beat your best score.</p></div></div>
+ <div class="heading">
+  <div><h2>🎮 The Game Zone</h2><p>Choose your challenge. Earn points. Beat your best score.</p></div>
+ </div>
  <div class="grid">
   <div class="card game-card"><div class="emoji">⚡</div><h3>Would You Rather</h3><p>Two choices. Which side are you on?</p><button class="btn" onclick="start('rather')">Play now</button></div>
   <div class="card game-card"><div class="emoji">🧩</div><h3>Guess the Emoji</h3><p>Crack the emoji clues.</p><button class="btn" onclick="start('emoji')">Play now</button></div>
@@ -138,7 +183,10 @@ footer{padding:35px 5%;border-top:1px solid var(--line);text-align:center;color:
 
 <section id="playarea" class="hidden">
  <div class="gamebox panel pop">
-  <div class="heading"><div><h2 id="gameTitle">Game</h2><p id="gameDesc">Let's play!</p></div><button class="btn secondary" onclick="closeGame()">✕ Close</button></div>
+  <div class="heading">
+   <div><h2 id="gameTitle">Game</h2><p id="gameDesc">Let's play!</p></div>
+   <button class="btn secondary" onclick="closeGame()">✕ Close</button>
+  </div>
   <div id="gameContent"></div>
  </div>
 </section>
@@ -172,10 +220,14 @@ footer{padding:35px 5%;border-top:1px solid var(--line);text-align:center;color:
 </section>
 
 <section id="leaderboard">
- <div class="heading"><div><h2>🏆 Leaderboard</h2><p>Your top scores saved on this device.</p></div><button class="btn secondary" onclick="shareSite()">Share VibeZone ↗</button></div>
+ <div class="heading">
+  <div><h2>🏆 Global Leaderboard</h2><p>Compete with VibeZone players everywhere.</p></div>
+  <button class="btn secondary" onclick="shareSite()">Share VibeZone ↗</button>
+ </div>
  <div class="panel">
-  <div id="leaders"></div>
-  <p class="small">This is a local leaderboard on this browser, not a worldwide ranking.</p>
+  <p class="small" id="onlineStatus">Connecting to VibeZone online...</p>
+  <div id="leaders"><p class="muted">Loading leaderboard...</p></div>
+  <p class="small">Your nickname and points appear here. Do not use your real name or private information.</p>
  </div>
 </section>
 
@@ -186,15 +238,19 @@ footer{padding:35px 5%;border-top:1px solid var(--line);text-align:center;color:
    <div class="avatar" id="avatarView">😎</div>
    <div><h3 id="nameView">Guest Player</h3><div class="stat"><span id="pointsView">0</span> points</div></div>
   </div>
-  <label>Nickname</label><input id="nickname" maxlength="18" placeholder="Your nickname">
+  <label>Nickname</label>
+  <input id="nickname" maxlength="18" placeholder="Your nickname">
   <label>Avatar</label><br>
   <select id="avatar">
-   <option>😎</option><option>🦋</option><option>🐼</option><option>🐸</option><option>🦄</option><option>👾</option><option>🐯</option><option>🌻</option><option>🐱</option><option>🐉</option>
+   <option>😎</option><option>🦋</option><option>🐼</option><option>🐸</option>
+   <option>🦄</option><option>👾</option><option>🐯</option><option>🌻</option>
+   <option>🐱</option><option>🐉</option>
   </select><br>
   <button class="btn" onclick="saveProfile()">Save profile</button>
-  <p class="small">Your profile is stored in this browser only. No public account is created.</p>
+  <p class="small">Your guest profile is saved in this browser. Your nickname and score are shared on the leaderboard.</p>
  </div>
 </section>
+
 <div class="ad">ADVERTISEMENT · AD SPACE</div>
 </main>
 
@@ -202,41 +258,81 @@ footer{padding:35px 5%;border-top:1px solid var(--line);text-align:center;color:
  <div class="logo">Vibe<span>Zone</span> ✦</div>
  Your world. Your vibe.<br>
  Have fun, respect others and keep personal information private.<br>
- VibeAI is a fictional demo. Profiles and scores are stored locally.<br>
+ VibeAI is a fictional demo with preset replies.<br>
  <span class="small">VibeZone is free to use. Ad spaces are placeholders, not live advertisements.</span>
 </footer>
 
 <script>
 const $=id=>document.getElementById(id);
-function read(k,d){try{let x=localStorage.getItem(k);return x===null?d:JSON.parse(x)}catch(e){return d}}
+
+function read(k,d){
+ try{
+  let x=localStorage.getItem(k);
+  return x===null?d:JSON.parse(x);
+ }catch(e){return d}
+}
+
 let points=read('vz_points',0);
 let profile=read('vz_profile',{name:'Guest Player',avatar:'😎'});
 let records=read('vz_records',[]);
 let dailyDone=read('vz_daily','');
-let currentGame='',index=0,score=0,extra=0,currentAI='hype',reactionStart=0,reactionTimer=null,early=false;
+
+let currentGame='',index=0,score=0,extra=0;
+let currentAI='hype',reactionStart=0,reactionTimer=null;
+let early=false;
+
 function go(id){$(id).scrollIntoView({behavior:'smooth'})}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
 function updateProfile(){
- $('nameView').textContent=profile.name;$('avatarView').textContent=profile.avatar;
- $('pointsView').textContent=points;$('nickname').value=profile.name==='Guest Player'?'':profile.name;
- $('avatar').value=profile.avatar;renderLeaders();
+ $('nameView').textContent=profile.name;
+ $('avatarView').textContent=profile.avatar;
+ $('pointsView').textContent=points;
+ $('nickname').value=profile.name==='Guest Player'?'':profile.name;
+ $('avatar').value=profile.avatar;
+ renderLeaders();
 }
-function addPoints(n){points+=n;save('vz_points',points);updateProfile()}
+
+function addPoints(n){
+ points+=n;
+ save('vz_points',points);
+ updateProfile();
+ if(window.vzSyncOnline)window.vzSyncOnline();
+}
+
 function saveProfile(){
- profile={name:$('nickname').value.trim().slice(0,18)||'Guest Player',avatar:$('avatar').value};
- save('vz_profile',profile);updateProfile();alert('Profile saved!');
+ let nickname=$('nickname').value.trim().slice(0,18);
+ profile={
+  name:nickname||'Guest Player',
+  avatar:$('avatar').value
+ };
+ save('vz_profile',profile);
+ updateProfile();
+ if(window.vzSyncOnline)window.vzSyncOnline();
+ alert('Profile saved!');
 }
+
 function renderLeaders(){
  let sorted=[...records].sort((a,b)=>b.points-a.points).slice(0,10);
- $('leaders').innerHTML=sorted.length?sorted.map((r,i)=>`<div class="leader-row"><b>${['🥇','🥈','🥉'][i]||'#'+(i+1)} ${safe(r.name)}</b><span class="stat">${r.points}</span></div>`).join(''):'<p class="muted">Play a game to get your first score on the board!</p>';
+ $('leaders').innerHTML=sorted.length
+  ?sorted.map((r,i)=>`<div class="leader-row"><b>${['🥇','🥈','🥉'][i]||'#'+(i+1)} ${safe(r.name)}</b><span class="stat">${r.points}</span></div>`).join('')
+  :'<p class="muted">Your local scores will appear here when you play.</p>';
 }
-function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+function safe(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ }[c]));
+}
+
 function recordScore(n){
  if(n<=0)return;
  addPoints(n);
  records.push({name:profile.name,points:n,game:currentGame,date:Date.now()});
- save('vz_records',records);renderLeaders();
+ save('vz_records',records);
+ renderLeaders();
 }
+
 const rather=[
  ['Explore the ocean 🌊','Explore outer space 🚀'],
  ['Free snacks forever 🍕','Free music forever 🎧'],
@@ -246,6 +342,7 @@ const rather=[
  ['Be famous 🎤','Be super smart 🧠'],
  ['Live by the beach 🏖️','Live in the mountains 🏔️']
 ];
+
 const emojis=[
  {q:'🌧️ + 🌈',a:['Rainbow','Thunder','Waterfall'],c:0},
  {q:'🎂 + 🎉',a:['Birthday party','Cooking','Wedding'],c:0},
@@ -254,6 +351,7 @@ const emojis=[
  {q:'🐝 + 🍯',a:['Honey','Sweet shop','Flower garden'],c:0},
  {q:'⭐ + 🐟',a:['Starfish','Goldfish','Space fish'],c:0}
 ];
+
 const trivia=[
  {q:'Which planet is known as the Red Planet?',a:['Venus','Mars','Jupiter'],c:1},
  {q:'How many sides does a hexagon have?',a:['Five','Six','Eight'],c:1},
@@ -264,175 +362,347 @@ const trivia=[
  {q:'How many minutes are in one hour?',a:['30','60','100'],c:1},
  {q:'Which gas do plants absorb?',a:['Oxygen','Carbon dioxide','Helium'],c:1}
 ];
+
 const truths=[
- ['Truth','What skill would you love to learn?'],['Dare','Do your best superhero pose for ten seconds.'],
- ['Truth','What is your funniest school memory?'],['Dare','Invent a new dance move and name it.'],
- ['Truth','Where would you love to travel?'],['Dare','Describe your day using only three emojis.'],
- ['Truth','What always makes you laugh?'],['Dare','Say five words that rhyme with cat.'],
- ['Truth','What is one thing you are proud of?'],['Dare','Make up a silly slogan for your favourite food.']
+ ['Truth','What skill would you love to learn?'],
+ ['Dare','Do your best superhero pose for ten seconds.'],
+ ['Truth','What is your funniest school memory?'],
+ ['Dare','Invent a new dance move and name it.'],
+ ['Truth','Where would you love to travel?'],
+ ['Dare','Describe your day using only three emojis.'],
+ ['Truth','What always makes you laugh?'],
+ ['Dare','Say five words that rhyme with cat.'],
+ ['Truth','What is one thing you are proud of?'],
+ ['Dare','Make up a silly slogan for your favourite food.']
 ];
+
 const personality=[
  ['Your ideal weekend?',['Adventure with friends','Creative time','Relax and recharge']],
  ['In a group you are...',['The organiser','The idea person','The calm one']],
  ['Choose a superpower.',['Super speed','Create anything','Understand animals']],
  ['Your friends might call you...',['Energetic','Imaginative','Thoughtful']]
 ];
+
 const words=[
- ['TCA','CAT'],['LEPPA','APPLE'],['NUS','SUN'],['KOBO','BOOK'],
- ['RAST','STAR'],['NIRAB','BRAIN'],['DNUOS','SOUND']
+ ['TCA','CAT'],['LEPPA','APPLE'],['NUS','SUN'],
+ ['KOBO','BOOK'],['RAST','STAR'],['NIRAB','BRAIN'],['DNUOS','SOUND']
 ];
+
 function start(type){
  closeReaction();
  currentGame=type;index=0;score=0;extra=0;
  $('playarea').classList.remove('hidden');
  $('playarea').scrollIntoView({behavior:'smooth'});
- const names={rather:'Would You Rather?',emoji:'Guess the Emoji',trivia:'Trivia Challenge',truth:'Truth or Dare',personality:'Personality Quiz',memory:'Memory Match',reaction:'Reaction Test',rps:'Rock Paper Scissors',word:'Word Scramble'};
- $('gameTitle').textContent=names[type];$('gameDesc').textContent='Play for fun and collect points!';
+ const names={
+  rather:'Would You Rather?',emoji:'Guess the Emoji',
+  trivia:'Trivia Challenge',truth:'Truth or Dare',
+  personality:'Personality Quiz',memory:'Memory Match',
+  reaction:'Reaction Test',rps:'Rock Paper Scissors',
+  word:'Word Scramble'
+ };
+ $('gameTitle').textContent=names[type];
+ $('gameDesc').textContent='Play for fun and collect points!';
  render();
 }
-function closeGame(){closeReaction();$('playarea').classList.add('hidden')}
-function closeReaction(){if(reactionTimer){clearTimeout(reactionTimer);reactionTimer=null}}
+
+function closeGame(){
+ closeReaction();
+ $('playarea').classList.add('hidden');
+}
+
+function closeReaction(){
+ if(reactionTimer){clearTimeout(reactionTimer);reactionTimer=null}
+}
+
 function finish(pointsEarned,message){
  closeReaction();
- $('gameContent').innerHTML=`<div class="question">🎉 ${message||'Game complete!'}</div><p>You earned <b>${pointsEarned}</b> points!</p><button class="btn" onclick="collect(${pointsEarned})">Collect points</button> <button class="btn secondary" onclick="start('${currentGame}')">Play again</button>`;
+ $('gameContent').innerHTML=`
+  <div class="question">🎉 ${message||'Game complete!'}</div>
+  <p>You earned <b>${pointsEarned}</b> points!</p>
+  <button class="btn" onclick="collect(${pointsEarned})">Collect points</button>
+  <button class="btn secondary" onclick="start('${currentGame}')">Play again</button>`;
 }
+
 function collect(n){recordScore(n);closeGame()}
+
 function render(){
- const area=$('gameContent');area.innerHTML='';
+ const area=$('gameContent');
+ area.innerHTML='';
+
  if(currentGame==='rather'){
   if(index>=rather.length)return finish(score*3,'That was fun!');
   let q=rather[index];
-  area.innerHTML=`<p class="small">QUESTION ${index+1} OF ${rather.length}</p><div class="question">Would you rather...</div><div class="choices">${q.map(x=>`<button class="choice" onclick="nextRather()">${x}</button>`).join('')}</div><p class="answer">No wrong answers here!</p>`;
+  area.innerHTML=`
+   <p class="small">QUESTION ${index+1} OF ${rather.length}</p>
+   <div class="question">Would you rather...</div>
+   <div class="choices">${q.map(x=>`<button class="choice" onclick="nextRather()">${x}</button>`).join('')}</div>
+   <p class="answer">No wrong answers here!</p>`;
  }
+
  if(currentGame==='emoji'||currentGame==='trivia'){
   let list=currentGame==='emoji'?emojis:trivia;
   if(index>=list.length)return finish(score*5,'Challenge complete!');
   let q=list[index];
-  area.innerHTML=`<p class="small">QUESTION ${index+1} OF ${list.length}</p><div class="question">${q.q}</div><div class="choices">${q.a.map((x,i)=>`<button class="choice" onclick="answer(${i})">${x}</button>`).join('')}</div><p class="answer" id="feedback"></p>`;
+  area.innerHTML=`
+   <p class="small">QUESTION ${index+1} OF ${list.length}</p>
+   <div class="question">${q.q}</div>
+   <div class="choices">${q.a.map((x,i)=>`<button class="choice" onclick="answer(${i})">${x}</button>`).join('')}</div>
+   <p class="answer" id="feedback"></p>`;
  }
+
  if(currentGame==='truth'){
   let q=truth[Math.floor(Math.random()*truth.length)];
-  area.innerHTML=`<div class="question">🎲 ${q[0]}<br>${q[1]}</div><button class="btn" onclick="score+=2;render()">Next prompt</button><p class="small">Keep it friendly. You can always skip any prompt.</p>`;
+  area.innerHTML=`
+   <div class="question">🎲 ${q[0]}<br>${q[1]}</div>
+   <button class="btn" onclick="score+=2;render()">Next prompt</button>
+   <p class="small">Keep it friendly. You can always skip any prompt.</p>`;
  }
+
  if(currentGame==='personality'){
   if(index>=personality.length)return finishPersonality();
   let q=personality[index];
-  area.innerHTML=`<p class="small">QUESTION ${index+1} OF ${personality.length}</p><div class="question">${q[0]}</div><div class="choices">${q[1].map((x,i)=>`<button class="choice" onclick="personAnswer(${i})">${x}</button>`).join('')}</div>`;
+  area.innerHTML=`
+   <p class="small">QUESTION ${index+1} OF ${personality.length}</p>
+   <div class="question">${q[0]}</div>
+   <div class="choices">${q[1].map((x,i)=>`<button class="choice" onclick="personAnswer(${i})">${x}</button>`).join('')}</div>`;
  }
+
  if(currentGame==='memory')renderMemory();
  if(currentGame==='reaction')renderReaction();
  if(currentGame==='rps')renderRPS();
  if(currentGame==='word')renderWord();
 }
+
 function nextRather(){score++;index++;render()}
+
 function answer(i){
- let list=currentGame==='emoji'?emojis:trivia,q=list[index];
+ let list=currentGame==='emoji'?emojis:trivia;
+ let q=list[index];
  if(i===q.c){score++;$('feedback').textContent='Correct! 🎉'}
  else $('feedback').textContent='Good try! Answer: '+q.a[q.c];
+
  document.querySelectorAll('#gameContent .choice').forEach(b=>b.disabled=true);
- let b=document.createElement('button');b.className='btn';b.textContent='Next question';b.onclick=()=>{index++;render()};$('gameContent').appendChild(b);
+ let b=document.createElement('button');
+ b.className='btn';b.textContent='Next question';
+ b.onclick=()=>{index++;render()};
+ $('gameContent').appendChild(b);
 }
+
 function personAnswer(i){extra+=i;index++;render()}
+
 function finishPersonality(){
- let result=[['🔥 The Firestarter','Energetic, bold and ready for adventure.'],['🎨 The Creative Soul','Imaginative, curious and full of ideas.'],['🌙 The Calm Thinker','Thoughtful, steady and a great listener.']][extra%3];
- $('gameContent').innerHTML=`<div class="question">${result[0]}</div><p class="muted">${result[1]}</p><button class="btn" onclick="recordScore(15);closeGame()">Collect 15 points</button> <button class="btn secondary" onclick="shareText('My VibeZone personality: '+${JSON.stringify(result[0])})">Share result</button>`;
+ let result=[
+  ['🔥 The Firestarter','Energetic, bold and ready for adventure.'],
+  ['🎨 The Creative Soul','Imaginative, curious and full of ideas.'],
+  ['🌙 The Calm Thinker','Thoughtful, steady and a great listener.']
+ ][extra%3];
+
+ $('gameContent').innerHTML=`
+  <div class="question">${result[0]}</div>
+  <p class="muted">${result[1]}</p>
+  <button class="btn" onclick="recordScore(15);closeGame()">Collect 15 points</button>
+  <button class="btn secondary" onclick="shareText('My VibeZone personality: '+${JSON.stringify(result[0])})">Share result</button>`;
 }
-let memoryCards=[],memoryOpen=[],memoryMatches=0,memoryMoves=0,memoryLocked=false;
+
+let memoryCards=[],memoryOpen=[],memoryMatches=0;
+let memoryMoves=0,memoryLocked=false;
+
 function renderMemory(){
  memoryCards=['🐸','🐸','🌈','🌈','🚀','🚀','🍕','🍕','🐼','🐼','⭐','⭐'].sort(()=>Math.random()-.5);
  memoryOpen=[];memoryMatches=0;memoryMoves=0;memoryLocked=false;
  drawMemory();
 }
+
 function drawMemory(){
- $('gameContent').innerHTML=`<p class="muted">Find all matching pairs. Moves: ${memoryMoves}</p><div class="grid" id="memoryGrid" style="grid-template-columns:repeat(4,1fr)"></div>`;
+ $('gameContent').innerHTML=`
+  <p class="muted">Find all matching pairs. Moves: ${memoryMoves}</p>
+  <div class="grid" id="memoryGrid" style="grid-template-columns:repeat(4,1fr)"></div>`;
+
  memoryCards.forEach((c,i)=>{
-  let b=document.createElement('button');b.className='choice';b.style.textAlign='center';b.style.fontSize='26px';b.style.minHeight='65px';
+  let b=document.createElement('button');
+  b.className='choice';b.style.textAlign='center';
+  b.style.fontSize='26px';b.style.minHeight='65px';
   b.textContent=memoryOpen.includes(i)||memoryCards[i]===null?c:'❔';
   b.disabled=memoryCards[i]===null||memoryOpen.includes(i);
-  b.onclick=()=>flipMemory(i);$('memoryGrid').appendChild(b);
+  b.onclick=()=>flipMemory(i);
+  $('memoryGrid').appendChild(b);
  });
 }
+
 function flipMemory(i){
  if(memoryLocked||memoryOpen.length===2)return;
  memoryOpen.push(i);drawMemory();
+
  if(memoryOpen.length===2){
   memoryMoves++;
   let [a,b]=memoryOpen;
+
   if(memoryCards[a]===memoryCards[b]){
-   memoryCards[a]=null;memoryCards[b]=null;memoryMatches++;memoryOpen=[];
-   drawMemory();
-   if(memoryMatches===6){$('gameContent').innerHTML=`<div class="question">🧠 Memory master!</div><p>You completed the board in ${memoryMoves} moves.</p><button class="btn" onclick="finish(${Math.max(10,60-memoryMoves*3)},'Memory complete!')">Collect points</button>`}
+   memoryCards[a]=null;memoryCards[b]=null;
+   memoryMatches++;memoryOpen=[];drawMemory();
+
+   if(memoryMatches===6){
+    $('gameContent').innerHTML=`
+     <div class="question">🧠 Memory master!</div>
+     <p>You completed the board in ${memoryMoves} moves.</p>
+     <button class="btn" onclick="finish(${Math.max(10,60-memoryMoves*3)},'Memory complete!')">Collect points</button>`;
+   }
   }else{
    memoryLocked=true;
-   setTimeout(()=>{memoryOpen=[];memoryLocked=false;drawMemory()},750);
+   setTimeout(()=>{
+    memoryOpen=[];memoryLocked=false;drawMemory();
+   },750);
   }
  }
 }
+
 function renderReaction(){
- $('gameContent').innerHTML=`<div class="question">⚡ Reaction Test</div><p class="muted">Wait until the panel turns green, then tap as quickly as possible.</p><button class="choice" id="reactionButton" style="width:100%;min-height:150px;text-align:center;font-size:22px" onclick="reactionTap()">Press start</button><p class="answer" id="reactionResult"></p>`;
+ $('gameContent').innerHTML=`
+  <div class="question">⚡ Reaction Test</div>
+  <p class="muted">Wait until the panel turns green, then tap as quickly as possible.</p>
+  <button class="choice" id="reactionButton" style="width:100%;min-height:150px;text-align:center;font-size:22px">Press start</button>
+  <p class="answer" id="reactionResult"></p>`;
  $('reactionButton').onclick=beginReaction;
 }
+
 function beginReaction(){
- closeReaction();early=false;
- let b=$('reactionButton');b.style.background='#71344f';b.textContent='Wait for green...';
- b.onclick=()=>{early=true;b.textContent='Too soon! Try again.';$('reactionResult').textContent='Wait for green before tapping.';};
+ closeReaction();early=false;reactionStart=0;
+ let b=$('reactionButton');
+ b.style.background='#71344f';b.textContent='Wait for green...';
+ b.onclick=()=>{
+  early=true;b.textContent='Too soon! Try again.';
+  $('reactionResult').textContent='Wait for green before tapping.';
+ };
  reactionTimer=setTimeout(()=>{
-  reactionStart=performance.now();b.style.background='#176a4d';b.textContent='TAP NOW!';
+  reactionStart=performance.now();
+  b.style.background='#176a4d';b.textContent='TAP NOW!';
   b.onclick=reactionTap;
  },1200+Math.random()*2800);
 }
+
 function reactionTap(){
  if(early)return;
- if(!reactionStart){beginReaction();return}
+ if(!reactionStart)return;
  let ms=Math.round(performance.now()-reactionStart);
  reactionStart=0;closeReaction();
  $('reactionButton').textContent=ms+' ms · Try again';
  $('reactionResult').textContent=ms<300?'Lightning fast! ⚡':'Nice try! Can you beat that?';
  $('reactionButton').onclick=beginReaction;
  let earned=ms<250?20:ms<350?15:ms<500?10:5;
- $('gameContent').insertAdjacentHTML('beforeend',`<p>You earned ${earned} points for this attempt.</p><button class="btn" onclick="recordScore(${earned});closeGame()">Collect points</button>`);
+ $('gameContent').insertAdjacentHTML('beforeend',`
+  <p>You earned ${earned} points for this attempt.</p>
+  <button class="btn" onclick="recordScore(${earned});closeGame()">Collect points</button>`);
 }
+
 function renderRPS(){
- $('gameContent').innerHTML=`<div class="question">✊ Rock Paper Scissors</div><p class="muted">Choose your move.</p><div class="choices">${[['✊','Rock'],['✋','Paper'],['✌️','Scissors']].map(x=>`<button class="choice" onclick="playRPS('${x[1]}')">${x[0]} ${x[1]}</button>`).join('')}</div><p class="answer" id="rpsResult"></p>`;
+ $('gameContent').innerHTML=`
+  <div class="question">✊ Rock Paper Scissors</div>
+  <p class="muted">Choose your move.</p>
+  <div class="choices">
+   <button class="choice" onclick="playRPS('Rock')">✊ Rock</button>
+   <button class="choice" onclick="playRPS('Paper')">✋ Paper</button>
+   <button class="choice" onclick="playRPS('Scissors')">✌️ Scissors</button>
+  </div>
+  <p class="answer" id="rpsResult"></p>`;
 }
+
 function playRPS(choice){
- let list=['Rock','Paper','Scissors'],computer=list[Math.floor(Math.random()*3)];
- let result=choice===computer?'Tie!':(choice==='Rock'&&computer==='Scissors'||choice==='Paper'&&computer==='Rock'||choice==='Scissors'&&computer==='Paper')?'You win! 🎉':'Computer wins this round!';
+ let list=['Rock','Paper','Scissors'];
+ let computer=list[Math.floor(Math.random()*3)];
+ let result=choice===computer?'Tie!':
+  (choice==='Rock'&&computer==='Scissors'||
+   choice==='Paper'&&computer==='Rock'||
+   choice==='Scissors'&&computer==='Paper')
+   ?'You win! 🎉':'Computer wins this round!';
+
  $('rpsResult').textContent=`You: ${choice} · Computer: ${computer} · ${result}`;
  if(result.startsWith('You win'))score+=5;
- let b=document.createElement('button');b.className='btn';b.textContent='Play again';b.onclick=renderRPS;$('gameContent').appendChild(b);
- let c=document.createElement('button');c.className='btn secondary';c.textContent='Finish';c.style.marginLeft='8px';c.onclick=()=>finish(score,'Round complete!');$('gameContent').appendChild(c);
+
+ let b=document.createElement('button');
+ b.className='btn';b.textContent='Play again';b.onclick=renderRPS;
+ $('gameContent').appendChild(b);
+
+ let c=document.createElement('button');
+ c.className='btn secondary';c.textContent='Finish';
+ c.style.marginLeft='8px';c.onclick=()=>finish(score,'Round complete!');
+ $('gameContent').appendChild(c);
 }
+
 function renderWord(){
  let q=words[index%words.length];
- $('gameContent').innerHTML=`<p class="small">WORD ${index+1}</p><div class="question">🔤 ${q[0].split('').join(' ')}</div><input id="wordAnswer" placeholder="Type your answer" maxlength="12"><button class="btn" onclick="checkWord('${q[1]}')">Check answer</button><p class="answer" id="wordFeedback"></p>`;
+ $('gameContent').innerHTML=`
+  <p class="small">WORD ${index+1}</p>
+  <div class="question">🔤 ${q[0].split('').join(' ')}</div>
+  <input id="wordAnswer" placeholder="Type your answer" maxlength="12">
+  <button class="btn" onclick="checkWord('${q[1]}')">Check answer</button>
+  <p class="answer" id="wordFeedback"></p>`;
 }
+
 function checkWord(answer){
  let value=$('wordAnswer').value.trim().toUpperCase();
  if(value===answer){
   score+=5;$('wordFeedback').textContent='Correct! 🎉 +5 points';
  }else $('wordFeedback').textContent='Not quite. Try again!';
- let b=document.createElement('button');b.className='btn secondary';b.textContent='Next word';b.onclick=()=>{index++;renderWord()};$('gameContent').appendChild(b);
- let f=document.createElement('button');f.className='btn';f.textContent='Finish';f.onclick=()=>finish(score,'Word challenge complete!');$('gameContent').appendChild(f);
+
+ let b=document.createElement('button');
+ b.className='btn secondary';b.textContent='Next word';
+ b.onclick=()=>{index++;renderWord()};
+ $('gameContent').appendChild(b);
+
+ let f=document.createElement('button');
+ f.className='btn';f.textContent='Finish';
+ f.onclick=()=>finish(score,'Word challenge complete!');
+ $('gameContent').appendChild(f);
 }
 
 const replies={
- hype:['You have got this! Keep showing up for yourself. 🚀','Big energy! Small steps can lead to big things.','Your vibe is your own. Keep being you! ✨','What is one fun thing you want to try this week?'],
- study:['Try studying for 25 minutes, then take a short break. 📚','Turn your notes into questions and quiz yourself.','Start with the topic that feels most confusing.','Explain a topic in three simple sentences to practise.'],
- story:['Imagine a city where the stars come down to visit. What happens next? 🌌','Your main character discovers a mysterious glowing key...','What if your story began with a message from the future?','Add a surprise twist to your story!']
+ hype:[
+  'You have got this! Keep showing up for yourself. 🚀',
+  'Big energy! Small steps can lead to big things.',
+  'Your vibe is your own. Keep being you! ✨',
+  'What is one fun thing you want to try this week?'
+ ],
+ study:[
+  'Try studying for 25 minutes, then take a short break. 📚',
+  'Turn your notes into questions and quiz yourself.',
+  'Start with the topic that feels most confusing.',
+  'Explain a topic in three simple sentences to practise.'
+ ],
+ story:[
+  'Imagine a city where the stars come down to visit. What happens next? 🌌',
+  'Your main character discovers a mysterious glowing key...',
+  'What if your story began with a message from the future?',
+  'Add a surprise twist to your story!'
+ ]
 };
+
 function chooseAI(type){
- currentAI=type;$('aiPanel').classList.remove('hidden');
- $('aiName').textContent={hype:'🚀 Hype Friend',study:'📚 Study Buddy',story:'🎨 Story Maker'}[type];
- $('chat').innerHTML='<p>'+$('aiName').textContent+': Hey! 👋 What shall we talk about?</p>';
+ currentAI=type;
+ $('aiPanel').classList.remove('hidden');
+ $('aiName').textContent={
+  hype:'🚀 Hype Friend',
+  study:'📚 Study Buddy',
+  story:'🎨 Story Maker'
+ }[type];
+ $('chat').innerHTML='<p>'+safe($('aiName').textContent)+': Hey! 👋 What shall we talk about?</p>';
  $('aiPanel').scrollIntoView({behavior:'smooth'});
 }
+
 function sendAI(){
- let input=$('aiInput'),msg=input.value.trim();if(!msg)return;
- let p=document.createElement('p');p.className='me';p.textContent='You: '+msg;$('chat').appendChild(p);
- let r=document.createElement('p');r.textContent=$('aiName').textContent+': '+replies[currentAI][Math.floor(Math.random()*replies[currentAI].length)];$('chat').appendChild(r);
- input.value='';$('chat').scrollTop=$('chat').scrollHeight;
+ let input=$('aiInput'),msg=input.value.trim();
+ if(!msg)return;
+ let p=document.createElement('p');
+ p.className='me';p.textContent='You: '+msg;
+ $('chat').appendChild(p);
+
+ let r=document.createElement('p');
+ r.textContent=$('aiName').textContent+': '+
+  replies[currentAI][Math.floor(Math.random()*replies[currentAI].length)];
+ $('chat').appendChild(r);
+ input.value='';
+ $('chat').scrollTop=$('chat').scrollHeight;
 }
+
 const daily=[
  ['🎨 Creative mode','Draw a character using only five shapes.'],
  ['💬 Good vibes','Give someone a genuine compliment today.'],
@@ -443,27 +713,182 @@ const daily=[
  ['😂 Laugh break','Share a clean joke with a friend.'],
  ['🚶 Fresh air','Take a short walk and notice three new things.']
 ];
-function todayKey(){let d=new Date();return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()}
+
+function todayKey(){
+ let d=new Date();
+ return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+}
+
 function loadDaily(){
  let day=Math.floor(new Date(new Date().toDateString()).getTime()/86400000);
  let q=daily[((day%daily.length)+daily.length)%daily.length];
- $('dailyTitle').textContent=q[0];$('dailyText').textContent=q[1];$('dailyDate').textContent='Daily challenge · '+new Date().toLocaleDateString();
- if(dailyDone===todayKey()){$('dailyButton').disabled=true;$('dailyButton').textContent='Completed ✓';$('dailyMessage').textContent='You have collected today’s points. Come back tomorrow!'}
+ $('dailyTitle').textContent=q[0];
+ $('dailyText').textContent=q[1];
+ $('dailyDate').textContent='Daily challenge · '+new Date().toLocaleDateString();
+
+ if(dailyDone===todayKey()){
+  $('dailyButton').disabled=true;
+  $('dailyButton').textContent='Completed ✓';
+  $('dailyMessage').textContent='You have collected today’s points. Come back tomorrow!';
+ }
 }
+
 function completeDaily(){
  if(dailyDone===todayKey())return;
- dailyDone=todayKey();save('vz_daily',dailyDone);addPoints(10);
- $('dailyButton').disabled=true;$('dailyButton').textContent='Completed ✓';$('dailyMessage').textContent='Amazing! +10 points added. 🌟';
+ dailyDone=todayKey();
+ save('vz_daily',dailyDone);
+ addPoints(10);
+ $('dailyButton').disabled=true;
+ $('dailyButton').textContent='Completed ✓';
+ $('dailyMessage').textContent='Amazing! +10 points added. 🌟';
 }
+
 async function shareText(message){
  try{
-  if(navigator.share)await navigator.share({title:'VibeZone',text:message,url:location.href});
-  else if(navigator.clipboard){await navigator.clipboard.writeText(message+' '+location.href);alert('Copied! Share it with your friends.')}
-  else alert(message+' '+location.href);
+  if(navigator.share){
+   await navigator.share({title:'VibeZone',text:message,url:location.href});
+  }else if(navigator.clipboard){
+   await navigator.clipboard.writeText(message+' '+location.href);
+   alert('Copied! Share it with your friends.');
+  }else{
+   alert(message+' '+location.href);
+  }
  }catch(e){}
 }
-function shareSite(){shareText('Come hang out with me on VibeZone! Your world. Your vibe.')}
-updateProfile();loadDaily();
+
+function shareSite(){
+ shareText('Come hang out with me on VibeZone! Your world. Your vibe.');
+}
+
+/* Firebase reads this safe public profile to update the leaderboard. */
+window.vzGetPublicProfile=function(){
+ return {
+  nickname:profile.name||'Guest Player',
+  points:points
+ };
+};
+
+updateProfile();
+loadDaily();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+ getAuth,
+ signInAnonymously
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+import {
+ getFirestore,
+ collection,
+ doc,
+ setDoc,
+ query,
+ orderBy,
+ limit,
+ onSnapshot,
+ serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyCPPyathJ76lGoKLsDWZtIN2BUyvgL5css",
+ authDomain:"vibezone-2f23f.firebaseapp.com",
+ projectId:"vibezone-2f23f",
+ storageBucket:"vibezone-2f23f.firebasestorage.app",
+ messagingSenderId:"936911757780",
+ appId:"1:936911757780:web:d50bdc9a22ba12a20a7641"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+let currentUID=null;
+let syncBusy=false;
+
+function escapeHTML(value){
+ return String(value).replace(/[&<>"']/g,c=>({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ }[c]));
+}
+
+window.vzSyncOnline=async function(){
+ if(!currentUID||syncBusy)return;
+ syncBusy=true;
+
+ try{
+  const publicProfile=window.vzGetPublicProfile();
+
+  await setDoc(
+   doc(db,"leaderboard",currentUID),
+   {
+    nickname:publicProfile.nickname,
+    points:publicProfile.points,
+    updatedAt:serverTimestamp()
+   },
+   {merge:true}
+  );
+ }catch(error){
+  console.error("VibeZone score sync error:",error);
+  document.getElementById("onlineStatus").textContent=
+   "Your score could not sync. Check your connection.";
+ }finally{
+  syncBusy=false;
+ }
+};
+
+async function startVibeZoneOnline(){
+ const status=document.getElementById("onlineStatus");
+ const leaders=document.getElementById("leaders");
+
+ try{
+  const result=await signInAnonymously(auth);
+  currentUID=result.user.uid;
+
+  await window.vzSyncOnline();
+
+  const leaderboardQuery=query(
+   collection(db,"leaderboard"),
+   orderBy("points","desc"),
+   limit(10)
+  );
+
+  onSnapshot(leaderboardQuery,snapshot=>{
+   const entries=snapshot.docs.map(item=>({
+    id:item.id,
+    ...item.data()
+   }));
+
+   if(!entries.length){
+    leaders.innerHTML=
+     '<p class="muted">Be the first player on the leaderboard!</p>';
+   }else{
+    leaders.innerHTML=entries.map((player,index)=>`
+     <div class="leader-row">
+      <b>${['🥇','🥈','🥉'][index]||'#'+(index+1)}
+      ${escapeHTML(player.nickname||'Guest Player')}</b>
+      <span class="stat">${Number(player.points)||0}</span>
+     </div>
+    `).join('');
+   }
+
+   status.textContent="🟢 Connected · Global leaderboard is live";
+  },error=>{
+   console.error("Leaderboard loading error:",error);
+   status.textContent="Leaderboard could not load. Please refresh.";
+  });
+
+ }catch(error){
+  console.error("VibeZone Firebase connection error:",error);
+  status.textContent="🔴 Online connection unavailable. Check Firebase settings.";
+  leaders.innerHTML=
+   '<p class="muted">The online leaderboard is temporarily unavailable. Your local games still work.</p>';
+ }
+}
+
+startVibeZoneOnline();
 </script>
 </body>
 </html>
