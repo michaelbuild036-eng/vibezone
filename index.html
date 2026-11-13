@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -927,6 +926,25 @@ let currentUID=null;
 let inboxUnsubscribe=null;
 let leaderboardUnsubscribe=null;
 
+// Used by the Firebase module to read the current browser profile and score.
+window.vzGetPublicProfile=function(){
+ let savedProfile={};
+ try{savedProfile=JSON.parse(localStorage.getItem('vz_profile')||'{}')}catch(e){}
+ let savedPoints=0;
+ try{savedPoints=Number(JSON.parse(localStorage.getItem('vz_points')||'0'))||0}catch(e){}
+ return {
+  nickname:String(savedProfile.name||'Guest Player').trim().slice(0,18)||'Guest Player',
+  points:Math.max(0,Math.floor(savedPoints))
+ };
+};
+
+// Escape Firebase text before placing it inside HTML.
+function escapeHTML(value){
+ return String(value??'').replace(/[&<>\"']/g,char=>({
+  '&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'
+ }[char]));
+}
+
 function setStatus(id,message){
  const element=document.getElementById(id);
  if(element)element.textContent=message;
@@ -943,6 +961,7 @@ function errorText(error){
  const code=error?.code||'unknown';
 
  const messages={
+  'auth/api-key-not-valid':'Firebase rejected this API key. Copy the Web API key again from Firebase Project settings → General → Your apps, then replace apiKey in this file.',
   'auth/operation-not-allowed':'Anonymous sign-in is disabled in Firebase Authentication.',
   'auth/unauthorized-domain':'Add michaelbuild036-eng.github.io to Firebase Authorized domains.',
   'auth/network-request-failed':'Your internet connection failed. Please try again.',
