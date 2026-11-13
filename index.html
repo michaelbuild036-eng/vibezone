@@ -451,7 +451,7 @@ function render(){
  }
 
  if(currentGame==='truth'){
-  let q=truth[Math.floor(Math.random()*truth.length)];
+  let q=truths[Math.floor(Math.random()*truths.length)];
   area.innerHTML=`
    <div class="question">🎲 ${q[0]}<br>${q[1]}</div>
    <button class="btn" onclick="score+=2;render()">Next prompt</button>
