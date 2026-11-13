@@ -345,594 +345,572 @@ footer{
  <span class="small">VibeZone is free to use. Ad spaces are placeholders, not live advertisements.</span>
 </footer>
 
-<script>
-const $=id=>document.getElementById(id);
 
-function read(k,d){
- try{
-  let x=localStorage.getItem(k);
-  return x===null?d:JSON.parse(x);
- }catch(e){return d}
-}
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 
-let points=read('vz_points',0);
-let profile=read('vz_profile',{name:'Guest Player',avatar:'😎'});
-let records=read('vz_records',[]);
-let dailyDone=read('vz_daily','');
+import {
+  getAuth,
+  signInAnonymously,
+  setPersistence,
+  browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
-let currentGame='',index=0,score=0,extra=0;
-let currentAI='hype',reactionStart=0,reactionTimer=null;
-let early=false;
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  serverTimestamp,
+  addDoc,
+  getDocs,
+  getDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
-function go(id){$(id).scrollIntoView({behavior:'smooth'})}
-function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-
-function updateProfile(){
- $('nameView').textContent=profile.name;
- $('avatarView').textContent=profile.avatar;
- $('pointsView').textContent=points;
- $('nickname').value=profile.name==='Guest Player'?'':profile.name;
- $('avatar').value=profile.avatar;
- renderLeaders();
-}
-
-function addPoints(n){
- points+=n;
- save('vz_points',points);
- updateProfile();
- if(window.vzSyncOnline)window.vzSyncOnline();
-}
-
-function saveProfile(){
- let nickname=$('nickname').value.trim().slice(0,18);
- profile={
-  name:nickname||'Guest Player',
-  avatar:$('avatar').value
- };
- save('vz_profile',profile);
- updateProfile();
- if(window.vzSyncOnline)window.vzSyncOnline();
- alert('Profile saved!');
-}
-
-function renderLeaders(){
- let sorted=[...records].sort((a,b)=>b.points-a.points).slice(0,10);
- $('leaders').innerHTML=sorted.length
-  ?sorted.map((r,i)=>`<div class="leader-row"><b>${['🥇','🥈','🥉'][i]||'#'+(i+1)} ${safe(r.name)}</b><span class="stat">${r.points}</span></div>`).join('')
-  :'<p class="muted">Your local scores will appear here when you play.</p>';
-}
-
-function safe(s){
- return String(s).replace(/[&<>"']/g,c=>({
-  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
- }[c]));
-}
-
-function recordScore(n){
- if(n<=0)return;
- addPoints(n);
- records.push({name:profile.name,points:n,game:currentGame,date:Date.now()});
- save('vz_records',records);
- renderLeaders();
-}
-
-const rather=[
- ['Explore the ocean 🌊','Explore outer space 🚀'],
- ['Free snacks forever 🍕','Free music forever 🎧'],
- ['Travel to the past ⏳','Travel to the future 🔮'],
- ['Fly like a bird 🦅','Swim underwater 🐬'],
- ['Have a dragon 🐉','Have a robot 🤖'],
- ['Be famous 🎤','Be super smart 🧠'],
- ['Live by the beach 🏖️','Live in the mountains 🏔️']
-];
-
-const emojis=[
- {q:'🌧️ + 🌈',a:['Rainbow','Thunder','Waterfall'],c:0},
- {q:'🎂 + 🎉',a:['Birthday party','Cooking','Wedding'],c:0},
- {q:'🕷️ + 👨',a:['Batman','Spider-Man','Ant-Man'],c:1},
- {q:'🌙 + 🚶',a:['Night walk','Morning run','Dream home'],c:0},
- {q:'🐝 + 🍯',a:['Honey','Sweet shop','Flower garden'],c:0},
- {q:'⭐ + 🐟',a:['Starfish','Goldfish','Space fish'],c:0}
-];
-
-const trivia=[
- {q:'Which planet is known as the Red Planet?',a:['Venus','Mars','Jupiter'],c:1},
- {q:'How many sides does a hexagon have?',a:['Five','Six','Eight'],c:1},
- {q:'What is the largest ocean?',a:['Atlantic','Indian','Pacific'],c:2},
- {q:'Which animal is tallest?',a:['Elephant','Giraffe','Camel'],c:1},
- {q:'What is the chemical formula for water?',a:['CO2','H2O','O2'],c:1},
- {q:'Which continent is South Africa in?',a:['Asia','Africa','Europe'],c:1},
- {q:'How many minutes are in one hour?',a:['30','60','100'],c:1},
- {q:'Which gas do plants absorb?',a:['Oxygen','Carbon dioxide','Helium'],c:1}
-];
-
-const truths=[
- ['Truth','What skill would you love to learn?'],
- ['Dare','Do your best superhero pose for ten seconds.'],
- ['Truth','What is your funniest school memory?'],
- ['Dare','Invent a new dance move and name it.'],
- ['Truth','Where would you love to travel?'],
- ['Dare','Describe your day using only three emojis.'],
- ['Truth','What always makes you laugh?'],
- ['Dare','Say five words that rhyme with cat.'],
- ['Truth','What is one thing you are proud of?'],
- ['Dare','Make up a silly slogan for your favourite food.']
-];
-
-const personality=[
- ['Your ideal weekend?',['Adventure with friends','Creative time','Relax and recharge']],
- ['In a group you are...',['The organiser','The idea person','The calm one']],
- ['Choose a superpower.',['Super speed','Create anything','Understand animals']],
- ['Your friends might call you...',['Energetic','Imaginative','Thoughtful']]
-];
-
-const words=[
- ['TCA','CAT'],['LEPPA','APPLE'],['NUS','SUN'],
- ['KOBO','BOOK'],['RAST','STAR'],['NIRAB','BRAIN'],['DNUOS','SOUND']
-];
-
-function start(type){
- closeReaction();
- currentGame=type;index=0;score=0;extra=0;
- $('playarea').classList.remove('hidden');
- $('playarea').scrollIntoView({behavior:'smooth'});
- const names={
-  rather:'Would You Rather?',emoji:'Guess the Emoji',
-  trivia:'Trivia Challenge',truth:'Truth or Dare',
-  personality:'Personality Quiz',memory:'Memory Match',
-  reaction:'Reaction Test',rps:'Rock Paper Scissors',
-  word:'Word Scramble'
- };
- $('gameTitle').textContent=names[type];
- $('gameDesc').textContent='Play for fun and collect points!';
- render();
-}
-
-function closeGame(){
- closeReaction();
- $('playarea').classList.add('hidden');
-}
-
-function closeReaction(){
- if(reactionTimer){clearTimeout(reactionTimer);reactionTimer=null}
-}
-
-function finish(pointsEarned,message){
- closeReaction();
- $('gameContent').innerHTML=`
-  <div class="question">🎉 ${message||'Game complete!'}</div>
-  <p>You earned <b>${pointsEarned}</b> points!</p>
-  <button class="btn" onclick="collect(${pointsEarned})">Collect points</button>
-  <button class="btn secondary" onclick="start('${currentGame}')">Play again</button>`;
-}
-
-function collect(n){recordScore(n);closeGame()}
-
-function render(){
- const area=$('gameContent');
- area.innerHTML='';
-
- if(currentGame==='rather'){
-  if(index>=rather.length)return finish(score*3,'That was fun!');
-  let q=rather[index];
-  area.innerHTML=`
-   <p class="small">QUESTION ${index+1} OF ${rather.length}</p>
-   <div class="question">Would you rather...</div>
-   <div class="choices">${q.map(x=>`<button class="choice" onclick="nextRather()">${x}</button>`).join('')}</div>
-   <p class="answer">No wrong answers here!</p>`;
- }
-
- if(currentGame==='emoji'||currentGame==='trivia'){
-  let list=currentGame==='emoji'?emojis:trivia;
-  if(index>=list.length)return finish(score*5,'Challenge complete!');
-  let q=list[index];
-  area.innerHTML=`
-   <p class="small">QUESTION ${index+1} OF ${list.length}</p>
-   <div class="question">${q.q}</div>
-   <div class="choices">${q.a.map((x,i)=>`<button class="choice" onclick="answer(${i})">${x}</button>`).join('')}</div>
-   <p class="answer" id="feedback"></p>`;
- }
-
- if(currentGame==='truth'){
-  let q=truths[Math.floor(Math.random()*truths.length)];
-  area.innerHTML=`
-   <div class="question">🎲 ${q[0]}<br>${q[1]}</div>
-   <button class="btn" onclick="score+=2;render()">Next prompt</button>
-   <p class="small">Keep it friendly. You can always skip any prompt.</p>`;
- }
-
- if(currentGame==='personality'){
-  if(index>=personality.length)return finishPersonality();
-  let q=personality[index];
-  area.innerHTML=`
-   <p class="small">QUESTION ${index+1} OF ${personality.length}</p>
-   <div class="question">${q[0]}</div>
-   <div class="choices">${q[1].map((x,i)=>`<button class="choice" onclick="personAnswer(${i})">${x}</button>`).join('')}</div>`;
- }
-
- if(currentGame==='memory')renderMemory();
- if(currentGame==='reaction')renderReaction();
- if(currentGame==='rps')renderRPS();
- if(currentGame==='word')renderWord();
-}
-
-function nextRather(){score++;index++;render()}
-
-function answer(i){
- let list=currentGame==='emoji'?emojis:trivia;
- let q=list[index];
- if(i===q.c){score++;$('feedback').textContent='Correct! 🎉'}
- else $('feedback').textContent='Good try! Answer: '+q.a[q.c];
-
- document.querySelectorAll('#gameContent .choice').forEach(b=>b.disabled=true);
- let b=document.createElement('button');
- b.className='btn';b.textContent='Next question';
- b.onclick=()=>{index++;render()};
- $('gameContent').appendChild(b);
-}
-
-function personAnswer(i){extra+=i;index++;render()}
-
-function finishPersonality(){
- let result=[
-  ['🔥 The Firestarter','Energetic, bold and ready for adventure.'],
-  ['🎨 The Creative Soul','Imaginative, curious and full of ideas.'],
-  ['🌙 The Calm Thinker','Thoughtful, steady and a great listener.']
- ][extra%3];
-
- $('gameContent').innerHTML=`
-  <div class="question">${result[0]}</div>
-  <p class="muted">${result[1]}</p>
-  <button class="btn" onclick="recordScore(15);closeGame()">Collect 15 points</button>
-  <button class="btn secondary" onclick="shareText('My VibeZone personality: '+${JSON.stringify(result[0])})">Share result</button>`;
-}
-
-let memoryCards=[],memoryOpen=[],memoryMatches=0;
-let memoryMoves=0,memoryLocked=false;
-
-function renderMemory(){
- memoryCards=['🐸','🐸','🌈','🌈','🚀','🚀','🍕','🍕','🐼','🐼','⭐','⭐'].sort(()=>Math.random()-.5);
- memoryOpen=[];memoryMatches=0;memoryMoves=0;memoryLocked=false;
- drawMemory();
-}
-
-function drawMemory(){
- $('gameContent').innerHTML=`
-  <p class="muted">Find all matching pairs. Moves: ${memoryMoves}</p>
-  <div class="grid" id="memoryGrid" style="grid-template-columns:repeat(4,1fr)"></div>`;
-
- memoryCards.forEach((c,i)=>{
-  let b=document.createElement('button');
-  b.className='choice';b.style.textAlign='center';
-  b.style.fontSize='26px';b.style.minHeight='65px';
-  b.textContent=memoryOpen.includes(i)||memoryCards[i]===null?c:'❔';
-  b.disabled=memoryCards[i]===null||memoryOpen.includes(i);
-  b.onclick=()=>flipMemory(i);
-  $('memoryGrid').appendChild(b);
- });
-}
-
-function flipMemory(i){
- if(memoryLocked||memoryOpen.length===2)return;
- memoryOpen.push(i);drawMemory();
-
- if(memoryOpen.length===2){
-  memoryMoves++;
-  let [a,b]=memoryOpen;
-
-  if(memoryCards[a]===memoryCards[b]){
-   memoryCards[a]=null;memoryCards[b]=null;
-   memoryMatches++;memoryOpen=[];drawMemory();
-
-   if(memoryMatches===6){
-    $('gameContent').innerHTML=`
-     <div class="question">🧠 Memory master!</div>
-     <p>You completed the board in ${memoryMoves} moves.</p>
-     <button class="btn" onclick="finish(${Math.max(10,60-memoryMoves*3)},'Memory complete!')">Collect points</button>`;
-   }
-  }else{
-   memoryLocked=true;
-   setTimeout(()=>{
-    memoryOpen=[];memoryLocked=false;drawMemory();
-   },750);
-  }
- }
-}
-
-function renderReaction(){
- $('gameContent').innerHTML=`
-  <div class="question">⚡ Reaction Test</div>
-  <p class="muted">Wait until the panel turns green, then tap as quickly as possible.</p>
-  <button class="choice" id="reactionButton" style="width:100%;min-height:150px;text-align:center;font-size:22px">Press start</button>
-  <p class="answer" id="reactionResult"></p>`;
- $('reactionButton').onclick=beginReaction;
-}
-
-function beginReaction(){
- closeReaction();early=false;reactionStart=0;
- let b=$('reactionButton');
- b.style.background='#71344f';b.textContent='Wait for green...';
- b.onclick=()=>{
-  early=true;b.textContent='Too soon! Try again.';
-  $('reactionResult').textContent='Wait for green before tapping.';
- };
- reactionTimer=setTimeout(()=>{
-  reactionStart=performance.now();
-  b.style.background='#176a4d';b.textContent='TAP NOW!';
-  b.onclick=reactionTap;
- },1200+Math.random()*2800);
-}
-
-function reactionTap(){
- if(early)return;
- if(!reactionStart)return;
- let ms=Math.round(performance.now()-reactionStart);
- reactionStart=0;closeReaction();
- $('reactionButton').textContent=ms+' ms · Try again';
- $('reactionResult').textContent=ms<300?'Lightning fast! ⚡':'Nice try! Can you beat that?';
- $('reactionButton').onclick=beginReaction;
- let earned=ms<250?20:ms<350?15:ms<500?10:5;
- $('gameContent').insertAdjacentHTML('beforeend',`
-  <p>You earned ${earned} points for this attempt.</p>
-  <button class="btn" onclick="recordScore(${earned});closeGame()">Collect points</button>`);
-}
-
-function renderRPS(){
- $('gameContent').innerHTML=`
-  <div class="question">✊ Rock Paper Scissors</div>
-  <p class="muted">Choose your move.</p>
-  <div class="choices">
-   <button class="choice" onclick="playRPS('Rock')">✊ Rock</button>
-   <button class="choice" onclick="playRPS('Paper')">✋ Paper</button>
-   <button class="choice" onclick="playRPS('Scissors')">✌️ Scissors</button>
-  </div>
-  <p class="answer" id="rpsResult"></p>`;
-}
-
-function playRPS(choice){
- let list=['Rock','Paper','Scissors'];
- let computer=list[Math.floor(Math.random()*3)];
- let result=choice===computer?'Tie!':
-  (choice==='Rock'&&computer==='Scissors'||
-   choice==='Paper'&&computer==='Rock'||
-   choice==='Scissors'&&computer==='Paper')
-   ?'You win! 🎉':'Computer wins this round!';
-
- $('rpsResult').textContent=`You: ${choice} · Computer: ${computer} · ${result}`;
- if(result.startsWith('You win'))score+=5;
-
- let b=document.createElement('button');
- b.className='btn';b.textContent='Play again';b.onclick=renderRPS;
- $('gameContent').appendChild(b);
-
- let c=document.createElement('button');
- c.className='btn secondary';c.textContent='Finish';
- c.style.marginLeft='8px';c.onclick=()=>finish(score,'Round complete!');
- $('gameContent').appendChild(c);
-}
-
-function renderWord(){
- let q=words[index%words.length];
- $('gameContent').innerHTML=`
-  <p class="small">WORD ${index+1}</p>
-  <div class="question">🔤 ${q[0].split('').join(' ')}</div>
-  <input id="wordAnswer" placeholder="Type your answer" maxlength="12">
-  <button class="btn" onclick="checkWord('${q[1]}')">Check answer</button>
-  <p class="answer" id="wordFeedback"></p>`;
-}
-
-function checkWord(answer){
- let value=$('wordAnswer').value.trim().toUpperCase();
- if(value===answer){
-  score+=5;$('wordFeedback').textContent='Correct! 🎉 +5 points';
- }else $('wordFeedback').textContent='Not quite. Try again!';
-
- let b=document.createElement('button');
- b.className='btn secondary';b.textContent='Next word';
- b.onclick=()=>{index++;renderWord()};
- $('gameContent').appendChild(b);
-
- let f=document.createElement('button');
- f.className='btn';f.textContent='Finish';
- f.onclick=()=>finish(score,'Word challenge complete!');
- $('gameContent').appendChild(f);
-}
-
-const replies={
- hype:[
-  'You have got this! Keep showing up for yourself. 🚀',
-  'Big energy! Small steps can lead to big things.',
-  'Your vibe is your own. Keep being you! ✨',
-  'What is one fun thing you want to try this week?'
- ],
- study:[
-  'Try studying for 25 minutes, then take a short break. 📚',
-  'Turn your notes into questions and quiz yourself.',
-  'Start with the topic that feels most confusing.',
-  'Explain a topic in three simple sentences to practise.'
- ],
- story:[
-  'Imagine a city where the stars come down to visit. What happens next? 🌌',
-  'Your main character discovers a mysterious glowing key...',
-  'What if your story began with a message from the future?',
-  'Add a surprise twist to your story!'
- ]
+const firebaseConfig = {
+  apiKey: "AIzaSyCPPyathJ76gLoKLsDWZtIN2BUyvgL5css",
+  authDomain: "vibezone-2f23f.firebaseapp.com",
+  projectId: "vibezone-2f23f",
+  storageBucket: "vibezone-2f23f.firebasestorage.app",
+  messagingSenderId: "936911757780",
+  appId: "1:936911757780:web:d50bdc9a22ba12a20a7641"
 };
 
-function chooseAI(type){
- currentAI=type;
- $('aiPanel').classList.remove('hidden');
- $('aiName').textContent={
-  hype:'🚀 Hype Friend',
-  study:'📚 Study Buddy',
-  story:'🎨 Story Maker'
- }[type];
- $('chat').innerHTML='<p>'+safe($('aiName').textContent)+': Hey! 👋 What shall we talk about?</p>';
- $('aiPanel').scrollIntoView({behavior:'smooth'});
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUID = null;
+let syncBusy = false;
+let inboxUnsubscribe = null;
+let feedUnsubscribe = null;
+let leaderboardUnsubscribe = null;
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[c]));
 }
 
-function sendAI(){
- let input=$('aiInput'),msg=input.value.trim();
- if(!msg)return;
- let p=document.createElement('p');
- p.className='me';p.textContent='You: '+msg;
- $('chat').appendChild(p);
-
- let r=document.createElement('p');
- r.textContent=$('aiName').textContent+': '+
-  replies[currentAI][Math.floor(Math.random()*replies[currentAI].length)];
- $('chat').appendChild(r);
- input.value='';
- $('chat').scrollTop=$('chat').scrollHeight;
+function setStatus(id, message) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = message;
 }
 
-const daily=[
- ['🎨 Creative mode','Draw a character using only five shapes.'],
- ['💬 Good vibes','Give someone a genuine compliment today.'],
- ['🧠 Brain power','Learn one new fact and explain it to someone.'],
- ['🎵 Music moment','Discover a new song or artist.'],
- ['🌟 Kindness mission','Do one small helpful thing for someone.'],
- ['📖 Curiosity quest','Read about something new.'],
- ['😂 Laugh break','Share a clean joke with a friend.'],
- ['🚶 Fresh air','Take a short walk and notice three new things.']
-];
+function firebaseErrorMessage(error) {
+  const code = error?.code || 'unknown';
+  const messages = {
+    'auth/operation-not-allowed':
+      'Anonymous sign-in is disabled. Enable Anonymous in Firebase Authentication.',
+    'auth/unauthorized-domain':
+      'This website domain is not authorised. Add michaelbuild036-eng.github.io in Firebase Authorized domains.',
+    'auth/network-request-failed':
+      'Network connection failed. Check your internet connection and try again.',
+    'auth/too-many-requests':
+      'Firebase temporarily blocked repeated attempts. Please wait and try again.',
+    'permission-denied':
+      'Firestore denied this action. Your Firestore security rules need to be updated.',
+    'unavailable':
+      'Firebase is temporarily unavailable. Please try again.'
+  };
 
-function todayKey(){
- let d=new Date();
- return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+  return messages[code] || `${messages[error?.code] || 'Firebase error'} (${code}): ${error?.message || 'Unknown error'}`;
 }
 
-function loadDaily(){
- let day=Math.floor(new Date(new Date().toDateString()).getTime()/86400000);
- let q=daily[((day%daily.length)+daily.length)%daily.length];
- $('dailyTitle').textContent=q[0];
- $('dailyText').textContent=q[1];
- $('dailyDate').textContent='Daily challenge · '+new Date().toLocaleDateString();
+function getInboxRecipient() {
+  const raw = document.getElementById('recipientInbox').value.trim();
 
- if(dailyDone===todayKey()){
-  $('dailyButton').disabled=true;
-  $('dailyButton').textContent='Completed ✓';
-  $('dailyMessage').textContent='You have collected today’s points. Come back tomorrow!';
- }
-}
+  if (!raw) return '';
 
-function completeDaily(){
- if(dailyDone===todayKey())return;
- dailyDone=todayKey();
- save('vz_daily',dailyDone);
- addPoints(10);
- $('dailyButton').disabled=true;
- $('dailyButton').textContent='Completed ✓';
- $('dailyMessage').textContent='Amazing! +10 points added. 🌟';
-}
-
-async function shareText(message){
- try{
-  if(navigator.share){
-   await navigator.share({title:'VibeZone',text:message,url:location.href});
-  }else if(navigator.clipboard){
-   await navigator.clipboard.writeText(message+' '+location.href);
-   alert('Copied! Share it with your friends.');
-  }else{
-   alert(message+' '+location.href);
+  try {
+    if (raw.startsWith('http://') || raw.startsWith('https://')) {
+      const parsed = new URL(raw);
+      return parsed.searchParams.get('inbox') || '';
+    }
+  } catch (error) {
+    console.error('Invalid inbox URL:', error);
   }
- }catch(e){}
+
+  return raw;
 }
 
-function shareSite(){
- shareText('Come hang out with me on VibeZone! Your world. Your vibe.');
-}
+/* Generate the personal inbox link. */
+window.vzGetInboxLink = function () {
+  if (!currentUID) return '';
 
-/* Firebase reads this safe public profile to update the leaderboard. */
-window.vzGetPublicProfile=function(){
- return {
-  nickname:profile.name||'Guest Player',
-  points:points
- };
+  const link = new URL(location.href);
+  link.search = '';
+  link.hash = '';
+  link.searchParams.set('inbox', currentUID);
+
+  return link.toString();
 };
 
-updateProfile();
-loadDaily();
+/* Keep the user's profile and points on the leaderboard. */
+window.vzSyncOnline = async function () {
+  if (!currentUID || syncBusy) return;
 
-/* VibeConfessions page interactions */
-let myInboxURL='';
+  syncBusy = true;
 
-function createInboxLink(){
- if(!window.vzGetInboxLink){
-  $('inboxLinkStatus').textContent='Connecting to your account. Please wait a moment.';
-  return;
- }
- myInboxURL=window.vzGetInboxLink();
- if(!myInboxURL){
-  $('inboxLinkStatus').textContent='Your inbox is not ready yet. Please try again.';
-  return;
- }
- $('myInboxLink').classList.remove('hidden');
- $('inboxLinkText').textContent=myInboxURL;
- $('inboxLinkStatus').textContent='Your personal inbox link is ready!';
-}
+  try {
+    const publicProfile = window.vzGetPublicProfile();
 
-async function copyInboxLink(){
- if(!myInboxURL)return;
- try{
-  await navigator.clipboard.writeText(myInboxURL);
-  $('inboxLinkStatus').textContent='Inbox link copied! Share it with your friends.';
- }catch(e){
-  $('inboxLinkStatus').textContent='Please select and copy your inbox link.';
- }
-}
+    await setDoc(
+      doc(db, 'leaderboard', currentUID),
+      {
+        nickname: publicProfile.nickname,
+        points: publicProfile.points,
+        updatedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
 
-async function shareInboxLink(){
- if(!myInboxURL)return;
- try{
-  if(navigator.share){
-   await navigator.share({
-    title:'Send me an anonymous message on VibeZone',
-    text:'Send me an anonymous message!',
-    url:myInboxURL
-   });
-  }else{
-   await copyInboxLink();
+    setStatus('onlineStatus', '🟢 Account connected to VibeZone');
+  } catch (error) {
+    console.error('VibeZone score sync error:', error);
+    setStatus('onlineStatus', firebaseErrorMessage(error));
+  } finally {
+    syncBusy = false;
   }
- }catch(e){}
+};
+
+/* Load the private inbox. */
+function listenToInbox() {
+  if (!currentUID) return;
+
+  if (inboxUnsubscribe) inboxUnsubscribe();
+
+  const inboxQuery = query(
+    collection(db, 'inboxes', currentUID, 'messages'),
+    orderBy('createdAt', 'desc'),
+    limit(50)
+  );
+
+  inboxUnsubscribe = onSnapshot(
+    inboxQuery,
+    snapshot => {
+      const container = document.getElementById('privateInbox');
+
+      if (!container) return;
+
+      if (snapshot.empty) {
+        container.innerHTML =
+          '<p class="muted">No messages yet. Share your inbox link to receive your first message!</p>';
+        return;
+      }
+
+      container.innerHTML = snapshot.docs.map(item => {
+        const data = item.data();
+        const message = escapeHTML(data.message || '');
+
+        let date = 'Recently';
+
+        if (data.createdAt && data.createdAt.toDate) {
+          date = data.createdAt.toDate().toLocaleString();
+        }
+
+        return `
+          <div class="confession-card">
+            <div class="confession-meta">💌 Anonymous message · ${escapeHTML(date)}</div>
+            <div class="confession-text">${message}</div>
+            <button class="btn secondary"
+              onclick="window.vzDeleteInboxMessage('${item.id}')">
+              Delete message
+            </button>
+          </div>
+        `;
+      }).join('');
+    },
+    error => {
+      console.error('Inbox loading error:', error);
+      document.getElementById('privateInbox').innerHTML =
+        `<p class="muted">${escapeHTML(firebaseErrorMessage(error))}</p>`;
+    }
+  );
 }
 
-function sendAnonymousMessage(){
- if(window.vzSendAnonymousMessage){
-  window.vzSendAnonymousMessage();
- }else{
-  $('sendMessageStatus').textContent='Connecting to VibeZone. Please wait a moment.';
- }
+window.vzRefreshInbox = function () {
+  if (!currentUID) {
+    setStatus('inboxLinkStatus', 'Your account is not connected yet.');
+    return;
+  }
+
+  listenToInbox();
+};
+
+/* Send an anonymous inbox message. */
+window.vzSendAnonymousMessage = async function () {
+  const recipient = getInboxRecipient();
+  const message = document.getElementById('anonymousMessage').value.trim();
+  const button = document.getElementById('sendAnonymousButton');
+
+  if (!currentUID) {
+    setStatus('sendMessageStatus', 'Your account is not connected. Check the connection message above.');
+    return;
+  }
+
+  if (!recipient) {
+    setStatus('sendMessageStatus', 'Paste the recipient’s VibeZone inbox link first.');
+    return;
+  }
+
+  if (recipient === currentUID) {
+    setStatus('sendMessageStatus', 'You cannot send an anonymous message to your own inbox.');
+    return;
+  }
+
+  if (!/^[a-zA-Z0-9_-]{15,100}$/.test(recipient)) {
+    setStatus('sendMessageStatus', 'That inbox link or ID does not look valid.');
+    return;
+  }
+
+  if (message.length < 2) {
+    setStatus('sendMessageStatus', 'Please write a message before sending.');
+    return;
+  }
+
+  if (message.length > 500) {
+    setStatus('sendMessageStatus', 'Messages can contain up to 500 characters.');
+    return;
+  }
+
+  button.disabled = true;
+  setStatus('sendMessageStatus', 'Sending your anonymous message...');
+
+  try {
+    await addDoc(
+      collection(db, 'inboxes', recipient, 'messages'),
+      {
+        message,
+        createdAt: serverTimestamp(),
+        read: false
+      }
+    );
+
+    document.getElementById('anonymousMessage').value = '';
+    setStatus('sendMessageStatus', 'Your anonymous message has been sent! 💌');
+  } catch (error) {
+    console.error('Anonymous message error:', error);
+    setStatus('sendMessageStatus', firebaseErrorMessage(error));
+  } finally {
+    button.disabled = false;
+  }
+};
+
+/* Delete a received message. */
+window.vzDeleteInboxMessage = async function (messageId) {
+  if (!currentUID) return;
+
+  if (!confirm('Delete this message from your inbox?')) return;
+
+  try {
+    await deleteDoc(doc(db, 'inboxes', currentUID, 'messages', messageId));
+  } catch (error) {
+    console.error('Delete inbox message error:', error);
+    alert(firebaseErrorMessage(error));
+  }
+};
+
+/* Community confession feed. */
+function listenToConfessions() {
+  if (feedUnsubscribe) feedUnsubscribe();
+
+  const feedQuery = query(
+    collection(db, 'confessions'),
+    orderBy('createdAt', 'desc'),
+    limit(50)
+  );
+
+  feedUnsubscribe = onSnapshot(
+    feedQuery,
+    async snapshot => {
+      const feed = document.getElementById('confessionFeed');
+
+      if (snapshot.empty) {
+        feed.innerHTML =
+          '<p class="muted">No confessions yet. Be the first to share something!</p>';
+        setStatus('confessionFeedStatus', '🟢 Live feed');
+        return;
+      }
+
+      feed.innerHTML = '';
+
+      for (const item of snapshot.docs) {
+        const data = item.data();
+        const card = document.createElement('div');
+        card.className = 'confession-card';
+
+        let date = 'Recently';
+
+        if (data.createdAt && data.createdAt.toDate) {
+          date = data.createdAt.toDate().toLocaleString();
+        }
+
+        const text = document.createElement('div');
+        text.className = 'confession-text';
+        text.textContent = data.text || '';
+
+        const meta = document.createElement('div');
+        meta.className = 'confession-meta';
+        meta.textContent = '🌍 Anonymous community confession · ' + date;
+
+        const actions = document.createElement('div');
+        actions.className = 'confession-actions';
+
+        const likeButton = document.createElement('button');
+        likeButton.textContent = '♡ Like';
+        likeButton.onclick = () => window.vzToggleConfessionLike(item.id);
+
+        const reportButton = document.createElement('button');
+        reportButton.textContent = '⚑ Report';
+        reportButton.onclick = () => window.vzReportConfession(item.id);
+
+        const likesCount = document.createElement('span');
+        likesCount.className = 'small';
+        likesCount.textContent = 'Loading likes...';
+
+        actions.append(likeButton, reportButton, likesCount);
+        card.append(meta, text, actions);
+        feed.appendChild(card);
+
+        try {
+          const likesSnapshot = await getDocs(
+            collection(db, 'confessions', item.id, 'likes')
+          );
+
+          const myLike = await getDoc(
+            doc(db, 'confessions', item.id, 'likes', currentUID)
+          );
+
+          const likedByMe = myLike.exists();
+
+          likeButton.textContent = likedByMe ? '♥ Liked' : '♡ Like';
+          likeButton.classList.toggle('liked', likedByMe);
+          likesCount.textContent = likesSnapshot.size + ' likes';
+        } catch (error) {
+          console.error('Like count error:', error);
+          likesCount.textContent = 'Likes unavailable';
+        }
+      }
+
+      setStatus('confessionFeedStatus', '🟢 Live feed');
+    },
+    error => {
+      console.error('Confession feed error:', error);
+      document.getElementById('confessionFeed').innerHTML =
+        `<p class="muted">${escapeHTML(firebaseErrorMessage(error))}</p>`;
+      setStatus('confessionFeedStatus', 'Feed unavailable');
+    }
+  );
 }
 
-function publishConfession(){
- if(window.vzPublishConfession){
-  window.vzPublishConfession();
- }else{
-  $('postConfessionStatus').textContent='Connecting to VibeZone. Please wait a moment.';
- }
+/* Publish a public confession. */
+window.vzPublishConfession = async function () {
+  const input = document.getElementById('publicConfession');
+  const button = document.getElementById('postConfessionButton');
+  const text = input.value.trim();
+
+  if (!currentUID) {
+    setStatus('postConfessionStatus', 'Your account is not connected. Please try again.');
+    return;
+  }
+
+  if (text.length < 3) {
+    setStatus('postConfessionStatus', 'Write a little more before posting.');
+    return;
+  }
+
+  if (text.length > 500) {
+    setStatus('postConfessionStatus', 'Confessions can contain up to 500 characters.');
+    return;
+  }
+
+  button.disabled = true;
+  setStatus('postConfessionStatus', 'Publishing your confession...');
+
+  try {
+    await addDoc(collection(db, 'confessions'), {
+      text,
+      createdAt: serverTimestamp()
+    });
+
+    input.value = '';
+    setStatus('postConfessionStatus', 'Your confession has been posted! ✨');
+  } catch (error) {
+    console.error('Publish confession error:', error);
+    setStatus('postConfessionStatus', firebaseErrorMessage(error));
+  } finally {
+    button.disabled = false;
+  }
+};
+
+/* Like or unlike a confession. */
+window.vzToggleConfessionLike = async function (confessionId) {
+  if (!currentUID) {
+    alert('Your account is not connected. Please refresh the page.');
+    return;
+  }
+
+  const likeRef = doc(db, 'confessions', confessionId, 'likes', currentUID);
+
+  try {
+    const existing = await getDoc(likeRef);
+
+    if (existing.exists()) {
+      await deleteDoc(likeRef);
+    } else {
+      await setDoc(likeRef, {
+        createdAt: serverTimestamp()
+      });
+    }
+  } catch (error) {
+    console.error('Like action error:', error);
+    alert(firebaseErrorMessage(error));
+  }
+};
+
+/* Report a confession. */
+window.vzReportConfession = async function (confessionId) {
+  if (!currentUID) {
+    alert('Your account is not connected. Please refresh the page.');
+    return;
+  }
+
+  const reason = prompt(
+    'Why are you reporting this confession?\n\nExamples: bullying, harassment, inappropriate content, spam.'
+  );
+
+  if (!reason || !reason.trim()) return;
+
+  try {
+    await addDoc(collection(db, 'reports'), {
+      targetType: 'confession',
+      targetId: confessionId,
+      reason: reason.trim().slice(0, 300),
+      reporterUid: currentUID,
+      createdAt: serverTimestamp()
+    });
+
+    alert('Thank you. Your report has been submitted for review.');
+  } catch (error) {
+    console.error('Report submission error:', error);
+    alert(firebaseErrorMessage(error));
+  }
+};
+
+/* Connect or restore the anonymous Firebase account. */
+async function startVibeZoneOnline() {
+  const status = document.getElementById('onlineStatus');
+  const leaders = document.getElementById('leaders');
+
+  status.textContent = 'Connecting your VibeZone account...';
+
+  try {
+    /* Keep the anonymous account saved in this browser. */
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+    } catch (persistenceError) {
+      console.warn('Browser persistence could not be enabled:', persistenceError);
+    }
+
+    /* Reuse the existing account whenever possible. */
+    let user = auth.currentUser;
+
+    if (!user) {
+      const result = await signInAnonymously(auth);
+      user = result.user;
+    }
+
+    currentUID = user.uid;
+
+    status.textContent = '🟢 Account connected · Preparing your inbox...';
+
+    /* Generate and display the personal inbox link automatically. */
+    const link = window.vzGetInboxLink();
+
+    if (link) {
+      document.getElementById('myInboxLink').classList.remove('hidden');
+      document.getElementById('inboxLinkText').textContent = link;
+      setStatus('inboxLinkStatus', 'Your personal inbox link is ready! Share it on WhatsApp.');
+    }
+
+    /* Sync the user's profile and score. */
+    await window.vzSyncOnline();
+
+    /* Live leaderboard. */
+    const leaderboardQuery = query(
+      collection(db, 'leaderboard'),
+      orderBy('points', 'desc'),
+      limit(10)
+    );
+
+    if (leaderboardUnsubscribe) leaderboardUnsubscribe();
+
+    leaderboardUnsubscribe = onSnapshot(
+      leaderboardQuery,
+      snapshot => {
+        const entries = snapshot.docs.map(item => ({
+          id: item.id,
+          ...item.data()
+        }));
+
+        if (!entries.length) {
+          leaders.innerHTML =
+            '<p class="muted">Be the first player on the leaderboard!</p>';
+        } else {
+          leaders.innerHTML = entries.map((player, index) => `
+            <div class="leader-row">
+              <b>
+                ${['🥇', '🥈', '🥉'][index] || '#' + (index + 1)}
+                ${escapeHTML(player.nickname || 'Guest Player')}
+              </b>
+              <span class="stat">${Number(player.points) || 0}</span>
+            </div>
+          `).join('');
+        }
+
+        status.textContent = '🟢 Connected · Your VibeZone account is active';
+      },
+      error => {
+        console.error('Leaderboard loading error:', error);
+        status.textContent = 'Account connected, but leaderboard error: ' + firebaseErrorMessage(error);
+      }
+    );
+
+    listenToInbox();
+    listenToConfessions();
+
+  } catch (error) {
+    console.error('VibeZone Firebase connection error:', error);
+
+    currentUID = null;
+
+    status.textContent = '🔴 ' + firebaseErrorMessage(error);
+
+    leaders.innerHTML =
+      '<p class="muted">Online features are unavailable. Your local games still work.</p>';
+
+    document.getElementById('privateInbox').innerHTML =
+      '<p class="muted">Your inbox is unavailable until your account connects.</p>';
+
+    document.getElementById('confessionFeed').innerHTML =
+      '<p class="muted">The confession feed is unavailable until your account connects.</p>';
+
+    setStatus('inboxLinkStatus', 'Your inbox link cannot be created until Firebase connects.');
+  }
 }
 
-function refreshInbox(){
- if(window.vzRefreshInbox)window.vzRefreshInbox();
-}
-
-function reportConfession(id){
- if(window.vzReportConfession)window.vzReportConfession(id);
-}
-
-function toggleConfessionLike(id){
- if(window.vzToggleConfessionLike)window.vzToggleConfessionLike(id);
-}
-
-/* If someone opens a personal inbox link, fill in the recipient automatically. */
-const inboxFromURL=new URLSearchParams(location.search).get('inbox');
-if(inboxFromURL){
- $('recipientInbox').value=inboxFromURL;
- $('sendMessageDescription').textContent='You are sending a message to this VibeZone inbox. Your name will not be shown to the recipient.';
- $('sendMessageButton')?.classList.remove('hidden');
- go('confessions');
-}
+/* Start the connection. */
+startVibeZoneOnline();
 </script>
 
 <script type="module">
