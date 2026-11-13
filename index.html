@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta name="google-site-verification" content="oj1_2uZlsKGQ_lzIH79tbiHXnirYRISWRm3eC4zT7Bs" />
+<meta name="google-site-verification" content="oj1_2uZlsKGQ_lzIH79tbiHXnirYRISWRm3eC4zT7Bs" />
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#10091f">
@@ -21,7 +21,7 @@ body{
  radial-gradient(ellipse at 90% 35%,#153c63 0,transparent 34%),var(--bg);
  font-family:Arial,Helvetica,sans-serif;
 }
-button,input,select{font:inherit}
+button,input,select,textarea{font:inherit}
 button{cursor:pointer}
 header{
  position:sticky;top:0;z-index:20;padding:14px 5%;
@@ -87,11 +87,12 @@ p{line-height:1.55}
 .choice:hover{border-color:var(--pink);background:#42275b}
 .choice:disabled{opacity:.55}
 .answer{color:#e2c4ff;min-height:25px;margin:15px 0}
-input,select{
+input,select,textarea{
  width:100%;background:#120b21;color:white;
  border:1px solid #ffffff35;border-radius:12px;
  padding:14px;margin:9px 0 15px
 }
+textarea{min-height:110px;resize:vertical;line-height:1.5}
 select{width:auto}
 .small{font-size:12px;color:var(--muted)}
 .hidden{display:none!important}
@@ -127,6 +128,25 @@ select{width:auto}
  to{opacity:1;transform:scale(1)}
 }
 .pop{animation:pop .35s ease}
+.confession-card{
+ background:linear-gradient(145deg,#281a43,#191128);
+ border:1px solid var(--line);border-radius:17px;
+ padding:19px;margin:13px 0;overflow-wrap:anywhere
+}
+.confession-text{font-size:16px;white-space:pre-wrap;margin:10px 0 17px}
+.confession-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.confession-actions button{
+ border:1px solid var(--line);border-radius:10px;
+ background:#ffffff0b;color:white;padding:9px 13px
+}
+.confession-actions button:hover{border-color:var(--pink)}
+.confession-actions button.liked{background:#74365f;border-color:var(--pink)}
+.confession-meta{font-size:11px;color:var(--muted)}
+.inbox-link{
+ background:#120b21;border:1px solid var(--line);border-radius:12px;
+ padding:13px;overflow-wrap:anywhere;margin:12px 0;color:#e2c4ff
+}
+.status-message{min-height:22px;color:#e2c4ff;font-size:13px}
 footer{
  padding:35px 5%;border-top:1px solid var(--line);
  text-align:center;color:var(--muted);font-size:13px;line-height:1.8
@@ -148,6 +168,7 @@ footer{
   <a href="#home">Home</a>
   <a href="#games">Games</a>
   <a href="#vibeai">VibeAI</a>
+  <a href="#confessions">Confessions</a>
   <a href="#challenges">Challenges</a>
   <a href="#leaderboard">Leaderboard</a>
   <a href="#profile">Profile</a>
@@ -206,6 +227,67 @@ footer{
   <input id="aiInput" maxlength="180" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendAI()">
   <button class="btn" onclick="sendAI()">Send ✦</button>
  </div>
+</section>
+
+<section id="confessions">
+ <div class="heading">
+  <div><h2>💌 VibeConfessions</h2><p>Share your thoughts, connect and spread good vibes.</p></div>
+ </div>
+
+ <div class="grid">
+  <div class="panel">
+   <div class="emoji">📬</div>
+   <h3>Your anonymous inbox</h3>
+   <p class="muted">Share your personal link with friends. They can send you messages without their names appearing in your inbox.</p>
+   <button class="btn" onclick="createInboxLink()">Get my inbox link</button>
+   <div id="myInboxLink" class="hidden">
+    <div class="inbox-link" id="inboxLinkText"></div>
+    <button class="btn secondary" onclick="copyInboxLink()">Copy link</button>
+    <button class="btn secondary" onclick="shareInboxLink()">Share link ↗</button>
+   </div>
+   <p class="small">Only you can read messages sent to your inbox.</p>
+   <p class="status-message" id="inboxLinkStatus"></p>
+  </div>
+
+  <div class="panel">
+   <div class="emoji">✉️</div>
+   <h3>Send an anonymous message</h3>
+   <p class="muted" id="sendMessageDescription">Have something kind or interesting to say? Send an anonymous message to someone's inbox.</p>
+   <label for="recipientInbox">Inbox link or recipient ID</label>
+   <input id="recipientInbox" placeholder="Paste their VibeZone inbox link">
+   <label for="anonymousMessage">Your message</label>
+   <textarea id="anonymousMessage" maxlength="500" placeholder="Write your anonymous message..."></textarea>
+   <button class="btn" id="sendAnonymousButton" onclick="sendAnonymousMessage()">Send anonymously ✦</button>
+   <p class="status-message" id="sendMessageStatus"></p>
+  </div>
+ </div>
+
+ <div class="panel" style="margin-top:18px">
+  <div class="heading">
+   <div><h3>📥 My private messages</h3><p>Messages sent to your personal inbox appear here.</p></div>
+   <button class="btn secondary" onclick="refreshInbox()">Refresh inbox</button>
+  </div>
+  <p class="small">Your inbox is private to your signed-in guest account on this browser.</p>
+  <div id="privateInbox"><p class="muted">Connect to load your inbox.</p></div>
+ </div>
+
+ <div class="panel" style="margin-top:18px">
+  <div class="emoji">🌍</div>
+  <h3>Post a public confession</h3>
+  <p class="muted">Share a thought with the VibeZone community. Don't include names, phone numbers, addresses or other private information.</p>
+  <textarea id="publicConfession" maxlength="500" placeholder="What's on your mind?"></textarea>
+  <button class="btn" id="postConfessionButton" onclick="publishConfession()">Post confession ✦</button>
+  <p class="status-message" id="postConfessionStatus"></p>
+ </div>
+
+ <div style="margin-top:25px">
+  <div class="heading">
+   <div><h3>🔥 Community confessions</h3><p>Read what the VibeZone community is sharing.</p></div>
+   <span class="small" id="confessionFeedStatus">Connecting...</span>
+  </div>
+  <div id="confessionFeed"><p class="muted">Loading confessions...</p></div>
+ </div>
+ <p class="small">Please be respectful. Reports are sent for review. Anonymous messages are not guaranteed to be untraceable to the platform.</p>
 </section>
 
 <section id="challenges">
@@ -771,6 +853,86 @@ window.vzGetPublicProfile=function(){
 
 updateProfile();
 loadDaily();
+
+/* VibeConfessions page interactions */
+let myInboxURL='';
+
+function createInboxLink(){
+ if(!window.vzGetInboxLink){
+  $('inboxLinkStatus').textContent='Connecting to your account. Please wait a moment.';
+  return;
+ }
+ myInboxURL=window.vzGetInboxLink();
+ if(!myInboxURL){
+  $('inboxLinkStatus').textContent='Your inbox is not ready yet. Please try again.';
+  return;
+ }
+ $('myInboxLink').classList.remove('hidden');
+ $('inboxLinkText').textContent=myInboxURL;
+ $('inboxLinkStatus').textContent='Your personal inbox link is ready!';
+}
+
+async function copyInboxLink(){
+ if(!myInboxURL)return;
+ try{
+  await navigator.clipboard.writeText(myInboxURL);
+  $('inboxLinkStatus').textContent='Inbox link copied! Share it with your friends.';
+ }catch(e){
+  $('inboxLinkStatus').textContent='Please select and copy your inbox link.';
+ }
+}
+
+async function shareInboxLink(){
+ if(!myInboxURL)return;
+ try{
+  if(navigator.share){
+   await navigator.share({
+    title:'Send me an anonymous message on VibeZone',
+    text:'Send me an anonymous message!',
+    url:myInboxURL
+   });
+  }else{
+   await copyInboxLink();
+  }
+ }catch(e){}
+}
+
+function sendAnonymousMessage(){
+ if(window.vzSendAnonymousMessage){
+  window.vzSendAnonymousMessage();
+ }else{
+  $('sendMessageStatus').textContent='Connecting to VibeZone. Please wait a moment.';
+ }
+}
+
+function publishConfession(){
+ if(window.vzPublishConfession){
+  window.vzPublishConfession();
+ }else{
+  $('postConfessionStatus').textContent='Connecting to VibeZone. Please wait a moment.';
+ }
+}
+
+function refreshInbox(){
+ if(window.vzRefreshInbox)window.vzRefreshInbox();
+}
+
+function reportConfession(id){
+ if(window.vzReportConfession)window.vzReportConfession(id);
+}
+
+function toggleConfessionLike(id){
+ if(window.vzToggleConfessionLike)window.vzToggleConfessionLike(id);
+}
+
+/* If someone opens a personal inbox link, fill in the recipient automatically. */
+const inboxFromURL=new URLSearchParams(location.search).get('inbox');
+if(inboxFromURL){
+ $('recipientInbox').value=inboxFromURL;
+ $('sendMessageDescription').textContent='You are sending a message to this VibeZone inbox. Your name will not be shown to the recipient.';
+ $('sendMessageButton')?.classList.remove('hidden');
+ go('confessions');
+}
 </script>
 
 <script type="module">
@@ -790,11 +952,14 @@ import {
  orderBy,
  limit,
  onSnapshot,
- serverTimestamp
+ serverTimestamp,
+ addDoc,
+ getDocs,
+ deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig={
- apiKey:"AIzaSyCPPyathJ76lGoKLsDWZtIN2BUyvgL5css",
+ apiKey:"AIzaSyCPPyathJ76gLoKLsDWZtIN2BUyvgL5css",
  authDomain:"vibezone-2f23f.firebaseapp.com",
  projectId:"vibezone-2f23f",
  storageBucket:"vibezone-2f23f.firebasestorage.app",
@@ -808,12 +973,44 @@ const db=getFirestore(app);
 
 let currentUID=null;
 let syncBusy=false;
+let inboxUnsubscribe=null;
+let feedUnsubscribe=null;
+let inboxLinkForShare='';
 
 function escapeHTML(value){
  return String(value).replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
  }[c]));
 }
+
+function setStatus(id,message){
+ const element=document.getElementById(id);
+ if(element)element.textContent=message;
+}
+
+function getInboxRecipient(){
+ const raw=document.getElementById('recipientInbox').value.trim();
+ if(!raw)return '';
+
+ try{
+  if(raw.startsWith('http://')||raw.startsWith('https://')){
+   const parsed=new URL(raw);
+   return parsed.searchParams.get('inbox')||'';
+  }
+ }catch(e){}
+
+ return raw;
+}
+
+window.vzGetInboxLink=function(){
+ if(!currentUID)return '';
+ const link=new URL(location.href);
+ link.search='';
+ link.hash='';
+ link.searchParams.set('inbox',currentUID);
+ inboxLinkForShare=link.toString();
+ return inboxLinkForShare;
+};
 
 window.vzSyncOnline=async function(){
  if(!currentUID||syncBusy)return;
@@ -833,10 +1030,300 @@ window.vzSyncOnline=async function(){
   );
  }catch(error){
   console.error("VibeZone score sync error:",error);
-  document.getElementById("onlineStatus").textContent=
-   "Your score could not sync. Check your connection.";
+  setStatus("onlineStatus","Your score could not sync. Check your connection.");
  }finally{
   syncBusy=false;
+ }
+};
+
+/* Personal anonymous inbox */
+function listenToInbox(){
+ if(!currentUID)return;
+ if(inboxUnsubscribe)inboxUnsubscribe();
+
+ const inboxQuery=query(
+  collection(db,"inboxes",currentUID,"messages"),
+  orderBy("createdAt","desc"),
+  limit(50)
+ );
+
+ inboxUnsubscribe=onSnapshot(inboxQuery,snapshot=>{
+  const container=document.getElementById('privateInbox');
+
+  if(snapshot.empty){
+   container.innerHTML='<p class="muted">No messages yet. Share your inbox link to receive your first message!</p>';
+   return;
+  }
+
+  container.innerHTML=snapshot.docs.map(item=>{
+   const data=item.data();
+   const message=escapeHTML(data.message||'');
+   let date='Recently';
+
+   if(data.createdAt&&data.createdAt.toDate){
+    date=data.createdAt.toDate().toLocaleString();
+   }
+
+   return `
+    <div class="confession-card">
+     <div class="confession-meta">💌 Anonymous message · ${escapeHTML(date)}</div>
+     <div class="confession-text">${message}</div>
+     <button class="btn secondary" onclick="window.vzDeleteInboxMessage('${item.id}')">Delete message</button>
+    </div>
+   `;
+  }).join('');
+ },error=>{
+  console.error("Inbox loading error:",error);
+  container.innerHTML='<p class="muted">Your inbox could not load. Check your Firestore rules.</p>';
+ });
+}
+
+window.vzRefreshInbox=function(){
+ if(!currentUID){
+  setStatus('inboxLinkStatus','Your account is still connecting.');
+  return;
+ }
+ listenToInbox();
+};
+
+window.vzSendAnonymousMessage=async function(){
+ const recipient=getInboxRecipient();
+ const message=document.getElementById('anonymousMessage').value.trim();
+ const button=document.getElementById('sendAnonymousButton');
+
+ if(!currentUID){
+  setStatus('sendMessageStatus','Please wait for your account to connect.');
+  return;
+ }
+
+ if(!recipient){
+  setStatus('sendMessageStatus','Paste the recipient’s VibeZone inbox link first.');
+  return;
+ }
+
+ if(recipient===currentUID){
+  setStatus('sendMessageStatus','You cannot send an anonymous message to your own inbox.');
+  return;
+ }
+
+ if(!/^[a-zA-Z0-9_-]{15,100}$/.test(recipient)){
+  setStatus('sendMessageStatus','That inbox link or ID does not look valid.');
+  return;
+ }
+
+ if(message.length<2){
+  setStatus('sendMessageStatus','Please write a message before sending.');
+  return;
+ }
+
+ if(message.length>500){
+  setStatus('sendMessageStatus','Messages can contain up to 500 characters.');
+  return;
+ }
+
+ button.disabled=true;
+ setStatus('sendMessageStatus','Sending your anonymous message...');
+
+ try{
+  await addDoc(
+   collection(db,'inboxes',recipient,'messages'),
+   {
+    message:message,
+    createdAt:serverTimestamp(),
+    read:false
+   }
+  );
+
+  document.getElementById('anonymousMessage').value='';
+  setStatus('sendMessageStatus','Your anonymous message has been sent! 💌');
+ }catch(error){
+  console.error('Anonymous message error:',error);
+  setStatus('sendMessageStatus','Message could not be sent. Check your Firestore rules and connection.');
+ }finally{
+  button.disabled=false;
+ }
+};
+
+window.vzDeleteInboxMessage=async function(messageId){
+ if(!currentUID)return;
+ if(!confirm('Delete this message from your inbox?'))return;
+
+ try{
+  await deleteDoc(doc(db,'inboxes',currentUID,'messages',messageId));
+ }catch(error){
+  console.error('Delete inbox message error:',error);
+  alert('Could not delete this message. Check your Firestore rules.');
+ }
+};
+
+/* Public VibeConfessions feed */
+function listenToConfessions(){
+ if(feedUnsubscribe)feedUnsubscribe();
+
+ const feedQuery=query(
+  collection(db,'confessions'),
+  orderBy('createdAt','desc'),
+  limit(50)
+ );
+
+ feedUnsubscribe=onSnapshot(feedQuery,async snapshot=>{
+  const feed=document.getElementById('confessionFeed');
+
+  if(snapshot.empty){
+   feed.innerHTML='<p class="muted">No confessions yet. Be the first to share something!</p>';
+   setStatus('confessionFeedStatus','🟢 Live feed');
+   return;
+  }
+
+  feed.innerHTML='';
+
+  for(const item of snapshot.docs){
+   const data=item.data();
+   const card=document.createElement('div');
+   card.className='confession-card';
+
+   let date='Recently';
+   if(data.createdAt&&data.createdAt.toDate){
+    date=data.createdAt.toDate().toLocaleString();
+   }
+
+   const text=document.createElement('div');
+   text.className='confession-text';
+   text.textContent=data.text||'';
+
+   const meta=document.createElement('div');
+   meta.className='confession-meta';
+   meta.textContent='🌍 Anonymous community confession · '+date;
+
+   const actions=document.createElement('div');
+   actions.className='confession-actions';
+
+   const likeButton=document.createElement('button');
+   likeButton.textContent='♡ Like';
+   likeButton.onclick=()=>window.vzToggleConfessionLike(item.id);
+
+   const reportButton=document.createElement('button');
+   reportButton.textContent='⚑ Report';
+   reportButton.onclick=()=>window.vzReportConfession(item.id);
+
+   const likesCount=document.createElement('span');
+   likesCount.className='small';
+   likesCount.textContent='Loading likes...';
+
+   actions.append(likeButton,reportButton,likesCount);
+   card.append(meta,text,actions);
+   feed.appendChild(card);
+
+   try{
+    const likesSnapshot=await getDocs(
+     collection(db,'confessions',item.id,'likes')
+    );
+
+    const likedByMe=likesSnapshot.docs.some(like=>like.id===currentUID);
+    likeButton.textContent=likedByMe?'♥ Liked':'♡ Like';
+    likeButton.classList.toggle('liked',likedByMe);
+    likesCount.textContent=likesSnapshot.size+' likes';
+   }catch(error){
+    console.error('Like count error:',error);
+    likesCount.textContent='Likes unavailable';
+   }
+  }
+
+  setStatus('confessionFeedStatus','🟢 Live feed');
+ },error=>{
+  console.error('Confession feed error:',error);
+  document.getElementById('confessionFeed').innerHTML=
+   '<p class="muted">The confession feed could not load. Check your Firestore rules.</p>';
+  setStatus('confessionFeedStatus','Feed unavailable');
+ });
+}
+
+window.vzPublishConfession=async function(){
+ const input=document.getElementById('publicConfession');
+ const button=document.getElementById('postConfessionButton');
+ const text=input.value.trim();
+
+ if(!currentUID){
+  setStatus('postConfessionStatus','Please wait for your account to connect.');
+  return;
+ }
+
+ if(text.length<3){
+  setStatus('postConfessionStatus','Write a little more before posting.');
+  return;
+ }
+
+ if(text.length>500){
+  setStatus('postConfessionStatus','Confessions can contain up to 500 characters.');
+  return;
+ }
+
+ button.disabled=true;
+ setStatus('postConfessionStatus','Publishing your confession...');
+
+ try{
+  await addDoc(collection(db,'confessions'),{
+   text:text,
+   createdAt:serverTimestamp()
+  });
+
+  input.value='';
+  setStatus('postConfessionStatus','Your confession has been posted! ✨');
+ }catch(error){
+  console.error('Publish confession error:',error);
+  setStatus('postConfessionStatus','Could not post. Check your Firestore rules and connection.');
+ }finally{
+  button.disabled=false;
+ }
+};
+
+window.vzToggleConfessionLike=async function(confessionId){
+ if(!currentUID)return;
+
+ const likeRef=doc(db,'confessions',confessionId,'likes',currentUID);
+
+ try{
+  const existing=await getDocs(
+   query(collection(db,'confessions',confessionId,'likes'),limit(100))
+  );
+
+  const alreadyLiked=existing.docs.some(item=>item.id===currentUID);
+
+  if(alreadyLiked){
+   await deleteDoc(likeRef);
+  }else{
+   await setDoc(likeRef,{
+    createdAt:serverTimestamp()
+   });
+  }
+ }catch(error){
+  console.error('Like action error:',error);
+  alert('Could not update your like. Check your Firestore rules.');
+ }
+};
+
+window.vzReportConfession=async function(confessionId){
+ if(!currentUID)return;
+
+ const reason=prompt(
+  'Why are you reporting this confession?\n\nExamples: bullying, harassment, inappropriate content, spam.'
+ );
+
+ if(!reason||!reason.trim())return;
+
+ try{
+  await addDoc(collection(db,'reports'),{
+   targetType:'confession',
+   targetId:confessionId,
+   reason:reason.trim().slice(0,300),
+   reporterUid:currentUID,
+   createdAt:serverTimestamp()
+  });
+
+  alert('Thank you. Your report has been submitted for review.');
+ }catch(error){
+  console.error('Report submission error:',error);
+  alert('Could not submit your report. Check your Firestore rules.');
  }
 };
 
@@ -881,11 +1368,25 @@ async function startVibeZoneOnline(){
    status.textContent="Leaderboard could not load. Please refresh.";
   });
 
+  listenToInbox();
+  listenToConfessions();
+
+  const link=window.vzGetInboxLink();
+  if(link){
+   document.getElementById('myInboxLink').classList.remove('hidden');
+   document.getElementById('inboxLinkText').textContent=link;
+   inboxLinkForShare=link;
+  }
+
  }catch(error){
   console.error("VibeZone Firebase connection error:",error);
   status.textContent="🔴 Online connection unavailable. Check Firebase settings.";
   leaders.innerHTML=
    '<p class="muted">The online leaderboard is temporarily unavailable. Your local games still work.</p>';
+  document.getElementById('privateInbox').innerHTML=
+   '<p class="muted">Your inbox is unavailable until the online connection works.</p>';
+  document.getElementById('confessionFeed').innerHTML=
+   '<p class="muted">The confession feed is unavailable until the online connection works.</p>';
  }
 }
 
