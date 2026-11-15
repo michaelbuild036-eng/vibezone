@@ -585,11 +585,13 @@ function render(){
  }
 
  if(currentGame==='truth'){
+  if(index>=5)return finish(score,'Truth or Dare complete!');
   let q=truths[Math.floor(Math.random()*truths.length)];
   area.innerHTML=`
+   <p class="small">PROMPT ${index+1} OF 5</p>
    <div class="question">🎲 ${q[0]}<br>${q[1]}</div>
-   <button class="btn" onclick="score+=2;render()">Next prompt</button>
-   <p class="small">Keep it friendly. You can always skip any prompt.</p>`;
+   <button class="btn" onclick="score+=2;index++;render()">Next prompt · +2 points</button>
+   <p class="small">Keep it friendly. You can skip any prompt by choosing Next.</p>`;
  }
 
  if(currentGame==='personality'){
@@ -640,6 +642,7 @@ function finishPersonality(){
 
 let memoryCards=[],memoryOpen=[],memoryMatches=0;
 let memoryMoves=0,memoryLocked=false;
+let rpsRoundDone=false,wordAnswered=false;
 
 function renderMemory(){
  memoryCards=['🐸','🐸','🌈','🌈','🚀','🚀','🍕','🍕','🐼','🐼','⭐','⭐'].sort(()=>Math.random()-.5);
@@ -703,11 +706,16 @@ function beginReaction(){
  closeReaction();early=false;reactionStart=0;
  let b=$('reactionButton');
  b.style.background='#71344f';b.textContent='Wait for green...';
+ $('reactionResult').textContent='';
  b.onclick=()=>{
-  early=true;b.textContent='Too soon! Try again.';
+  early=true;closeReaction();reactionStart=0;
+  b.textContent='Too soon! Tap to try again.';
   $('reactionResult').textContent='Wait for green before tapping.';
+  b.onclick=beginReaction;
  };
  reactionTimer=setTimeout(()=>{
+  reactionTimer=null;
+  if(early)return;
   reactionStart=performance.now();
   b.style.background='#176a4d';b.textContent='TAP NOW!';
   b.onclick=reactionTap;
@@ -728,6 +736,7 @@ function reactionTap(){
 }
 
 function renderRPS(){
+ rpsRoundDone=false;
  $('gameContent').innerHTML=`
   <div class="question">✊ Rock Paper Scissors</div>
   <p class="muted">Choose your move.</p>
@@ -740,6 +749,9 @@ function renderRPS(){
 }
 
 function playRPS(choice){
+ if(rpsRoundDone)return;
+ rpsRoundDone=true;
+ document.querySelectorAll('#gameContent .choice').forEach(b=>b.disabled=true);
  let list=['Rock','Paper','Scissors'];
  let computer=list[Math.floor(Math.random()*3)];
  let result=choice===computer?'Tie!':
@@ -762,7 +774,9 @@ function playRPS(choice){
 }
 
 function renderWord(){
- let q=words[index%words.length];
+ if(index>=words.length)return finish(score,'Word challenge complete!');
+ wordAnswered=false;
+ let q=words[index];
  $('gameContent').innerHTML=`
   <p class="small">WORD ${index+1}</p>
   <div class="question">🔤 ${q[0].split('').join(' ')}</div>
@@ -772,7 +786,11 @@ function renderWord(){
 }
 
 function checkWord(answer){
+ if(wordAnswered)return;
+ wordAnswered=true;
  let value=$('wordAnswer').value.trim().toUpperCase();
+ $('wordAnswer').disabled=true;
+ document.querySelector('#gameContent .btn').disabled=true;
  if(value===answer){
   score+=5;$('wordFeedback').textContent='Correct! 🎉 +5 points';
  }else $('wordFeedback').textContent='Not quite. Try again!';
