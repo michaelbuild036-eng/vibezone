@@ -1049,7 +1049,17 @@ function listenToInbox(){
     <div class="message-card">
      <div class="message-date">💌 Anonymous message · ${escapeHTML(date)}</div>
      <div class="message-content">${message}</div>
-     <button class="btn secondary" onclick="window.vzDeleteInboxMessage('${item.id}')">Delete message</button>
+     <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:15px">
+      <button class="btn" onclick="window.vzToggleReply('${item.id}')">💜 Reply with VibeZone</button>
+      <button class="btn secondary" onclick="window.vzDeleteInboxMessage('${item.id}')">Delete message</button>
+     </div>
+     <div id="vzReplyBox-${item.id}" class="hidden" style="margin-top:15px">
+      <label for="vzReplyText-${item.id}" class="small">Your public reply</label>
+      <textarea id="vzReplyText-${item.id}" maxlength="500" placeholder="Write your reply..." style="min-height:100px"></textarea>
+      <button class="btn" onclick="window.vzShareReply('${item.id}')">📲 Create & share reply</button>
+      <p id="vzReplyStatus-${item.id}" class="status-message" aria-live="polite"></p>
+      <p class="small">Your reply becomes a VibeZone story card. The sender stays anonymous.</p>
+     </div>
     </div>
    `;
   }).join('');
@@ -1058,6 +1068,148 @@ function listenToInbox(){
   container.innerHTML='<p class="muted">'+escapeHTML(errorText(error))+'</p>';
  });
 }
+
+
+window.vzToggleReply=function(messageId){
+ const box=document.getElementById('vzReplyBox-'+messageId);
+ if(!box)return;
+ box.classList.toggle('hidden');
+ if(!box.classList.contains('hidden')){
+  const field=document.getElementById('vzReplyText-'+messageId);
+  if(field)field.focus();
+ }
+};
+
+function vzWrapCanvasText(ctx,text,maxWidth){
+ const words=String(text||'').split(/\s+/);
+ const lines=[];
+ let line='';
+ words.forEach(word=>{
+  const test=line?line+' '+word:word;
+  if(ctx.measureText(test).width>maxWidth&&line){
+   lines.push(line);
+   line=word;
+  }else line=test;
+ });
+ if(line)lines.push(line);
+ return lines;
+}
+
+function vzDrawReplyCard(originalMessage,reply){
+ const canvas=document.createElement('canvas');
+ canvas.width=1080;
+ canvas.height=1350;
+ const ctx=canvas.getContext('2d');
+ const bg=ctx.createLinearGradient(0,0,1080,1350);
+ bg.addColorStop(0,'#211039');
+ bg.addColorStop(.48,'#54227b');
+ bg.addColorStop(1,'#101d3b');
+ ctx.fillStyle=bg;
+ ctx.fillRect(0,0,1080,1350);
+
+ // Soft decorative glow shapes.
+ ctx.fillStyle='rgba(255,79,163,.16)';
+ ctx.beginPath();ctx.arc(930,160,250,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='rgba(66,202,255,.13)';
+ ctx.beginPath();ctx.arc(90,1230,300,0,Math.PI*2);ctx.fill();
+
+ // Main card panel.
+ ctx.fillStyle='rgba(15,9,31,.72)';
+ ctx.strokeStyle='rgba(255,255,255,.22)';
+ ctx.lineWidth=3;
+ const x=75,y=105,w=930,h=1140,r=42;
+ ctx.beginPath();
+ ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+ ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+ ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+ ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+ ctx.closePath();ctx.fill();ctx.stroke();
+
+ ctx.textAlign='left';
+ ctx.fillStyle='#ff73b7';
+ ctx.font='bold 42px Arial';
+ ctx.fillText('VIBEZONE',130,190);
+ ctx.fillStyle='#cdb7ec';
+ ctx.font='bold 22px Arial';
+ ctx.fillText('YOUR WORLD. YOUR VIBE.',132,230);
+
+ ctx.fillStyle='#ffffff';
+ ctx.font='bold 34px Arial';
+ ctx.fillText('ANONYMOUS MESSAGE',130,330);
+ ctx.fillStyle='#d8c9eb';
+ ctx.font='28px Arial';
+ const msgLines=vzWrapCanvasText(ctx,originalMessage,810).slice(0,7);
+ let yy=390;
+ msgLines.forEach(line=>{ctx.fillText(line,130,yy);yy+=43;});
+ if(vzWrapCanvasText(ctx,originalMessage,810).length>7){ctx.fillText('…',130,yy);yy+=43;}
+
+ ctx.strokeStyle='rgba(255,255,255,.2)';
+ ctx.beginPath();ctx.moveTo(130,yy+25);ctx.lineTo(950,yy+25);ctx.stroke();
+ yy+=105;
+ ctx.fillStyle='#ff73b7';
+ ctx.font='bold 30px Arial';
+ ctx.fillText('MY REPLY',130,yy);
+ yy+=65;
+ ctx.fillStyle='#ffffff';
+ ctx.font='bold 43px Arial';
+ const replyLines=vzWrapCanvasText(ctx,reply,810).slice(0,9);
+ replyLines.forEach(line=>{ctx.fillText(line,130,yy);yy+=57;});
+ if(vzWrapCanvasText(ctx,reply,810).length>9)ctx.fillText('…',130,yy);
+
+ ctx.textAlign='center';
+ ctx.fillStyle='#d8c9eb';
+ ctx.font='24px Arial';
+ ctx.fillText('Replying to the vibes 💜',540,1160);
+ ctx.fillStyle='#ffffff';
+ ctx.font='bold 28px Arial';
+ ctx.fillText('VIBEZONE  •  SHARE YOUR VIBE',540,1205);
+ return canvas;
+}
+
+window.vzShareReply=async function(messageId){
+ const field=document.getElementById('vzReplyText-'+messageId);
+ const status=document.getElementById('vzReplyStatus-'+messageId);
+ const button=field?.parentElement?.querySelector('button');
+ const originalMessage=field?.closest('.message-card')?.querySelector('.message-content')?.textContent||'';
+ const reply=field?.value.trim()||'';
+ if(!reply){if(status)status.textContent='Write your reply first.';return;}
+ if(!originalMessage){if(status)status.textContent='Could not find the original message. Refresh your inbox and try again.';return;}
+ if(button)button.disabled=true;
+ if(status)status.textContent='Creating your VibeZone reply card...';
+
+ try{
+  const canvas=vzDrawReplyCard(originalMessage,reply);
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  if(!blob)throw new Error('The reply image could not be created.');
+  const file=new File([blob],'vibezone-reply.png',{type:'image/png'});
+  const shareText='My reply on VibeZone 💜 #VibeZone';
+
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+   await navigator.share({title:'My VibeZone reply',text:shareText,files:[file]});
+   if(status)status.textContent='Your VibeZone reply card is ready to share! Choose WhatsApp, then Status or a chat. 💜';
+  }else{
+   const url=URL.createObjectURL(blob);
+   const link=document.createElement('a');
+   link.href=url;
+   link.download='vibezone-reply.png';
+   document.body.appendChild(link);
+   link.click();
+   link.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),60000);
+   if(status)status.textContent='Your reply card has been downloaded. Attach vibezone-reply.png in WhatsApp Status or a chat.';
+   window.open('https://wa.me/?text='+encodeURIComponent(shareText),'_blank','noopener');
+  }
+ }catch(error){
+  if(error?.name==='AbortError'){
+   if(status)status.textContent='Sharing cancelled. Your reply is still here if you want to try again.';
+  }else{
+   console.error('VibeZone reply sharing error:',error);
+   if(status)status.textContent='Could not create or share the reply card. Please try again.';
+  }
+ }finally{
+  if(button)button.disabled=false;
+ }
+};
 
 window.refreshInbox=function(){
  if(!currentUID){
