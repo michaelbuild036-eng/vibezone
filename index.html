@@ -34,9 +34,17 @@ header{
  background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));
  background-clip:text;color:transparent
 }
-nav{display:flex;gap:17px;flex-wrap:wrap}
-nav a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:bold}
-nav a:hover{color:white}
+nav{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+nav button{
+ color:var(--muted);background:transparent;border:1px solid transparent;
+ border-radius:999px;padding:9px 13px;font-size:13px;font-weight:bold
+}
+nav button:hover,nav button.active{
+ color:white;background:#a15cff25;border-color:#a15cff70
+}
+.logo{cursor:pointer}
+.screen-section{display:none}
+.screen-section.active{display:block;animation:pop .25s ease}
 .container{width:min(1120px,91%);margin:auto}
 .hero{text-align:center;padding:75px 0 50px}
 .eyebrow{color:#d8baff;font-size:12px;font-weight:bold;letter-spacing:3px}
@@ -180,21 +188,20 @@ body.sender-mode footer{display:none!important}
 <body>
 
 <header>
- <div class="logo">Vibe<span>Zone</span> ✦</div>
- <nav>
-  <a href="#home">Home</a>
-  <a href="#games">Games</a>
-  <a href="#vibeai">VibeAI</a>
-  <a href="#messages">Messages</a>
-  <a href="#challenges">Challenges</a>
-  <a href="#leaderboard">Leaderboard</a>
-  <a href="#profile">Profile</a>
+ <div class="logo" role="button" tabindex="0" onclick="showScreen('home')" onkeydown="if(event.key==='Enter'||event.key===' '){showScreen('home')}">Vibe<span>Zone</span> ✦</div>
+ <nav aria-label="Main navigation">
+  <button type="button" data-screen-link="messages" onclick="showScreen('messages')">💌 Messages</button>
+  <button type="button" data-screen-link="games" onclick="showScreen('games')">🎮 Games</button>
+  <button type="button" data-screen-link="vibeai" onclick="showScreen('vibeai')">🤖 VibeAI</button>
+  <button type="button" data-screen-link="challenges" onclick="showScreen('challenges')">🔥 Challenges</button>
+  <button type="button" data-screen-link="leaderboard" onclick="showScreen('leaderboard')">🏆 Leaderboard</button>
+  <button type="button" data-screen-link="profile" onclick="showScreen('profile')">👤 Profile</button>
  </nav>
 </header>
 
 <main class="container">
 
-<section class="hero" id="home">
+<section class="hero screen-section" data-screen="home" id="home">
  <div class="eyebrow">YOUR ONLINE HANGOUT STARTS HERE</div>
  <h1>Your world.<br><span class="gradient">Your vibe.</span></h1>
  <p>Play games, test your brain, discover your personality and take on daily challenges. Bring your squad and make every visit count.</p>
@@ -203,7 +210,7 @@ body.sender-mode footer{display:none!important}
  <div class="ad">ADVERTISEMENT · AD SPACE</div>
 </section>
 
-<section id="games">
+<section class="screen-section" data-screen="games" id="games">
  <div class="heading">
   <div><h2>🎮 The Game Zone</h2><p>Choose your challenge. Earn points. Beat your best score.</p></div>
  </div>
@@ -220,7 +227,7 @@ body.sender-mode footer{display:none!important}
  </div>
 </section>
 
-<section id="playarea" class="hidden">
+<section id="playarea" class="hidden screen-section" data-screen="games">
  <div class="gamebox panel pop">
   <div class="heading">
    <div><h2 id="gameTitle">Game</h2><p id="gameDesc">Let's play!</p></div>
@@ -230,7 +237,7 @@ body.sender-mode footer{display:none!important}
  </div>
 </section>
 
-<section id="vibeai">
+<section class="screen-section" data-screen="vibeai" id="vibeai">
  <div class="heading"><div><h2>🤖 VibeAI Corner</h2><p>Pick a character for a fun conversation.</p></div></div>
  <div class="grid">
   <div class="card"><div class="emoji">🚀</div><h3>Hype Friend</h3><p class="muted">Motivation, positivity and big energy.</p><button class="btn" onclick="chooseAI('hype')">Chat</button></div>
@@ -246,7 +253,7 @@ body.sender-mode footer{display:none!important}
  </div>
 </section>
 
-<section id="messages">
+<section class="screen-section" data-screen="messages" id="messages">
  <div class="heading">
   <div><h2>💌 VibeMessages</h2><p>Your own anonymous message inbox.</p></div>
  </div>
@@ -285,7 +292,7 @@ body.sender-mode footer{display:none!important}
  <p class="small">Messages are anonymous to the recipient, but are not guaranteed to be untraceable to the platform. Be respectful and do not share private information.</p>
 </section>
 
-<section id="challenges">
+<section class="screen-section" data-screen="challenges" id="challenges">
  <div class="heading"><div><h2>🔥 Daily Challenges</h2><p>A new mini mission to complete every day.</p></div></div>
  <div class="panel">
   <div class="emoji float">🌟</div>
@@ -297,7 +304,7 @@ body.sender-mode footer{display:none!important}
  </div>
 </section>
 
-<section id="leaderboard">
+<section class="screen-section" data-screen="leaderboard" id="leaderboard">
  <div class="heading">
   <div><h2>🏆 Global Leaderboard</h2><p>Compete with VibeZone players everywhere.</p></div>
   <button class="btn secondary" onclick="shareSite()">Share VibeZone ↗</button>
@@ -309,7 +316,7 @@ body.sender-mode footer{display:none!important}
  </div>
 </section>
 
-<section id="profile">
+<section class="screen-section" data-screen="profile" id="profile">
  <div class="heading"><div><h2>👤 Your Profile</h2><p>Choose your nickname and avatar.</p></div></div>
  <div class="panel">
   <div class="profile">
@@ -393,9 +400,24 @@ let currentGame='',index=0,score=0,extra=0;
 let currentAI='hype',reactionStart=0,reactionTimer=null;
 let early=false;
 
+function showScreen(screen){
+ const validScreens=['home','messages','games','vibeai','challenges','leaderboard','profile'];
+ if(!validScreens.includes(screen))screen='messages';
+ document.querySelectorAll('.screen-section').forEach(section=>{
+  section.classList.toggle('active',section.dataset.screen===screen);
+ });
+ document.querySelectorAll('[data-screen-link]').forEach(button=>{
+  const active=button.dataset.screenLink===screen;
+  button.classList.toggle('active',active);
+  if(active)button.setAttribute('aria-current','page');
+  else button.removeAttribute('aria-current');
+ });
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
 function go(id){
  const element=$(id);
- if(element)element.scrollIntoView({behavior:'smooth'});
+ if(element)showScreen(element.dataset.screen||id);
 }
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 
@@ -873,6 +895,7 @@ function shareSite(){
 
 updateProfile();
 loadDaily();
+showScreen('messages');
 
 /* Dedicated anonymous message page */
 const inboxFromURL=new URLSearchParams(location.search).get('inbox');
