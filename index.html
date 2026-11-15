@@ -397,6 +397,30 @@ let records=read('vz_records',[]);
 let dailyDone=read('vz_daily','');
 
 let currentGame='',index=0,score=0,extra=0;
+let gameDecks={},previousGameDecks={};
+
+function shuffleDeck(items){
+ const deck=[...items];
+ for(let i=deck.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [deck[i],deck[j]]=[deck[j],deck[i]];
+ }
+ return deck;
+}
+
+// Shuffle each new session and avoid repeating the exact previous order.
+function freshGameDeck(key,items){
+ let deck=shuffleDeck(items);
+ let attempts=0;
+ while(items.length>1&&previousGameDecks[key]&&
+       deck.every((item,i)=>item===previousGameDecks[key][i])&&attempts<12){
+  deck=shuffleDeck(items);
+  attempts++;
+ }
+ previousGameDecks[key]=[...deck];
+ return deck;
+}
+
 let currentAI='hype',reactionStart=0,reactionTimer=null;
 let early=false;
 
@@ -525,6 +549,14 @@ const words=[
 function start(type){
  closeReaction();
  currentGame=type;index=0;score=0;extra=0;
+ gameDecks={
+  rather:freshGameDeck('rather',rather),
+  emoji:freshGameDeck('emoji',emojis),
+  trivia:freshGameDeck('trivia',trivia),
+  truth:freshGameDeck('truth',truths),
+  personality:freshGameDeck('personality',personality),
+  words:freshGameDeck('words',words)
+ };
  $('playarea').classList.remove('hidden');
  $('playarea').scrollIntoView({behavior:'smooth'});
  const names={
@@ -564,8 +596,8 @@ function render(){
  area.innerHTML='';
 
  if(currentGame==='rather'){
-  if(index>=rather.length)return finish(score*3,'That was fun!');
-  let q=rather[index];
+  if(index>=gameDecks.rather.length)return finish(score*3,'That was fun!');
+  let q=gameDecks.rather[index];
   area.innerHTML=`
    <p class="small">QUESTION ${index+1} OF ${rather.length}</p>
    <div class="question">Would you rather...</div>
@@ -574,7 +606,7 @@ function render(){
  }
 
  if(currentGame==='emoji'||currentGame==='trivia'){
-  let list=currentGame==='emoji'?emojis:trivia;
+  let list=currentGame==='emoji'?gameDecks.emoji:gameDecks.trivia;
   if(index>=list.length)return finish(score*5,'Challenge complete!');
   let q=list[index];
   area.innerHTML=`
@@ -586,7 +618,7 @@ function render(){
 
  if(currentGame==='truth'){
   if(index>=5)return finish(score,'Truth or Dare complete!');
-  let q=truths[Math.floor(Math.random()*truths.length)];
+  let q=gameDecks.truth[index];
   area.innerHTML=`
    <p class="small">PROMPT ${index+1} OF 5</p>
    <div class="question">🎲 ${q[0]}<br>${q[1]}</div>
@@ -595,8 +627,8 @@ function render(){
  }
 
  if(currentGame==='personality'){
-  if(index>=personality.length)return finishPersonality();
-  let q=personality[index];
+  if(index>=gameDecks.personality.length)return finishPersonality();
+  let q=gameDecks.personality[index];
   area.innerHTML=`
    <p class="small">QUESTION ${index+1} OF ${personality.length}</p>
    <div class="question">${q[0]}</div>
@@ -645,7 +677,7 @@ let memoryMoves=0,memoryLocked=false;
 let rpsRoundDone=false,wordAnswered=false;
 
 function renderMemory(){
- memoryCards=['🐸','🐸','🌈','🌈','🚀','🚀','🍕','🍕','🐼','🐼','⭐','⭐'].sort(()=>Math.random()-.5);
+ memoryCards=shuffleDeck(['🐸','🐸','🌈','🌈','🚀','🚀','🍕','🍕','🐼','🐼','⭐','⭐']);
  memoryOpen=[];memoryMatches=0;memoryMoves=0;memoryLocked=false;
  drawMemory();
 }
@@ -774,9 +806,9 @@ function playRPS(choice){
 }
 
 function renderWord(){
- if(index>=words.length)return finish(score,'Word challenge complete!');
+ if(index>=gameDecks.words.length)return finish(score,'Word challenge complete!');
  wordAnswered=false;
- let q=words[index];
+ let q=gameDecks.words[index];
  $('gameContent').innerHTML=`
   <p class="small">WORD ${index+1}</p>
   <div class="question">🔤 ${q[0].split('').join(' ')}</div>
