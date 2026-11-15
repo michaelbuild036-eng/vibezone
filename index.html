@@ -321,20 +321,6 @@ body.sender-mode footer{display:none!important}
   <p class="small">Your nickname and score appear on the global leaderboard.</p>
  </div>
 
- <div class="panel" style="margin-top:18px">
-  <h3>☁️ Save your points across devices</h3>
-  <p class="muted">Create an account once, then sign in with the same email and password on your phone or another device. Your collected points and leaderboard identity will follow you.</p>
-  <label for="accountEmail">Email address</label>
-  <input id="accountEmail" type="email" autocomplete="email" placeholder="you@example.com">
-  <label for="accountPassword">Password</label>
-  <input id="accountPassword" type="password" autocomplete="current-password" minlength="6" placeholder="At least 6 characters">
-  <div style="display:flex;gap:10px;flex-wrap:wrap">
-   <button class="btn" id="createAccountButton" onclick="vzCreatePlayerAccount()">Create account & sync</button>
-   <button class="btn secondary" id="signInButton" onclick="vzSignInPlayer()">Sign in</button>
-  </div>
-  <p class="status-message" id="accountStatus" aria-live="polite"></p>
-  <p class="small">Guest play still works. When signed in, your collected and uncollected points are saved to your account.</p>
- </div>
 </section>
 
 <div class="ad">ADVERTISEMENT · AD SPACE</div>
@@ -602,10 +588,11 @@ function render(){
   let list=currentGame==='emoji'?gameDecks.emoji:gameDecks.trivia;
   if(index>=list.length)return finish(score*5,'Challenge complete!');
   let q=list[index];
+  let shuffledOptions=shuffleDeck(q.a.map((text,originalIndex)=>({text,originalIndex})));
   area.innerHTML=`
    <p class="small">QUESTION ${index+1} OF ${list.length}</p>
    <div class="question">${q.q}</div>
-   <div class="choices">${q.a.map((x,i)=>`<button class="choice" onclick="answer(${i})">${x}</button>`).join('')}</div>
+   <div class="choices">${shuffledOptions.map(option=>`<button class="choice" onclick="answer(${option.originalIndex})">${option.text}</button>`).join('')}</div>
    <p class="answer" id="feedback"></p>`;
  }
 
@@ -622,10 +609,12 @@ function render(){
  if(currentGame==='personality'){
   if(index>=gameDecks.personality.length)return finishPersonality();
   let q=gameDecks.personality[index];
+  let shuffledOptions=shuffleDeck(q[1].map((text,originalIndex)=>({text,originalIndex})));
   area.innerHTML=`
    <p class="small">QUESTION ${index+1} OF ${gameDecks.personality.length}</p>
    <div class="question">${q[0]}</div>
-   <div class="choices">${q[1].map((x,i)=>`<button class="choice" onclick="personAnswer(${i})">${x}</button>`).join('')}</div>`;
+   <div class="choices">${shuffledOptions.map(option=>`<button class="choice" onclick="personAnswer(${option.originalIndex})">${option.text}</button>`).join('')}</div>
+   <button class="btn secondary" onclick="finishPersonality()">Finish quiz</button>`;
  }
 
  if(currentGame==='memory')renderMemory();
@@ -647,6 +636,12 @@ function answer(i){
  b.className='btn';b.textContent='Next question';
  b.onclick=()=>{index++;render()};
  $('gameContent').appendChild(b);
+ let finishButton=document.createElement('button');
+ finishButton.className='btn secondary';
+ finishButton.textContent='Finish game';
+ finishButton.style.marginLeft='8px';
+ finishButton.onclick=()=>finish(score*5,'Challenge finished!');
+ $('gameContent').appendChild(finishButton);
 }
 
 function personAnswer(i){extra+=i;index++;render()}
@@ -911,17 +906,13 @@ import {
  getAuth,
  signInAnonymously,
  setPersistence,
- browserLocalPersistence,
- EmailAuthProvider,
- linkWithCredential,
- signInWithEmailAndPassword
+ browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
 import {
  getFirestore,
  collection,
  doc,
- getDoc,
  setDoc,
  query,
  orderBy,
@@ -1020,102 +1011,6 @@ window.vzSyncOnline=async function(){
   dailyDone:publicProfile.dailyDone,
   updatedAt:serverTimestamp()
  },{merge:true});
-};
-
-// Restore the saved player score when the same account signs in on another device.
-async function loadCloudPlayer(user){
- const playerRef=doc(db,'leaderboard',user.uid);
- const playerSnap=await getDoc(playerRef);
-
- if(playerSnap.exists()){
-  const cloud=playerSnap.data();
-  const cloudPoints=Math.max(0,Math.floor(Number(cloud.points)||0));
-  localStorage.setItem('vz_points',JSON.stringify(cloudPoints));
-  points=cloudPoints;
-  pendingPoints=Math.max(0,Math.floor(Number(cloud.pendingPoints)||0));
-  localStorage.setItem('vz_pending_points',JSON.stringify(pendingPoints));
-  dailyDone=String(cloud.dailyDone||'');
-  localStorage.setItem('vz_daily',JSON.stringify(dailyDone));
-  updatePendingPoints();
-  loadDaily();
-
-  if(cloud.nickname){
-   profile={...profile,name:String(cloud.nickname).slice(0,18)};
-   localStorage.setItem('vz_profile',JSON.stringify(profile));
-  }
-  updateProfile();
- }else{
-  // First-time account: publish this browser's current guest score.
-  await window.vzSyncOnline();
- }
-}
-
-// Convert the current guest account into an email/password account.
-// Linking keeps its Firebase UID, so existing VibeZone data and inbox remain attached.
-window.vzCreatePlayerAccount=async function(){
- const email=document.getElementById('accountEmail').value.trim();
- const password=document.getElementById('accountPassword').value;
- const status=document.getElementById('accountStatus');
- const button=document.getElementById('createAccountButton');
-
- if(!email||!password){status.textContent='Enter your email address and password.';return;}
- if(password.length<6){status.textContent='Your password must be at least 6 characters.';return;}
- if(!auth.currentUser){status.textContent='Please wait for VibeZone to connect, then try again.';return;}
-
- button.disabled=true;
- status.textContent='Creating your account and saving your points...';
- try{
-  const credential=EmailAuthProvider.credential(email,password);
-  const result=await linkWithCredential(auth.currentUser,credential);
-  currentUID=result.user.uid;
-  await window.vzSyncOnline();
-  status.textContent='Account created! Your collected points are now linked to this email. Sign in with it on your other devices. 💜';
- }catch(error){
-  console.error('Create player account error:',error);
-  const messages={
-   'auth/email-already-in-use':'That email already has a VibeZone account. Use Sign in instead.',
-   'auth/invalid-email':'Please enter a valid email address.',
-   'auth/weak-password':'Choose a stronger password with at least 6 characters.',
-   'auth/credential-already-in-use':'That email is already linked to another VibeZone account. Sign in instead.'
-  };
-  status.textContent=messages[error.code]||errorText(error);
- }finally{
-  button.disabled=false;
- }
-};
-
-// Sign in on another device and restore the cloud score before syncing.
-window.vzSignInPlayer=async function(){
- const email=document.getElementById('accountEmail').value.trim();
- const password=document.getElementById('accountPassword').value;
- const status=document.getElementById('accountStatus');
- const button=document.getElementById('signInButton');
-
- if(!email||!password){status.textContent='Enter your email address and password.';return;}
- button.disabled=true;
- status.textContent='Signing in and loading your saved points...';
- try{
-  const result=await signInWithEmailAndPassword(auth,email,password);
-  currentUID=result.user.uid;
-  await loadCloudPlayer(result.user);
-  await window.vzSyncOnline();
-  status.textContent='Welcome back! Your VibeZone points have been restored. 💜';
-  document.getElementById('myInboxLink').classList.remove('hidden');
-  document.getElementById('inboxLinkText').textContent=window.vzGetInboxLink();
-  setStatus('inboxLinkStatus','Your personal link is ready! Share it with your friends. 💖');
-  listenToInbox();
- }catch(error){
-  console.error('Player sign-in error:',error);
-  const messages={
-   'auth/invalid-credential':'Email or password is incorrect. Please try again.',
-   'auth/user-not-found':'No account was found for that email. Create an account first.',
-   'auth/wrong-password':'Email or password is incorrect. Please try again.',
-   'auth/invalid-email':'Please enter a valid email address.'
-  };
-  status.textContent=messages[error.code]||errorText(error);
- }finally{
-  button.disabled=false;
- }
 };
 
 function listenToInbox(){
@@ -1437,10 +1332,6 @@ async function startVibeZoneOnline(){
 
   currentUID=user.uid;
 
-  // A returning email/password player keeps the same UID on every device.
-  if(user.email){
-   await loadCloudPlayer(user);
-  }
 
   /* Sender mode: show only the anonymous message screen. */
   if(senderInboxID){
