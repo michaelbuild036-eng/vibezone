@@ -318,7 +318,22 @@ body.sender-mode footer{display:none!important}
    <option>🐱</option><option>🐉</option>
   </select><br>
   <button class="btn" onclick="saveProfile()">Save profile</button>
-  <p class="small">Your guest profile is saved in this browser. Your nickname and score are shared on the leaderboard.</p>
+  <p class="small">Your nickname and score appear on the global leaderboard.</p>
+ </div>
+
+ <div class="panel" style="margin-top:18px">
+  <h3>☁️ Save your points across devices</h3>
+  <p class="muted">Create an account once, then sign in with the same email and password on your phone or another device. Your collected points and leaderboard identity will follow you.</p>
+  <label for="accountEmail">Email address</label>
+  <input id="accountEmail" type="email" autocomplete="email" placeholder="you@example.com">
+  <label for="accountPassword">Password</label>
+  <input id="accountPassword" type="password" autocomplete="current-password" minlength="6" placeholder="At least 6 characters">
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+   <button class="btn" id="createAccountButton" onclick="vzCreatePlayerAccount()">Create account & sync</button>
+   <button class="btn secondary" id="signInButton" onclick="vzSignInPlayer()">Sign in</button>
+  </div>
+  <p class="status-message" id="accountStatus" aria-live="polite"></p>
+  <p class="small">Guest play still works. When signed in, your collected and uncollected points are saved to your account.</p>
  </div>
 </section>
 
@@ -447,10 +462,12 @@ function updateProfile(){
 }
 
 function addPoints(n){
- points+=n;
+ const amount=Math.max(0,Math.floor(Number(n)||0));
+ if(!amount)return;
+ points=Math.max(0,Math.floor(Number(points)||0))+amount;
  save('vz_points',points);
  updateProfile();
- if(window.vzSyncOnline)window.vzSyncOnline();
+ if(window.vzSyncOnline)window.vzSyncOnline().catch(error=>console.error('Points sync error:',error));
 }
 
 function saveProfile(){
@@ -470,9 +487,10 @@ function renderLeaders(){
 }
 
 function recordScore(n){
- if(n<=0)return;
- addPoints(n);
- records.push({name:profile.name,points:n,game:currentGame,date:Date.now()});
+ const amount=Math.max(0,Math.floor(Number(n)||0));
+ if(!amount)return;
+ addPoints(amount);
+ records.push({name:profile.name,points:amount,game:currentGame,date:Date.now()});
  save('vz_records',records);
  renderLeaders();
 }
@@ -492,12 +510,12 @@ function continuePlaying(){
 }
 
 function collectAllPoints(){
- if(pendingPoints<=0){continuePlaying();return}
- const total=pendingPoints;
+ const total=Math.max(0,Math.floor(Number(pendingPoints)||0));
+ if(total<=0){updatePendingPoints();continuePlaying();return}
+ // Clear the bank first so repeated clicks cannot collect the same points twice.
  pendingPoints=0;
- save('vz_pending_points',0);
- recordScore(total);
  updatePendingPoints();
+ recordScore(total);
  closeGame();
  showScreen('games');
 }
@@ -553,6 +571,7 @@ function finish(pointsEarned,message){
  const earned=Math.max(0,Math.floor(Number(pointsEarned)||0));
  pendingPoints+=earned;
  updatePendingPoints();
+ if(window.vzSyncOnline)window.vzSyncOnline().catch(error=>console.error('Points bank sync error:',error));
  $('gameContent').innerHTML=`
   <div class="question">🎉 ${message||'Game complete!'}</div>
   <p>You earned <b>${earned}</b> points this round!</p>
@@ -892,13 +911,17 @@ import {
  getAuth,
  signInAnonymously,
  setPersistence,
- browserLocalPersistence
+ browserLocalPersistence,
+ EmailAuthProvider,
+ linkWithCredential,
+ signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
 import {
  getFirestore,
  collection,
  doc,
+ getDoc,
  setDoc,
  query,
  orderBy,
@@ -911,7 +934,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig={
- apiKey:"AIzaSyCPPyathJ76lGoKLsDWZtIN2BUyvgL5css",
+ apiKey:"AIzaSyCPPyathJ76gLoKLsDWZtIN2BUyvgL5css",
  authDomain:"vibezone-2f23f.firebaseapp.com",
  projectId:"vibezone-2f23f",
  storageBucket:"vibezone-2f23f.firebasestorage.app",
@@ -935,7 +958,9 @@ window.vzGetPublicProfile=function(){
  try{savedPoints=Number(JSON.parse(localStorage.getItem('vz_points')||'0'))||0}catch(e){}
  return {
   nickname:String(savedProfile.name||'Guest Player').trim().slice(0,18)||'Guest Player',
-  points:Math.max(0,Math.floor(savedPoints))
+  points:Math.max(0,Math.floor(savedPoints)),
+  pendingPoints:Math.max(0,Math.floor(Number(JSON.parse(localStorage.getItem('vz_pending_points')||'0'))||0)),
+  dailyDone:String(localStorage.getItem('vz_daily')||'')
  };
 };
 
@@ -991,8 +1016,106 @@ window.vzSyncOnline=async function(){
  await setDoc(doc(db,'leaderboard',currentUID),{
   nickname:publicProfile.nickname,
   points:publicProfile.points,
+  pendingPoints:publicProfile.pendingPoints,
+  dailyDone:publicProfile.dailyDone,
   updatedAt:serverTimestamp()
  },{merge:true});
+};
+
+// Restore the saved player score when the same account signs in on another device.
+async function loadCloudPlayer(user){
+ const playerRef=doc(db,'leaderboard',user.uid);
+ const playerSnap=await getDoc(playerRef);
+
+ if(playerSnap.exists()){
+  const cloud=playerSnap.data();
+  const cloudPoints=Math.max(0,Math.floor(Number(cloud.points)||0));
+  localStorage.setItem('vz_points',JSON.stringify(cloudPoints));
+  points=cloudPoints;
+  pendingPoints=Math.max(0,Math.floor(Number(cloud.pendingPoints)||0));
+  localStorage.setItem('vz_pending_points',JSON.stringify(pendingPoints));
+  dailyDone=String(cloud.dailyDone||'');
+  localStorage.setItem('vz_daily',JSON.stringify(dailyDone));
+  updatePendingPoints();
+  loadDaily();
+
+  if(cloud.nickname){
+   profile={...profile,name:String(cloud.nickname).slice(0,18)};
+   localStorage.setItem('vz_profile',JSON.stringify(profile));
+  }
+  updateProfile();
+ }else{
+  // First-time account: publish this browser's current guest score.
+  await window.vzSyncOnline();
+ }
+}
+
+// Convert the current guest account into an email/password account.
+// Linking keeps its Firebase UID, so existing VibeZone data and inbox remain attached.
+window.vzCreatePlayerAccount=async function(){
+ const email=document.getElementById('accountEmail').value.trim();
+ const password=document.getElementById('accountPassword').value;
+ const status=document.getElementById('accountStatus');
+ const button=document.getElementById('createAccountButton');
+
+ if(!email||!password){status.textContent='Enter your email address and password.';return;}
+ if(password.length<6){status.textContent='Your password must be at least 6 characters.';return;}
+ if(!auth.currentUser){status.textContent='Please wait for VibeZone to connect, then try again.';return;}
+
+ button.disabled=true;
+ status.textContent='Creating your account and saving your points...';
+ try{
+  const credential=EmailAuthProvider.credential(email,password);
+  const result=await linkWithCredential(auth.currentUser,credential);
+  currentUID=result.user.uid;
+  await window.vzSyncOnline();
+  status.textContent='Account created! Your collected points are now linked to this email. Sign in with it on your other devices. 💜';
+ }catch(error){
+  console.error('Create player account error:',error);
+  const messages={
+   'auth/email-already-in-use':'That email already has a VibeZone account. Use Sign in instead.',
+   'auth/invalid-email':'Please enter a valid email address.',
+   'auth/weak-password':'Choose a stronger password with at least 6 characters.',
+   'auth/credential-already-in-use':'That email is already linked to another VibeZone account. Sign in instead.'
+  };
+  status.textContent=messages[error.code]||errorText(error);
+ }finally{
+  button.disabled=false;
+ }
+};
+
+// Sign in on another device and restore the cloud score before syncing.
+window.vzSignInPlayer=async function(){
+ const email=document.getElementById('accountEmail').value.trim();
+ const password=document.getElementById('accountPassword').value;
+ const status=document.getElementById('accountStatus');
+ const button=document.getElementById('signInButton');
+
+ if(!email||!password){status.textContent='Enter your email address and password.';return;}
+ button.disabled=true;
+ status.textContent='Signing in and loading your saved points...';
+ try{
+  const result=await signInWithEmailAndPassword(auth,email,password);
+  currentUID=result.user.uid;
+  await loadCloudPlayer(result.user);
+  await window.vzSyncOnline();
+  status.textContent='Welcome back! Your VibeZone points have been restored. 💜';
+  document.getElementById('myInboxLink').classList.remove('hidden');
+  document.getElementById('inboxLinkText').textContent=window.vzGetInboxLink();
+  setStatus('inboxLinkStatus','Your personal link is ready! Share it with your friends. 💖');
+  listenToInbox();
+ }catch(error){
+  console.error('Player sign-in error:',error);
+  const messages={
+   'auth/invalid-credential':'Email or password is incorrect. Please try again.',
+   'auth/user-not-found':'No account was found for that email. Create an account first.',
+   'auth/wrong-password':'Email or password is incorrect. Please try again.',
+   'auth/invalid-email':'Please enter a valid email address.'
+  };
+  status.textContent=messages[error.code]||errorText(error);
+ }finally{
+  button.disabled=false;
+ }
 };
 
 function listenToInbox(){
@@ -1313,6 +1436,11 @@ async function startVibeZoneOnline(){
   }
 
   currentUID=user.uid;
+
+  // A returning email/password player keeps the same UID on every device.
+  if(user.email){
+   await loadCloudPlayer(user);
+  }
 
   /* Sender mode: show only the anonymous message screen. */
   if(senderInboxID){
