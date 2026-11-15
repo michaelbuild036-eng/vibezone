@@ -192,7 +192,6 @@ body.sender-mode footer{display:none!important}
  <nav aria-label="Main navigation">
   <button type="button" data-screen-link="messages" onclick="showScreen('messages')">💌 Messages</button>
   <button type="button" data-screen-link="games" onclick="showScreen('games')">🎮 Games</button>
-  <button type="button" data-screen-link="vibeai" onclick="showScreen('vibeai')">🤖 VibeAI</button>
   <button type="button" data-screen-link="challenges" onclick="showScreen('challenges')">🔥 Challenges</button>
   <button type="button" data-screen-link="leaderboard" onclick="showScreen('leaderboard')">🏆 Leaderboard</button>
   <button type="button" data-screen-link="profile" onclick="showScreen('profile')">👤 Profile</button>
@@ -206,13 +205,16 @@ body.sender-mode footer{display:none!important}
  <h1>Your world.<br><span class="gradient">Your vibe.</span></h1>
  <p>Play games, test your brain, discover your personality and take on daily challenges. Bring your squad and make every visit count.</p>
  <button class="btn pulse" onclick="go('games')">🎮 Explore games</button>
- <button class="btn secondary" onclick="go('vibeai')">Meet VibeAI</button>
  <div class="ad">ADVERTISEMENT · AD SPACE</div>
 </section>
 
 <section class="screen-section" data-screen="games" id="games">
  <div class="heading">
   <div><h2>🎮 The Game Zone</h2><p>Choose your challenge. Earn points. Beat your best score.</p></div>
+ </div>
+ <div class="panel" id="pendingPointsPanel" style="margin-bottom:18px">
+  <div class="heading"><div><h3>🏦 Your points bank</h3><p class="muted">Keep playing and collect all your saved game points whenever you are ready.</p></div><div class="stat"><span id="pendingPointsView">0</span> ✦</div></div>
+  <button class="btn" id="bankCollectButton" onclick="collectAllPoints()" disabled>Collect all points</button>
  </div>
  <div class="grid">
   <div class="card game-card"><div class="emoji">⚡</div><h3>Would You Rather</h3><p>Two choices. Which side are you on?</p><button class="btn" onclick="start('rather')">Play now</button></div>
@@ -234,22 +236,6 @@ body.sender-mode footer{display:none!important}
    <button class="btn secondary" onclick="closeGame()">✕ Close</button>
   </div>
   <div id="gameContent"></div>
- </div>
-</section>
-
-<section class="screen-section" data-screen="vibeai" id="vibeai">
- <div class="heading"><div><h2>🤖 VibeAI Corner</h2><p>Pick a character for a fun conversation.</p></div></div>
- <div class="grid">
-  <div class="card"><div class="emoji">🚀</div><h3>Hype Friend</h3><p class="muted">Motivation, positivity and big energy.</p><button class="btn" onclick="chooseAI('hype')">Chat</button></div>
-  <div class="card"><div class="emoji">📚</div><h3>Study Buddy</h3><p class="muted">Study ideas and learning motivation.</p><button class="btn" onclick="chooseAI('study')">Chat</button></div>
-  <div class="card"><div class="emoji">🎨</div><h3>Story Maker</h3><p class="muted">Creative ideas and imaginative adventures.</p><button class="btn" onclick="chooseAI('story')">Chat</button></div>
- </div>
- <div class="panel hidden" id="aiPanel" style="margin-top:18px">
-  <h3 id="aiName">VibeAI</h3>
-  <p class="small">Fictional demo characters with preset replies. Not a live AI. Don't share private information.</p>
-  <div class="chat" id="chat"></div>
-  <input id="aiInput" maxlength="180" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendAI()">
-  <button class="btn" onclick="sendAI()">Send ✦</button>
  </div>
 </section>
 
@@ -377,7 +363,6 @@ body.sender-mode footer{display:none!important}
  <div class="logo">Vibe<span>Zone</span> ✦</div>
  Your world. Your vibe.<br>
  Have fun, respect others and keep personal information private.<br>
- VibeAI is a fictional demo with preset replies.<br>
  <span class="small">VibeZone is free to use. Ad spaces are placeholders, not live advertisements.</span>
 </footer>
 
@@ -397,6 +382,7 @@ let records=read('vz_records',[]);
 let dailyDone=read('vz_daily','');
 
 let currentGame='',index=0,score=0,extra=0;
+let pendingPoints=Math.max(0,Number(read('vz_pending_points',0))||0);
 let gameDecks={},previousGameDecks={};
 
 function shuffleDeck(items){
@@ -421,11 +407,11 @@ function freshGameDeck(key,items){
  return deck;
 }
 
-let currentAI='hype',reactionStart=0,reactionTimer=null;
+let reactionStart=0,reactionTimer=null;
 let early=false;
 
 function showScreen(screen){
- const validScreens=['home','messages','games','vibeai','challenges','leaderboard','profile'];
+ const validScreens=['home','messages','games','challenges','leaderboard','profile'];
  if(!validScreens.includes(screen))screen='messages';
  document.querySelectorAll('.screen-section').forEach(section=>{
   section.classList.toggle('active',section.dataset.screen===screen);
@@ -491,6 +477,31 @@ function recordScore(n){
  renderLeaders();
 }
 
+function updatePendingPoints(){
+ const view=$('pendingPointsView');
+ const button=$('bankCollectButton');
+ if(view)view.textContent=pendingPoints;
+ if(button)button.disabled=pendingPoints<=0;
+ save('vz_pending_points',pendingPoints);
+}
+
+function continuePlaying(){
+ closeGame();
+ showScreen('games');
+ updatePendingPoints();
+}
+
+function collectAllPoints(){
+ if(pendingPoints<=0){continuePlaying();return}
+ const total=pendingPoints;
+ pendingPoints=0;
+ save('vz_pending_points',0);
+ recordScore(total);
+ updatePendingPoints();
+ closeGame();
+ showScreen('games');
+}
+
 const rather=[["Explore a hidden jungle 🌴","Explore a frozen polar world ❄️"],["Visit a city on Mars 🔴","Visit a city beneath the sea 🫧"],["Become a world-class chef 👨‍🍳","Become a world-class musician 🎹"],["Speak every language 🌍","Understand every animal 🐾"],["Have a tiny dragon 🐉","Have a clever talking parrot 🦜"],["Travel by private spaceship 🚀","Travel by luxury train 🚄"],["Live in a treehouse 🌳","Live in a floating home 🛶"],["Be able to breathe underwater 🐠","Fly high above the clouds 🦅"],["Meet your future self ⏳","Meet your great-grandchildren 👨‍👩‍👧‍👦"],["Discover a secret island 🏝️","Discover a lost mountain village ⛰️"],["Have a photographic memory 📸","Have a memory palace 🏛️"],["Play every musical instrument 🎸","Compose a hit song 🎼"],["Be an Olympic champion 🥇","Be a professional footballer ⚽"],["Design your own video game 🎮","Create your own animated film 🎞️"],["Own a magical library 📚","Own a magical art studio 🖌️"],["Have a personal robot helper 🤖","Have a helpful flying assistant 🛸"],["Visit every national park 🏞️","Visit every island in the world 🗺️"],["Be a famous wildlife photographer 🦒","Be a famous space photographer 🌌"],["Invent a new sport 🏆","Invent a new board game 🎲"],["Have a garden that grows sweets 🍬","Have a tree that grows fruit all year 🍎"],["Always find a parking space 🚗","Always get the best table 🍽️"],["Never have homework again ✏️","Finish every task in five minutes ⚡"],["Get free movie tickets forever 🎬","Get free books forever 📚"],["Have unlimited data 📶","Have unlimited battery 🔌"],["Wake up fully rested every day 😴","Fall asleep in seconds 🌙"],["Always know the perfect joke 😂","Always know how to cheer people up 💛"],["Have a wardrobe that picks outfits 👕","Have a wardrobe that changes with the weather 🧥"],["Be able to teleport home 🌀","Teleport to any beach 🏝️"],["Have a never-ending holiday 🏖️","Have every weekend be three days long 📆"],["Get front-row seats at every concert 🎤","Meet your favourite author ✍️"],["Own a friendly elephant 🐘","Own a friendly giraffe 🦒"],["Have a pet penguin 🐧","Have a pet red panda 🐾"],["Ride a friendly dinosaur 🦖","Ride a gentle giant turtle 🐢"],["Swim with dolphins 🐬","Swim with sea turtles 🐢"],["Watch a meteor shower from space 🌠","Watch a sunrise from a mountain 🌄"],["Explore an ancient castle 🏰","Explore a secret garden 🌷"],["Visit the deepest ocean trench 🌊","Visit a glowing underwater cave ✨"],["Walk through a giant greenhouse 🌺","Walk through a butterfly sanctuary 🦋"],["Go on a safari every month 🦓","Go on a safari every weekend 🦁"],["Take a train across Africa 🚆","Take a boat trip around the world ⛵"],["Be the best storyteller 📖","Be the funniest person in the room 😄"],["Create amazing artwork 🎨","Create beautiful music 🎶"],["Build incredible inventions 🧪","Solve difficult mysteries 🕵️"],["Be brilliant at maths ➗","Be brilliant at science 🔬"],["Learn a new skill in one day 🧠","Master a new language in a week 🗨️"],["Have perfect rhythm 🥁","Have perfect pitch 🎵"],["Be an expert gardener 🌱","Grow the biggest vegetables 🥕"],["Speak confidently on stage 🎙️","Be a confident dancer 💃"],["Be an amazing photographer 📷","Be an amazing filmmaker 🎥"],["Write a bestselling book ✍️","Illustrate a bestselling comic 🦸"],["Have summer weather all year ☀️","Have spring weather all year 🌸"],["Have cosy rainy days all year 🌧️","Have crisp autumn days all year 🍂"],["Live beside the ocean 🏖️","Live beside a lake 🛶"],["Live beside a forest 🌲","Live beside a waterfall 💦"],["Live in a lively city 🌆","Live in a small coastal town ⚓"],["Live in a peaceful village 🌻","Live in a busy creative district 🎨"],["Stay in a mountain cabin 🏔️","Stay in a forest lodge 🪵"],["Live on a houseboat 🚤","Live in a lighthouse 🗼"],["Have a rooftop garden 🌿","Have a balcony full of flowers 🌼"],["Own a cosy beach cottage 🏡","Own a cosy mountain cottage 🏠"],["Win a year of free groceries 🛒","Win a year of free restaurant meals 🍕"],["Get a new book every week 📚","Get a new game every week 🕹️"],["Have free fuel for life ⛽","Have free public transport for life 🚌"],["Get free flights for life ✈️","Get free hotel stays for life 🏨"],["Have unlimited ice cream 🍦","Have unlimited popcorn 🍿"],["Get free concert tickets 🎟️","Get free sports tickets 🎫"],["Have a personal trainer 🏋️","Have a personal chef 👩‍🍳"],["Have a personal tutor 🧑‍🏫","Have a personal language coach 🗣️"],["Get free theme-park entry 🎢","Get free aquarium entry 🐠"],["Have a chef cook every meal 🍽️","Have someone do all the laundry 🧺"],["Be able to pause time ⏸️","Be able to slow time 🐌"],["Be able to rewind one minute 🔁","Be able to redo one day 🔄"],["See ten minutes into the future 🔮","See one year into the future 📅"],["Understand every animal 🐾","Understand every language 🗣️"],["Control the weather 🌦️","Control the wind 🌬️"],["Make plants grow instantly 🌻","Make flowers bloom instantly 🌺"],["Change your hair colour at will 🌈","Change your outfit with a snap 👗"],["Remember every dream 💭","Remember every book you read 📚"],["Talk to your favourite fictional hero 🦸","Talk to your favourite musician 🎤"],["Make anything you draw come alive ✏️","Make anything you write become real 📝"],["Go on a world food tour 🍜","Go on a world art tour 🖼️"],["Take a road trip with friends 🚙","Take a road trip with family 🚐"],["Camp under the stars ⛺","Sleep in a glass cabin under stars 🌟"],["Visit a famous museum 🏛️","Visit a famous science centre 🧬"],["Explore a colourful coral reef 🪸","Explore a tropical rainforest 🌿"],["Attend a huge music festival 🎶","Attend a huge sports final 🏟️"],["Watch a live football final ⚽","Watch a live rugby final 🏉"],["Take a hot-air balloon ride 🎈","Take a helicopter ride 🚁"],["Go on a waterfall hike 🥾","Go on a coastal cycling trip 🚴"],["See the Northern Lights 🌌","See a total solar eclipse 🌑"],["Always have a fully charged phone 🔋","Always have a great phone signal 📱"],["Always have fast Wi-Fi 📡","Always have a quiet place to relax 🧘"],["Never lose your keys 🔑","Never forget a birthday 🎂"],["Never wait in a queue 🧍","Never have a delayed flight 🛫"],["Always choose the perfect gift 🎁","Always know what to cook 🍳"],["Have the perfect memory for names 🗣️","Have the perfect sense of direction 🧭"],["Never spill a drink 🥤","Never drop your food 🍟"],["Always get the window seat 🪟","Always get the aisle seat 🚶"],["Have your favourite song play at the right time 🎵","Always remember song lyrics 🎤"],["Always find exactly what you need 🔎","Always find a great bargain 🏷️"]];
 
 const emojis=[{"q":"🌧️ + 🌈","a":["Rainbow","Thunderstorm","Waterfall"],"c":0},{"q":"🎂 + 🎉","a":["Birthday party","Wedding","Cooking show"],"c":0},{"q":"🕷️ + 👨","a":["Spider-Man","Batman","Ant-Man"],"c":0},{"q":"🌙 + 🚶","a":["Night walk","Morning run","Dream home"],"c":0},{"q":"🐝 + 🍯","a":["Honey","Flower garden","Beehive"],"c":0},{"q":"⭐ + 🐟","a":["Starfish","Goldfish","Space fish"],"c":0},{"q":"🦷 + 🧚","a":["Tooth fairy","Dentist","Magic school"],"c":0},{"q":"🔥 + 🐶","a":["Hot dog","Fire dog","Dog house"],"c":0},{"q":"🌽 + 🐕","a":["Corn dog","Farm dog","Yellow puppy"],"c":0},{"q":"🐱 + 🐟","a":["Catfish","Pet shop","Sea cat"],"c":0},{"q":"🍳 + 🥓","a":["Breakfast","Dinner party","Picnic"],"c":0},{"q":"🎮 + 🏆","a":["Gaming champion","Sports day","Game night"],"c":0},{"q":"❄️ + 👨","a":["Snowman","Ice cream","Winter coat"],"c":0},{"q":"🌻 + ☀️","a":["Sunflower","Sunset","Summer holiday"],"c":0},{"q":"👑 + 🦁","a":["The Lion King","Royal pet","King crab"],"c":0},{"q":"🧊 + 🍵","a":["Iced tea","Hot chocolate","Ice cube"],"c":0},{"q":"🚗 + 🏁","a":["Car race","Road trip","Traffic jam"],"c":0},{"q":"📚 + 🐛","a":["Bookworm","Reading club","Garden bug"],"c":0},{"q":"👻 + 🏠","a":["Haunted house","Ghost town","Scary movie"],"c":0},{"q":"🌧️ + 🥾","a":["Rain boots","Water sports","Wet weather"],"c":0},{"q":"🐢 + 🏃","a":["Turtle race","Fast animal","Pet show"],"c":0},{"q":"🍯 + 🌙","a":["Honeymoon","Sweet dreams","Night snack"],"c":0},{"q":"🌮 + 🔔","a":["Taco Bell","Dinner bell","Food truck"],"c":0},{"q":"🐑 + 💤","a":["Sleepy sheep","Dream job","Wool shop"],"c":0},{"q":"🌍 + 🧑‍🚀","a":["Astronaut","Pilot","Explorer"],"c":0},{"q":"🍎 + 🥧","a":["Apple pie","Fruit salad","Apple juice"],"c":0},{"q":"🌊 + 🐴","a":["Seahorse","Sea lion","Water horse"],"c":0},{"q":"🦇 + 👨","a":["Batman","Superman","Spider-Man"],"c":0},{"q":"🐼 + 🎋","a":["Panda"," koala","Bamboo forest"],"c":0},{"q":"🍔 + 👑","a":["Burger King","Food court","Royal meal"],"c":0},{"q":"🌟 + 💫","a":["Shooting star","Night light","Galaxy"],"c":0},{"q":"🧛 + 🦇","a":["Vampire","Wizard","Monster truck"],"c":0},{"q":"🐜 + 🏠","a":["Ant hill","Tree house","Insect zoo"],"c":0},{"q":"🍋 + 💧","a":["Lemonade","Lemon tea","Orange juice"],"c":0},{"q":"🧀 + 🍰","a":["Cheesecake","Pizza","Milkshake"],"c":0},{"q":"🐉 + 🔥","a":["Fire-breathing dragon","Lizard","Volcano"],"c":0},{"q":"🌳 + 🏠","a":["Treehouse","Forest cabin","Garden shed"],"c":0},{"q":"🎈 + 🎁","a":["Party gift","Hot-air balloon","Surprise box"],"c":0},{"q":"🧠 + 🌩️","a":["Brainstorm","Thunderhead","Smartphone"],"c":0},{"q":"🐟 + 🥣","a":["Fishbowl","Fish soup","Aquarium"],"c":0},{"q":"🍫 + 🥛","a":["Chocolate milk","Coffee","Milkshake"],"c":0},{"q":"🌙 + 🌊","a":["Moonlight","Tide pool","Night swim"],"c":0},{"q":"🧤 + ❄️","a":["Winter gloves","Snowball","Ice skating"],"c":0},{"q":"🐝 + 🌼","a":["Bee flower","Honeycomb","Garden"],"c":0},{"q":"🚀 + 🌕","a":["Moon landing","Space race","Rocket fuel"],"c":0},{"q":"🦶 + ⚽","a":["Football","Foot race","Soccer shoe"],"c":0},{"q":"🍿 + 🎬","a":["Movie night","Cinema snack","Pop concert"],"c":0},{"q":"🐻 + 🍯","a":["Honey bear","Polar bear","Teddy shop"],"c":0},{"q":"🌋 + 🏝️","a":["Volcanic island","Desert island","Mountain lake"],"c":0},{"q":"🕶️ + ☀️","a":["Sunglasses","Sunburn","Summer hat"],"c":0},{"q":"🧁 + 👑","a":["Cupcake queen","Birthday cake","Royal baker"],"c":0},{"q":"🐸 + 👑","a":["Frog prince","Green king","Pond life"],"c":0},{"q":"🧹 + 🧙","a":["Witch","Cleaner","Magic broom"],"c":0},{"q":"🦴 + 🐕","a":["Dog bone","Dinosaur","Pet food"],"c":0},{"q":"🍓 + 🥤","a":["Strawberry smoothie","Fruit punch","Milkshake"],"c":0},{"q":"🚦 + 🚗","a":["Traffic lights","Car park","Road trip"],"c":0},{"q":"🛏️ + 💤","a":["Bedtime","Sleepover","Dreamcatcher"],"c":0},{"q":"🐌 + 📬","a":["Snail mail","Post office","Slow delivery"],"c":0},{"q":"🎯 + 🏹","a":["Archery","Darts","Target practice"],"c":0},{"q":"🧊 + 🐻","a":["Polar bear","Ice age","Snow leopard"],"c":0},{"q":"🌸 + 🐝","a":["Pollination","Spring rain","Flower shop"],"c":0},{"q":"🍞 + 🧈","a":["Buttered toast","Sandwich","Bread basket"],"c":0},{"q":"👂 + 🎵","a":["Music","Earphones","Concert hall"],"c":0},{"q":"🧑‍🍳 + 🍲","a":["Chef","Waiter","Food critic"],"c":0},{"q":"🐎 + 🏇","a":["Horse racing","Pony ride","Farm life"],"c":0},{"q":"🌌 + 🔭","a":["Stargazing","Night vision","Space travel"],"c":0},{"q":"🧳 + ✈️","a":["Travel","Airport","Holiday bag"],"c":0},{"q":"🧼 + 🫧","a":["Soap bubbles","Car wash","Dishwashing"],"c":0},{"q":"🧲 + 🧷","a":["Magnet","Metal detector","Paper clip"],"c":0},{"q":"🦉 + 📖","a":["Wise owl","Book club","Night school"],"c":0},{"q":"🍉 + ☀️","a":["Summer","Watermelon farm","Hot day"],"c":0},{"q":"🐬 + 🌊","a":["Dolphin","Shark","Ocean wave"],"c":0},{"q":"🧦 + 👟","a":["Socks and shoes","Running race","Laundry day"],"c":0},{"q":"🧁 + 🕯️","a":["Birthday cupcake","Candle shop","Dessert table"],"c":0},{"q":"🛶 + 🌊","a":["Canoeing","Surfing","Fishing boat"],"c":0},{"q":"🦋 + 🌷","a":["Butterfly garden","Springtime","Flower power"],"c":0},{"q":"🥶 + 🧊","a":["Freezing cold","Ice cream","Snow day"],"c":0},{"q":"🧑‍🚒 + 🔥","a":["Firefighter","Campfire","Fire drill"],"c":0},{"q":"🧑‍⚕️ + 🩺","a":["Doctor","Dentist","Nurse station"],"c":0},{"q":"🧑‍🎓 + 🎓","a":["Graduation","School trip","Study group"],"c":0},{"q":"🧑‍🚀 + 🪐","a":["Space explorer","Planetarium","Science class"],"c":0},{"q":"🐈 + 🧶","a":["Playing with yarn","Cat nap","Knitting club"],"c":0},{"q":"🐕 + 🏡","a":["Dog house","Pet hotel","Farmyard"],"c":0},{"q":"🦀 + 🏖️","a":["Crab on the beach","Seafood dinner","Sandcastle"],"c":0},{"q":"🍦 + 🚚","a":["Ice-cream truck","Food delivery","Summer drive"],"c":0},{"q":"🎸 + 🎤","a":["Rock concert","Karaoke","Music lesson"],"c":0},{"q":"🏀 + 🏆","a":["Basketball champion","Sports shop","Stadium tour"],"c":0},{"q":"🧩 + 🧠","a":["Puzzle solver","Brain game","School test"],"c":0},{"q":"🧜 + 🌊","a":["Mermaid","Sea princess","Ocean swimmer"],"c":0},{"q":"🧙 + 📚","a":["Wizard school","Bookshop","Magic trick"],"c":0},{"q":"🦖 + 🥚","a":["Dinosaur egg","Chicken farm","Fossil hunt"],"c":0},{"q":"🍪 + 🥛","a":["Cookies and milk","Breakfast","Tea time"],"c":0},{"q":"🧭 + 🗺️","a":["Navigation","Treasure map","Travel diary"],"c":0},{"q":"🪁 + 🌬️","a":["Flying a kite","Windmill","Storm warning"],"c":0},{"q":"🏕️ + 🔥","a":["Camping","Barbecue","Bonfire night"],"c":0},{"q":"🧑‍🚴 + 🚲","a":["Cycling","Motor racing","Bike shop"],"c":0},{"q":"🐧 + 🧊","a":["Penguin","Arctic fox","Snowman"],"c":0},{"q":"🧺 + 🍎","a":["Picnic basket","Grocery shopping","Fruit market"],"c":0},{"q":"🧑‍🎨 + 🎨","a":["Artist","Art class","Museum visit"],"c":0},{"q":"🛎️ + 🏨","a":["Hotel","Restaurant","Airport"],"c":0}];
@@ -539,14 +550,20 @@ function closeReaction(){
 
 function finish(pointsEarned,message){
  closeReaction();
+ const earned=Math.max(0,Math.floor(Number(pointsEarned)||0));
+ pendingPoints+=earned;
+ updatePendingPoints();
  $('gameContent').innerHTML=`
   <div class="question">🎉 ${message||'Game complete!'}</div>
-  <p>You earned <b>${pointsEarned}</b> points!</p>
-  <button class="btn" onclick="collect(${pointsEarned})">Collect points</button>
-  <button class="btn secondary" onclick="start('${currentGame}')">Play again</button>`;
+  <p>You earned <b>${earned}</b> points this round!</p>
+  <div class="panel" style="margin:16px 0">
+   <div class="small">TOTAL POINTS READY TO COLLECT</div>
+   <div class="stat" style="font-size:30px">${pendingPoints} ✦</div>
+   <p class="muted">Continue with another game to earn more, or collect everything now.</p>
+  </div>
+  <button class="btn" onclick="continuePlaying()">Continue playing</button>
+  <button class="btn secondary" onclick="collectAllPoints()">Collect all points</button>`;
 }
-
-function collect(n){recordScore(n);closeGame()}
 
 function render(){
  const area=$('gameContent');
@@ -625,7 +642,7 @@ function finishPersonality(){
  $('gameContent').innerHTML=`
   <div class="question">${result[0]}</div>
   <p class="muted">${result[1]}</p>
-  <button class="btn" onclick="recordScore(15);closeGame()">Collect 15 points</button>
+  <button class="btn" onclick="finish(15,'Personality quiz complete!')">Continue or collect points</button>
   <button class="btn secondary" onclick="shareText('My VibeZone personality: '+${JSON.stringify(result[0])})">Share result</button>`;
 }
 
@@ -671,7 +688,7 @@ function flipMemory(i){
     $('gameContent').innerHTML=`
      <div class="question">🧠 Memory master!</div>
      <p>You completed the board in ${memoryMoves} moves.</p>
-     <button class="btn" onclick="finish(${Math.max(10,60-memoryMoves*3)},'Memory complete!')">Collect points</button>`;
+     <button class="btn" onclick="finish(${Math.max(10,60-memoryMoves*3)},'Memory complete!')">Continue or collect points</button>`;
    }
   }else{
    memoryLocked=true;
@@ -721,7 +738,7 @@ function reactionTap(){
  let earned=ms<250?20:ms<350?15:ms<500?10:5;
  $('gameContent').insertAdjacentHTML('beforeend',`
   <p>You earned ${earned} points for this attempt.</p>
-  <button class="btn" onclick="recordScore(${earned});closeGame()">Collect points</button>`);
+  <button class="btn" onclick="finish(${earned},'Reaction test complete!')">Continue or collect points</button>`);
 }
 
 function renderRPS(){
@@ -795,53 +812,6 @@ function checkWord(answer){
  $('gameContent').appendChild(f);
 }
 
-const replies={
- hype:[
-  'You have got this! Keep showing up for yourself. 🚀',
-  'Big energy! Small steps can lead to big things.',
-  'Your vibe is your own. Keep being you! ✨',
-  'What is one fun thing you want to try this week?'
- ],
- study:[
-  'Try studying for 25 minutes, then take a short break. 📚',
-  'Turn your notes into questions and quiz yourself.',
-  'Start with the topic that feels most confusing.',
-  'Explain a topic in three simple sentences to practise.'
- ],
- story:[
-  'Imagine a city where the stars come down to visit. What happens next? 🌌',
-  'Your main character discovers a mysterious glowing key...',
-  'What if your story began with a message from the future?',
-  'Add a surprise twist to your story!'
- ]
-};
-
-function chooseAI(type){
- currentAI=type;
- $('aiPanel').classList.remove('hidden');
- $('aiName').textContent={
-  hype:'🚀 Hype Friend',
-  study:'📚 Study Buddy',
-  story:'🎨 Story Maker'
- }[type];
- $('chat').innerHTML='<p>'+safe($('aiName').textContent)+': Hey! 👋 What shall we talk about?</p>';
- $('aiPanel').scrollIntoView({behavior:'smooth'});
-}
-
-function sendAI(){
- let input=$('aiInput'),msg=input.value.trim();
- if(!msg)return;
- let p=document.createElement('p');
- p.className='me';p.textContent='You: '+msg;
- $('chat').appendChild(p);
-
- let r=document.createElement('p');
- r.textContent=$('aiName').textContent+': '+
-  replies[currentAI][Math.floor(Math.random()*replies[currentAI].length)];
- $('chat').appendChild(r);
- input.value='';
- $('chat').scrollTop=$('chat').scrollHeight;
-}
 
 const daily=[
  ['🎨 Creative mode','Draw a character using only five shapes.'],
@@ -901,6 +871,7 @@ function shareSite(){
 }
 
 updateProfile();
+updatePendingPoints();
 loadDaily();
 showScreen('messages');
 
