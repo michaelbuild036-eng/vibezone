@@ -226,6 +226,11 @@ body.sender-mode footer{display:none!important}
   <div class="card game-card"><div class="emoji">⏱️</div><h3>Reaction Test</h3><p>How fast are your reactions?</p><button class="btn" onclick="start('reaction')">Play now</button></div>
   <div class="card game-card"><div class="emoji">✊</div><h3>Rock Paper Scissors</h3><p>Can you beat the computer?</p><button class="btn" onclick="start('rps')">Play now</button></div>
   <div class="card game-card"><div class="emoji">🔤</div><h3>Word Scramble</h3><p>Unscramble the mystery word.</p><button class="btn" onclick="start('word')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">🙈</div><h3>Never Have I Ever</h3><p>Reveal your experiences with fun prompts.</p><button class="btn" onclick="start('never')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">🫶</div><h3>Who Knows Me Best?</h3><p>Challenge a friend to guess your choices.</p><button class="btn" onclick="start('knows')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">🧩</div><h3>Riddles</h3><p>Think carefully and solve each riddle.</p><button class="btn" onclick="start('riddles')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">⚡</div><h3>Word Challenge</h3><p>Use the clue to find the right word.</p><button class="btn" onclick="start('wordchallenge')">Play now</button></div>
+  <div class="card game-card"><div class="emoji">🎵</div><h3>Guess the Song</h3><p>Decode emoji clues to name the song.</p><button class="btn" onclick="start('song')">Play now</button></div>
  </div>
 </section>
 
@@ -383,6 +388,7 @@ let records=read('vz_records',[]);
 let dailyDone=read('vz_daily','');
 
 let currentGame='',index=0,score=0,extra=0;
+let knowsStage=0,knowsAnswer=-1;
 let pendingPoints=Math.max(0,Number(read('vz_pending_points',0))||0);
 let gameDecks={},previousGameDecks={};
 
@@ -527,8 +533,14 @@ function start(type){
   trivia:freshGameDeck('trivia',trivia),
   truth:freshGameDeck('truth',truths),
   personality:freshGameDeck('personality',personality),
-  words:freshGameDeck('words',words)
+  words:freshGameDeck('words',words),
+  never:freshGameDeck('never',neverPrompts),
+  knows:freshGameDeck('knows',knowsQuestions),
+  riddles:freshGameDeck('riddles',riddles),
+  wordchallenge:freshGameDeck('wordchallenge',wordChallenges),
+  song:freshGameDeck('song',songQuestions)
  };
+ knowsStage=0;knowsAnswer=-1;
  $('playarea').classList.remove('hidden');
  $('playarea').scrollIntoView({behavior:'smooth'});
  const names={
@@ -536,7 +548,8 @@ function start(type){
   trivia:'Trivia Challenge',truth:'Truth or Dare',
   personality:'Personality Quiz',memory:'Memory Match',
   reaction:'Reaction Test',rps:'Rock Paper Scissors',
-  word:'Word Scramble'
+  word:'Word Scramble',never:'Never Have I Ever',knows:'Who Knows Me Best?',
+  riddles:'Riddles',wordchallenge:'Word Challenge',song:'Guess the Song'
  };
  $('gameTitle').textContent=names[type];
  $('gameDesc').textContent='Play for fun and collect points!';
@@ -621,6 +634,11 @@ function render(){
  if(currentGame==='reaction')renderReaction();
  if(currentGame==='rps')renderRPS();
  if(currentGame==='word')renderWord();
+ if(currentGame==='never')renderNever();
+ if(currentGame==='knows')renderKnows();
+ if(currentGame==='riddles')renderRiddle();
+ if(currentGame==='wordchallenge')renderWordChallenge();
+ if(currentGame==='song')renderSong();
 }
 
 function nextRather(){score++;index++;render()}
@@ -825,6 +843,54 @@ function checkWord(answer){
  f.onclick=()=>finish(score,'Word challenge complete!');
  $('gameContent').appendChild(f);
 }
+
+
+// Five additional games. Each has its own question deck and scoring rules.
+const neverPrompts=[
+ 'Never have I ever laughed so hard that I cried.','Never have I ever stayed awake all night.','Never have I ever forgotten someone’s name right after meeting them.','Never have I ever danced when nobody was watching.','Never have I ever sung into a hairbrush like a microphone.','Never have I ever sent a message to the wrong person.','Never have I ever eaten dessert before dinner.','Never have I ever talked to a pet like it could answer.','Never have I ever watched an entire series in one weekend.','Never have I ever tripped over nothing.','Never have I ever made up an excuse to leave a party.','Never have I ever laughed at the wrong moment.','Never have I ever forgotten why I walked into a room.','Never have I ever taken more than ten selfies to get one I liked.','Never have I ever pretended to understand a joke.','Never have I ever fallen asleep during a movie.','Never have I ever had breakfast for dinner.','Never have I ever got lost while using a map.','Never have I ever practised a conversation in my head.','Never have I ever waved back at someone who was waving at another person.','Never have I ever worn mismatched socks by accident.','Never have I ever made a snack and forgotten where I put it.','Never have I ever tried to catch something I dropped with my foot.','Never have I ever remembered a song but not its name.','Never have I ever laughed at my own joke.','Never have I ever walked into a room and forgotten what I needed.','Never have I ever sung loudly in the shower.','Never have I ever bought something just because it was on sale.','Never have I ever stayed up late playing a game.','Never have I ever rewatched a favourite movie more than five times.'
+];
+const knowsQuestions=[
+ ['Pick a perfect weekend:',['Beach day','Movie marathon','Adventure trip','Relax at home']],['Choose a favourite snack:',['Pizza','Chips','Chocolate','Fruit']],['Choose a dream holiday:',['Paris','Tokyo','New York','A tropical island']],['Pick a superpower:',['Flying','Time travel','Invisibility','Reading minds']],['Choose a music mood:',['Pop','Hip-hop','Amapiano','R&B']],['Choose a pet:',['Dog','Cat','Bird','Fish']],['Pick a night out:',['Concert','Dinner','Gaming','Dancing']],['Choose a colour:',['Purple','Blue','Pink','Black']],['Pick a breakfast:',['Pancakes','Eggs and toast','Cereal','Fruit bowl']],['Choose a movie type:',['Comedy','Action','Romance','Horror']],['Pick a dream job:',['Artist','Entrepreneur','Athlete','Scientist']],['Choose a season:',['Summer','Winter','Spring','Autumn']],['Pick a drink:',['Juice','Coffee','Tea','Smoothie']],['Choose a game night:',['Trivia','Board games','Video games','Charades']],['Pick a place to live:',['Big city','Small town','Countryside','By the sea']],['Choose a super skill:',['Cooking','Singing','Dancing','Drawing']],['Pick a treat:',['Ice cream','Cake','Doughnuts','Cookies']],['Choose a travel style:',['Road trip','Flying abroad','Train journey','Camping']],['Pick a phone app category:',['Music','Social media','Games','Photography']],['Choose a perfect gift:',['New phone','Holiday','Shopping spree','Concert tickets']]
+];
+const riddles=[
+ ['What has keys but cannot open locks?','piano',['piano','keyboard']],['What has a face and two hands but no arms or legs?','clock',['clock']],['What gets wetter the more it dries?','towel',['towel']],['What has to be broken before you can use it?','egg',['egg']],['What has one eye but cannot see?','needle',['needle']],['What goes up but never comes down?','age',['age']],['What has many teeth but cannot bite?','comb',['comb']],['What can travel around the world while staying in one corner?','stamp',['stamp']],['What has a neck but no head?','bottle',['bottle']],['What has words but never speaks?','book',['book']],['What has cities but no houses, forests but no trees, and rivers but no water?','map',['map']],['What belongs to you but other people use it more?','name',['name']],['What has four legs but cannot walk?','table',['table']],['What can you catch but not throw?','cold',['cold']],['What has a thumb and four fingers but is not alive?','glove',['glove']],['What begins with T, ends with T and has T inside?','teapot',['teapot']],['What has a head and a tail but no body?','coin',['coin']],['What runs but never walks?','river',['river']],['What has a ring but no finger?','telephone',['telephone','phone']],['What comes down but never goes up?','rain',['rain']]
+];
+const wordChallenges=[
+ ['A place where books are kept','LIBRARY'],['A person who teaches students','TEACHER'],['A large body of salt water','OCEAN'],['A vehicle that travels on tracks','TRAIN'],['A bright object seen in the night sky','STAR'],['A building where films are shown','CINEMA'],['A frozen treat made from milk','ICECREAM'],['The season after winter','SPRING'],['A tool used to cut paper','SCISSORS'],['A person who writes books','AUTHOR'],['A place where planes take off','AIRPORT'],['A shape with three sides','TRIANGLE'],['The opposite of ancient','MODERN'],['A musical instrument with black and white keys','PIANO'],['A person who looks after sick animals','VET'],['A home for bees','HIVE'],['The planet known as the Red Planet','MARS'],['A device used to take photographs','CAMERA'],['A meal eaten in the morning','BREAKFAST'],['A journey taken by car','ROADTRIP']
+];
+const songQuestions=[
+ ['🧊 🧊 👶',['Ice Ice Baby','Baby','Cold Heart'],0],['💃 👑',['Dancing Queen','Queen of Hearts','Dance Monkey'],0],['🌧️ ☂️',['Umbrella','Rain On Me','Set Fire to the Rain'],0],['🕛 🌃',['Blinding Lights','Midnight City','Night Changes'],0],['🦁 😴 🌙',['The Lion Sleeps Tonight','Roar','Circle of Life'],0],['🍉 🍬',['Watermelon Sugar','Sugar','Sweet Dreams'],0],['👋 👋 👋',['Hello','Goodbye','Hey Ya!'],0],['⭐ 👦',['Starboy','Lucky Star','Counting Stars'],0],['🔥 🎆',['Firework','Burn','Set Fire to the Rain'],0],['💔 🏨',['Heartbreak Hotel','Hotel California','Love Story'],0],['🕺 🐒',['Dance Monkey','Monkey Wrench','Dancing Queen'],0],['🌊 🏖️',['Ocean Eyes','Waves','California Gurls'],0],['🛣️ 🏡',['Old Town Road','Take Me Home, Country Roads','Life Is a Highway'],1],['☀️ 🌞',['Here Comes the Sun','Walking on Sunshine','Ain’t No Sunshine'],0],['🎂 🎉',['Birthday','Birthday Cake','Celebration'],0],['👀 🐅',['Eye of the Tiger','Tiger','The Look'],0],['🚀 👨',['Rocket Man','Space Oddity','Starman'],0],['💜 🌧️',['Purple Rain','November Rain','Rain'],0],['🧍‍♀️ 🔥',['Girl on Fire','Hot Stuff','Firework'],0],['🌍 🌬️',['Earth Song','Wind of Change','What a Wonderful World'],0]
+];
+function renderNever(){
+ if(index>=gameDecks.never.length)return finish(score,'Never Have I Ever complete!');
+ $('gameContent').innerHTML=`<p class="small">PROMPT ${index+1} OF ${gameDecks.never.length}</p><div class="question">🙈 ${gameDecks.never[index]}</div><p class="muted">Be honest — choose the answer that fits you.</p><div class="choices"><button class="choice" onclick="answerNever('have')">🙋 I have</button><button class="choice" onclick="answerNever('never')">😇 Never have I</button></div><p class="small">+2 points for taking part</p>`;
+}
+function answerNever(){score+=2;index++;renderNever()}
+function renderKnows(){
+ if(index>=gameDecks.knows.length)return finish(score,'Who Knows Me Best? complete!');
+ const q=gameDecks.knows[index];
+ if(knowsStage===0){$('gameContent').innerHTML=`<p class="small">ROUND ${index+1} OF ${gameDecks.knows.length} · PLAYER 1</p><div class="question">Choose your answer secretly: ${q[0]}</div><div class="choices">${q[1].map((v,i)=>`<button class="choice" onclick="setKnowsAnswer(${i})">${v}</button>`).join('')}</div><p class="muted">Remember your choice, then pass the device to your friend.</p>`}
+ else{$('gameContent').innerHTML=`<p class="small">ROUND ${index+1} OF ${gameDecks.knows.length} · PLAYER 2</p><div class="question">What did Player 1 choose for: ${q[0]}</div><div class="choices">${q[1].map((v,i)=>`<button class="choice" onclick="guessKnowsAnswer(${i})">${v}</button>`).join('')}</div><p class="muted">Guess your friend's answer to earn 5 points.</p>`}
+}
+function setKnowsAnswer(i){knowsAnswer=i;knowsStage=1;renderKnows()}
+function guessKnowsAnswer(i){const correct=i===knowsAnswer;if(correct)score+=5;const q=gameDecks.knows[index];$('gameContent').innerHTML=`<div class="question">${correct?'🎉 You know them well!':'😄 Not quite!'}</div><p>Their answer was: <b>${q[1][knowsAnswer]}</b></p><p>${correct?'+5 points':'0 points'} · ${index+1} of ${gameDecks.knows.length} rounds</p><button class="btn" onclick="nextKnows()">${index+1===gameDecks.knows.length?'Finish':'Next round'}</button>`}
+function nextKnows(){index++;knowsStage=0;knowsAnswer=-1;renderKnows()}
+function renderRiddle(){
+ if(index>=gameDecks.riddles.length)return finish(score,'Riddles complete!');
+ const q=gameDecks.riddles[index];
+ $('gameContent').innerHTML=`<p class="small">RIDDLE ${index+1} OF ${gameDecks.riddles.length}</p><div class="question">🧩 ${q[0]}</div><input id="riddleAnswer" class="choice" style="width:100%;text-align:left" type="text" placeholder="Type your answer" autocomplete="off"><p id="riddleFeedback" class="answer"></p><button class="btn" onclick="checkRiddle()">Check answer</button>`;
+}
+function checkRiddle(){const q=gameDecks.riddles[index];const value=$('riddleAnswer').value.trim().toLowerCase().replace(/[^a-z]/g,'');if(!value){$('riddleFeedback').textContent='Type an answer first.';return}const accepted=q[2].map(x=>x.toLowerCase().replace(/[^a-z]/g,''));const ok=accepted.includes(value);if(ok)score+=5;$('riddleFeedback').textContent=ok?'Correct! +5 points 🎉':`Good try! The answer is ${q[1]}.`;document.querySelector('#gameContent .btn').disabled=true;const b=document.createElement('button');b.className='btn secondary';b.textContent=index+1===gameDecks.riddles.length?'Finish':'Next riddle';b.onclick=()=>{index++;renderRiddle()};$('gameContent').appendChild(b)}
+function renderWordChallenge(){
+ if(index>=gameDecks.wordchallenge.length)return finish(score,'Word Challenge complete!');
+ const q=gameDecks.wordchallenge[index];$('gameContent').innerHTML=`<p class="small">CLUE ${index+1} OF ${gameDecks.wordchallenge.length}</p><div class="question">⚡ ${q[0]}</div><p class="muted">${q[1].length} letters</p><input id="wordChallengeAnswer" class="choice" style="width:100%;text-align:left" type="text" placeholder="Type the word" autocomplete="off"><p id="wordChallengeFeedback" class="answer"></p><button class="btn" onclick="checkWordChallenge()">Check word</button>`;
+}
+function checkWordChallenge(){const q=gameDecks.wordchallenge[index];const value=$('wordChallengeAnswer').value.trim().toUpperCase().replace(/[^A-Z]/g,'');if(!value){$('wordChallengeFeedback').textContent='Enter a word first.';return}const ok=value===q[1];if(ok)score+=5;$('wordChallengeFeedback').textContent=ok?'Correct! +5 points 🎉':`Not quite. The word is ${q[1]}.`;document.querySelector('#gameContent .btn').disabled=true;const b=document.createElement('button');b.className='btn secondary';b.textContent=index+1===gameDecks.wordchallenge.length?'Finish':'Next clue';b.onclick=()=>{index++;renderWordChallenge()};$('gameContent').appendChild(b)}
+function renderSong(){
+ if(index>=gameDecks.song.length)return finish(score,'Guess the Song complete!');
+ const q=gameDecks.song[index];const opts=shuffleDeck(q[1].map((text,originalIndex)=>({text,originalIndex})));$('gameContent').innerHTML=`<p class="small">SONG ${index+1} OF ${gameDecks.song.length}</p><div class="question">🎵 Decode the song title:<br><span style="font-size:38px">${q[0]}</span></div><div class="choices">${opts.map(o=>`<button class="choice" onclick="answerSong(${o.originalIndex})">${o.text}</button>`).join('')}</div><p id="songFeedback" class="answer"></p>`;
+}
+function answerSong(i){const q=gameDecks.song[index];const ok=i===q[2];if(ok)score+=5;$('songFeedback').textContent=ok?'Correct! +5 points 🎉':`Good try! Answer: ${q[1][q[2]]}`;document.querySelectorAll('#gameContent .choice').forEach(b=>b.disabled=true);const b=document.createElement('button');b.className='btn';b.textContent='Next song';b.onclick=()=>{index++;renderSong()};$('gameContent').appendChild(b);const f=document.createElement('button');f.className='btn secondary';f.textContent='Finish game';f.onclick=()=>finish(score,'Guess the Song finished!');$('gameContent').appendChild(f)}
 
 
 const daily=[
