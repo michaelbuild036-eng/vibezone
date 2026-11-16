@@ -449,6 +449,7 @@ let dailyDone=read('vz_daily','');
 
 let currentGame='',index=0,score=0,extra=0,gameFinished=false;
 let knowsStage=0,knowsAnswer=-1;
+let personalityBlockCounts=[0,0,0];
 let pendingPoints=Math.max(0,Number(read('vz_pending_points',0))||0);
 let gameDecks={},previousGameDecks={};
 
@@ -602,7 +603,7 @@ function start(type){
   wordchallenge:freshGameDeck('wordchallenge',wordChallenges),
   song:freshGameDeck('song',songQuestions)
  };
- knowsStage=0;knowsAnswer=-1;
+ knowsStage=0;knowsAnswer=-1;personalityBlockCounts=[0,0,0];
  $('playarea').classList.remove('hidden');
  $('playarea').scrollIntoView({behavior:'smooth'});
  const names={
@@ -625,6 +626,16 @@ function closeGame(){
 
 function closeReaction(){
  if(reactionTimer){clearTimeout(reactionTimer);reactionTimer=null}
+}
+
+function addEarlyFinishButton(label='Finish game & collect points'){
+ if(gameFinished)return;
+ const button=document.createElement('button');
+ button.className='btn secondary';
+ button.style.marginTop='10px';
+ button.textContent=label;
+ button.onclick=()=>finish(score,'Game finished!');
+ $('gameContent').appendChild(button);
 }
 
 function finish(pointsEarned,message){
@@ -681,10 +692,11 @@ function render(){
    <div class="question">🎲 ${q[0]}<br>${q[1]}</div>
    <button class="btn" onclick="score+=2;index++;render()">Next prompt · +2 points</button>
    <p class="small">Keep it friendly. You can skip any prompt by choosing Next.</p>`;
+  addEarlyFinishButton('Finish & collect points');
  }
 
  if(currentGame==='personality'){
-  if(index>=gameDecks.personality.length)return finishPersonality();
+  if(index>=gameDecks.personality.length)return showPersonalityResult();
   let q=gameDecks.personality[index];
   let shuffledOptions=shuffleDeck(q[1].map((text,originalIndex)=>({text,originalIndex})));
   area.innerHTML=`
@@ -726,20 +738,39 @@ function answer(i){
  $('gameContent').appendChild(finishButton);
 }
 
-function personAnswer(i){extra+=i;index++;render()}
+function personAnswer(i){
+ if(gameFinished||index>=gameDecks.personality.length)return;
+ const choice=Math.max(0,Math.min(2,Number(i)||0));
+ personalityBlockCounts[choice]++;
+ score+=3;
+ index++;
+ if(index%5===0||index>=gameDecks.personality.length)showPersonalityResult();
+ else render();
+}
 
-function finishPersonality(){
- let result=[
+function showPersonalityResult(){
+ const traits=[
   ['🔥 The Firestarter','Energetic, bold and ready for adventure.'],
   ['🎨 The Creative Soul','Imaginative, curious and full of ideas.'],
   ['🌙 The Calm Thinker','Thoughtful, steady and a great listener.']
- ][extra%3];
-
+ ];
+ const best=personalityBlockCounts.indexOf(Math.max(...personalityBlockCounts));
+ const result=traits[best];
+ const complete=index>=gameDecks.personality.length;
  $('gameContent').innerHTML=`
+  <p class="small">PERSONALITY RESULT · ${index} OF ${gameDecks.personality.length} QUESTIONS</p>
   <div class="question">${result[0]}</div>
   <p class="muted">${result[1]}</p>
-  <button class="btn" onclick="finish(15,'Personality quiz complete!')">Continue or collect points</button>
+  <p>You have completed ${index} questions and earned ${score} points so far.</p>
+  ${complete?'':'<button class="btn" onclick="continuePersonality()">Continue quiz · Next 5 questions</button>'}
+  <button class="btn secondary" onclick="finish(score,'Personality quiz finished!')">Finish & collect points</button>
   <button class="btn secondary" onclick="shareText('My VibeZone personality: '+${JSON.stringify(result[0])})">Share result</button>`;
+}
+
+function continuePersonality(){
+ if(gameFinished)return;
+ personalityBlockCounts=[0,0,0];
+ render();
 }
 
 let memoryCards=[],memoryOpen=[],memoryMatches=0;
@@ -1326,8 +1357,9 @@ const songQuestions=[
 function renderNever(){
  if(index>=gameDecks.never.length)return finish(score,'Never Have I Ever complete!');
  $('gameContent').innerHTML=`<p class="small">PROMPT ${index+1} OF ${gameDecks.never.length}</p><div class="question">🙈 ${gameDecks.never[index]}</div><p class="muted">Be honest — choose the answer that fits you.</p><div class="choices"><button class="choice" onclick="answerNever('have')">🙋 I have</button><button class="choice" onclick="answerNever('never')">😇 Never have I</button></div><p class="small">+2 points for taking part</p>`;
+ addEarlyFinishButton('Finish & collect points');
 }
-function answerNever(){score+=2;index++;renderNever()}
+function answerNever(){if(gameFinished)return;score+=2;index++;renderNever()}
 function renderKnows(){
  if(index>=gameDecks.knows.length)return finish(score,'Who Knows Me Best? complete!');
  const q=gameDecks.knows[index];
@@ -1335,14 +1367,14 @@ function renderKnows(){
  else{$('gameContent').innerHTML=`<p class="small">ROUND ${index+1} OF ${gameDecks.knows.length} · PLAYER 2</p><div class="question">What did Player 1 choose for: ${q[0]}</div><div class="choices">${q[1].map((v,i)=>`<button class="choice" onclick="guessKnowsAnswer(${i})">${v}</button>`).join('')}</div><p class="muted">Guess your friend's answer to earn 5 points.</p>`}
 }
 function setKnowsAnswer(i){knowsAnswer=i;knowsStage=1;renderKnows()}
-function guessKnowsAnswer(i){const correct=i===knowsAnswer;if(correct)score+=5;const q=gameDecks.knows[index];$('gameContent').innerHTML=`<div class="question">${correct?'🎉 You know them well!':'😄 Not quite!'}</div><p>Their answer was: <b>${q[1][knowsAnswer]}</b></p><p>${correct?'+5 points':'0 points'} · ${index+1} of ${gameDecks.knows.length} rounds</p><button class="btn" onclick="nextKnows()">${index+1===gameDecks.knows.length?'Finish':'Next round'}</button>`}
+function guessKnowsAnswer(i){if(gameFinished||knowsStage!==1)return;const correct=i===knowsAnswer;if(correct)score+=5;const q=gameDecks.knows[index];$('gameContent').innerHTML=`<div class="question">${correct?'🎉 You know them well!':'😄 Not quite!'}</div><p>Their answer was: <b>${q[1][knowsAnswer]}</b></p><p>${correct?'+5 points':'0 points'} · ${index+1} of ${gameDecks.knows.length} rounds</p><button class="btn" onclick="nextKnows()">${index+1===gameDecks.knows.length?'Finish':'Next round'}</button>`;addEarlyFinishButton('Finish & collect points')}
 function nextKnows(){index++;knowsStage=0;knowsAnswer=-1;renderKnows()}
 function renderRiddle(){
  if(index>=gameDecks.riddles.length)return finish(score,'Riddles complete!');
  const q=gameDecks.riddles[index];
  $('gameContent').innerHTML=`<p class="small">RIDDLE ${index+1} OF ${gameDecks.riddles.length}</p><div class="question">🧩 ${q[0]}</div><input id="riddleAnswer" class="choice" style="width:100%;text-align:left" type="text" placeholder="Type your answer" autocomplete="off"><p id="riddleFeedback" class="answer"></p><button class="btn" onclick="checkRiddle()">Check answer</button>`;
 }
-function checkRiddle(){const q=gameDecks.riddles[index];const value=$('riddleAnswer').value.trim().toLowerCase().replace(/[^a-z]/g,'');if(!value){$('riddleFeedback').textContent='Type an answer first.';return}const accepted=q[2].map(x=>x.toLowerCase().replace(/[^a-z]/g,''));const ok=accepted.includes(value);if(ok)score+=5;$('riddleFeedback').textContent=ok?'Correct! +5 points 🎉':`Good try! The answer is ${q[1]}.`;document.querySelector('#gameContent .btn').disabled=true;const b=document.createElement('button');b.className='btn secondary';b.textContent=index+1===gameDecks.riddles.length?'Finish':'Next riddle';b.onclick=()=>{index++;renderRiddle()};$('gameContent').appendChild(b)}
+function checkRiddle(){const q=gameDecks.riddles[index];const value=$('riddleAnswer').value.trim().toLowerCase().replace(/[^a-z]/g,'');if(!value){$('riddleFeedback').textContent='Type an answer first.';return}const accepted=q[2].map(x=>x.toLowerCase().replace(/[^a-z]/g,''));const ok=accepted.includes(value);if(ok)score+=5;$('riddleFeedback').textContent=ok?'Correct! +5 points 🎉':`Good try! The answer is ${q[1]}.`;document.querySelector('#gameContent .btn').disabled=true;const b=document.createElement('button');b.className='btn secondary';b.textContent=index+1===gameDecks.riddles.length?'Finish':'Next riddle';b.onclick=()=>{index++;renderRiddle()};$('gameContent').appendChild(b);addEarlyFinishButton('Finish & collect points')}
 function renderWordChallenge(){
  if(index>=gameDecks.wordchallenge.length)return finish(score,'Word Challenge complete!');
  const q=gameDecks.wordchallenge[index];$('gameContent').innerHTML=`<p class="small">CLUE ${index+1} OF ${gameDecks.wordchallenge.length}</p><div class="question">⚡ ${q[0]}</div><p class="muted">${q[1].length} letters</p><input id="wordChallengeAnswer" class="choice" style="width:100%;text-align:left" type="text" placeholder="Type the word" autocomplete="off"><p id="wordChallengeFeedback" class="answer"></p><button class="btn" onclick="checkWordChallenge()">Check word</button>`;
@@ -1532,7 +1564,10 @@ function errorText(error){
   'auth/unauthorized-domain':'Add michaelbuild036-eng.github.io to Firebase Authorized domains.',
   'auth/network-request-failed':'Your internet connection failed. Please try again.',
   'permission-denied':'Firestore rejected this action. Check your Firestore security rules.',
-  'unavailable':'Firebase is temporarily unavailable. Please try again.'
+  'unavailable':'Firebase is temporarily unavailable. Please try again.',
+  'failed-precondition':'Firestore rejected this query. Check the database setup and required indexes.',
+  'invalid-argument':'Firestore rejected the request format. Check the query and document fields.',
+  'unauthenticated':'Firebase authentication is not valid. Refresh the page and sign in again.'
  };
 
  return (messages[code]||'Something went wrong with Firebase.')+' ('+code+')';
@@ -1609,7 +1644,7 @@ function listenToInbox(){
    `;
   }).join('');
  },error=>{
-  console.error('Inbox error:',error);
+  console.error('Inbox Firestore listener failed:',{code:error?.code,message:error?.message,name:error?.name,error});
   container.innerHTML='<p class="muted">'+escapeHTML(errorText(error))+'</p>';
  });
 }
@@ -1929,7 +1964,7 @@ async function startVibeZoneOnline(){
 
    status.textContent='🟢 Connected · Your VibeZone account is active';
   },error=>{
-   console.error('Leaderboard error:',error);
+   console.error('Leaderboard Firestore listener failed:',{code:error?.code,message:error?.message,name:error?.name,error});
    status.textContent='Account connected, but leaderboard: '+errorText(error);
   });
 
@@ -1952,6 +1987,7 @@ async function startVibeZoneOnline(){
 }
 
 window.addEventListener('load',()=>setTimeout(hideVibeLoading,1800),{once:true});
+window.addEventListener('unhandledrejection',event=>console.error('VibeZone unhandled promise rejection:',event.reason));
 startVibeZoneOnline();
 </script>
 
