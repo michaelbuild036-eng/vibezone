@@ -764,7 +764,14 @@ function showPersonalityResult(){
   <p>You have completed ${index} questions and earned ${score} points so far.</p>
   ${complete?'':'<button class="btn" onclick="continuePersonality()">Continue quiz · Next 5 questions</button>'}
   <button class="btn secondary" onclick="finish(score,'Personality quiz finished!')">Finish & collect points</button>
-  <button class="btn secondary" onclick="shareText('My VibeZone personality: '+${JSON.stringify(result[0])})">Share result</button>`;
+  <button class="btn secondary" id="sharePersonalityResult" type="button">Share result</button>`;
+ const shareButton=$('sharePersonalityResult');
+ if(shareButton){
+  shareButton.addEventListener('click',()=>{
+   const shareMessage='My VibeZone personality: '+result[0]+' — '+result[1];
+   shareText(shareMessage);
+  });
+ }
 }
 
 function continuePersonality(){
@@ -1429,19 +1436,33 @@ function completeDaily(){
 
 async function shareText(message){
  const inviteURL=location.origin+location.pathname;
+ const fullMessage=message+' '+inviteURL;
  try{
-  if(navigator.share){
+  if(typeof navigator.share==='function'){
    await navigator.share({title:'VibeZone',text:message,url:inviteURL});
-  }else if(navigator.clipboard&&window.isSecureContext){
-   await navigator.clipboard.writeText(message+' '+inviteURL);
-   alert('VibeZone invite copied! Send it to your friends. 💜');
-  }else{
-   const shareBox=document.createElement('textarea');
-   shareBox.value=message+' '+inviteURL;document.body.appendChild(shareBox);shareBox.select();
-   const copied=document.execCommand('copy');shareBox.remove();
-   alert(copied?'VibeZone invite copied! Send it to your friends. 💜':message+' '+inviteURL);
+   return;
   }
- }catch(e){if(e?.name!=='AbortError')alert('Sharing is unavailable right now. You can copy this link: '+inviteURL)}
+  if(navigator.clipboard&&window.isSecureContext){
+   await navigator.clipboard.writeText(fullMessage);
+   alert('Your result has been copied. Share it with your friends! 💜');
+   return;
+  }
+  const shareBox=document.createElement('textarea');
+  shareBox.value=fullMessage;
+  shareBox.setAttribute('readonly','');
+  shareBox.style.position='fixed';
+  shareBox.style.opacity='0';
+  document.body.appendChild(shareBox);
+  shareBox.select();
+  const copied=document.execCommand('copy');
+  shareBox.remove();
+  if(copied) alert('Your result has been copied. Share it with your friends! 💜');
+  else window.prompt('Copy your VibeZone result:',fullMessage);
+ }catch(e){
+  if(e?.name==='AbortError')return;
+  console.error('VibeZone share failed:',e);
+  window.prompt('Copy your VibeZone result:',fullMessage);
+ }
 }
 
 function shareSite(){
