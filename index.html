@@ -203,10 +203,48 @@ body.sender-mode footer{display:none!important}
 .game-card:nth-child(3n) .btn{background:linear-gradient(105deg,#7654db,#c04fca)}
 @media(max-width:650px){.game-card{min-height:225px;padding:17px}.game-art{width:68px;height:68px}.game-art svg{width:61px;height:61px}}
 
+
+/* Branded loading screen and first-visit welcome. */
+#vzLoading{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 20% 15%,#49236d,transparent 38%),radial-gradient(circle at 85% 80%,#17486a,transparent 35%),#10091f;transition:opacity .45s ease,visibility .45s ease}
+#vzLoading.vz-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.vz-load-card{text-align:center;width:min(360px,100%);padding:34px 25px;border:1px solid #ffffff25;border-radius:26px;background:#1c1231eF;box-shadow:0 24px 70px #0007}
+.vz-load-logo{font-size:38px;font-weight:1000;letter-spacing:-1.5px;margin-bottom:12px}
+.vz-spinner{width:42px;height:42px;border:4px solid #ffffff25;border-top-color:#ff4fa3;border-right-color:#42caff;border-radius:50%;margin:22px auto 12px;animation:vzspin .8s linear infinite}
+@keyframes vzspin{to{transform:rotate(360deg)}}
+#vzWelcome{position:fixed;inset:0;z-index:9998;display:none;align-items:center;justify-content:center;padding:22px;background:#080411c9;backdrop-filter:blur(9px)}
+#vzWelcome.show{display:flex;animation:pop .3s ease}
+.vz-welcome-card{width:min(510px,100%);padding:32px;text-align:center;border:1px solid #ffffff24;border-radius:26px;background:linear-gradient(145deg,#30204b,#191128);box-shadow:0 25px 80px #0008}
+.vz-welcome-art{font-size:55px;margin:5px 0 14px}
+.vz-welcome-card h2{font-size:clamp(28px,6vw,38px);margin:0 0 12px}
+.vz-welcome-card p{color:var(--muted);line-height:1.65;margin:0 0 22px}
+.vz-welcome-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.vz-share-home{margin:10px 0 0 8px}
+@media(max-width:520px){.vz-welcome-card{padding:25px 20px}.vz-share-home{margin:10px 0 0}}
+
 </style>
 </head>
 
 <body>
+<div id="vzLoading" role="status" aria-live="polite">
+ <div class="vz-load-card">
+  <div class="vz-load-logo">Vibe<span class="gradient">Zone</span> ✦</div>
+  <div class="small" style="letter-spacing:2px">YOUR WORLD. YOUR VIBE.</div>
+  <div class="vz-spinner" aria-hidden="true"></div>
+  <div class="muted">Getting your good vibes ready...</div>
+ </div>
+</div>
+<div id="vzWelcome" role="dialog" aria-modal="true" aria-labelledby="vzWelcomeTitle">
+ <div class="vz-welcome-card">
+  <div class="vz-welcome-art">💜 🎮 ✨</div>
+  <div class="eyebrow">WELCOME TO YOUR NEW HANGOUT</div>
+  <h2 id="vzWelcomeTitle">Welcome to <span class="gradient">VibeZone</span>!</h2>
+  <p>Play fun games, earn points, take on daily challenges and send anonymous messages. Pick a game, invite your friends and bring your vibe.</p>
+  <div class="vz-welcome-actions">
+   <button class="btn" onclick="dismissWelcome();go('games')">Let’s play 🎮</button>
+   <button class="btn secondary" onclick="dismissWelcome()">Explore first</button>
+  </div>
+ </div>
+</div>
 
 <header>
  <div class="logo" role="button" tabindex="0" onclick="showScreen('home')" onkeydown="if(event.key==='Enter'||event.key===' '){showScreen('home')}">Vibe<span>Zone</span> ✦</div>
@@ -226,6 +264,7 @@ body.sender-mode footer{display:none!important}
  <h1>Your world.<br><span class="gradient">Your vibe.</span></h1>
  <p>Play games, test your brain, discover your personality and take on daily challenges. Bring your squad and make every visit count.</p>
  <button class="btn pulse" onclick="go('games')">🎮 Explore games</button>
+ <button class="btn secondary vz-share-home" onclick="shareSite()">Invite friends ↗</button>
  <div class="ad">ADVERTISEMENT · AD SPACE</div>
 </section>
 
@@ -408,7 +447,7 @@ let profile=read('vz_profile',{name:'Guest Player',avatar:'😎'});
 let records=read('vz_records',[]);
 let dailyDone=read('vz_daily','');
 
-let currentGame='',index=0,score=0,extra=0;
+let currentGame='',index=0,score=0,extra=0,gameFinished=false;
 let knowsStage=0,knowsAnswer=-1;
 let pendingPoints=Math.max(0,Number(read('vz_pending_points',0))||0);
 let gameDecks={},previousGameDecks={};
@@ -436,7 +475,7 @@ function freshGameDeck(key,items){
 }
 
 let reactionStart=0,reactionTimer=null;
-let early=false;
+let early=false,reactionRewardAdded=false;
 
 function showScreen(screen){
  const validScreens=['home','messages','games','challenges','leaderboard','profile'];
@@ -523,6 +562,8 @@ function continuePlaying(){
 }
 
 function collectAllPoints(){
+ const button=$('bankCollectButton');
+ if(button&&button.disabled)return;
  const total=Math.max(0,Math.floor(Number(pendingPoints)||0));
  if(total<=0){updatePendingPoints();continuePlaying();return}
  // Clear the bank first so repeated clicks cannot collect the same points twice.
@@ -547,7 +588,7 @@ const words=[["TCA","CAT"],["PAEPL","APPLE"],["USN","SUN"],["OOKB","BOOK"],["RAS
 
 function start(type){
  closeReaction();
- currentGame=type;index=0;score=0;extra=0;
+ currentGame=type;index=0;score=0;extra=0;gameFinished=false;
  gameDecks={
   rather:freshGameDeck('rather',rather),
   emoji:freshGameDeck('emoji',emojis),
@@ -587,6 +628,8 @@ function closeReaction(){
 }
 
 function finish(pointsEarned,message){
+ if(gameFinished)return;
+ gameFinished=true;
  closeReaction();
  const earned=Math.max(0,Math.floor(Number(pointsEarned)||0));
  pendingPoints+=earned;
@@ -753,6 +796,7 @@ function flipMemory(i){
 }
 
 function renderReaction(){
+ reactionRewardAdded=false;
  $('gameContent').innerHTML=`
   <div class="question">⚡ Reaction Test</div>
   <p class="muted">Wait until the panel turns green, then tap as quickly as possible.</p>
@@ -782,12 +826,14 @@ function beginReaction(){
 }
 
 function reactionTap(){
- if(early||!reactionStart)return;
+ if(early||!reactionStart||reactionRewardAdded||gameFinished)return;
+ reactionRewardAdded=true;
  let ms=Math.round(performance.now()-reactionStart);
  reactionStart=0;closeReaction();
- $('reactionButton').textContent=ms+' ms · Try again';
+ $('reactionButton').textContent=ms+' ms · Finished';
  $('reactionResult').textContent=ms<300?'Lightning fast! ⚡':'Nice try! Can you beat that?';
- $('reactionButton').onclick=beginReaction;
+ $('reactionButton').disabled=true;
+ $('reactionButton').onclick=null;
  let earned=ms<250?20:ms<350?15:ms<500?10:5;
  $('gameContent').insertAdjacentHTML('beforeend',`
   <p>You earned ${earned} points for this attempt.</p>
@@ -869,18 +915,413 @@ function checkWord(answer){
 // Five additional games. Each has its own question deck and scoring rules.
 const neverPrompts=[
  'Never have I ever laughed so hard that I cried.','Never have I ever stayed awake all night.','Never have I ever forgotten someone’s name right after meeting them.','Never have I ever danced when nobody was watching.','Never have I ever sung into a hairbrush like a microphone.','Never have I ever sent a message to the wrong person.','Never have I ever eaten dessert before dinner.','Never have I ever talked to a pet like it could answer.','Never have I ever watched an entire series in one weekend.','Never have I ever tripped over nothing.','Never have I ever made up an excuse to leave a party.','Never have I ever laughed at the wrong moment.','Never have I ever forgotten why I walked into a room.','Never have I ever taken more than ten selfies to get one I liked.','Never have I ever pretended to understand a joke.','Never have I ever fallen asleep during a movie.','Never have I ever had breakfast for dinner.','Never have I ever got lost while using a map.','Never have I ever practised a conversation in my head.','Never have I ever waved back at someone who was waving at another person.','Never have I ever worn mismatched socks by accident.','Never have I ever made a snack and forgotten where I put it.','Never have I ever tried to catch something I dropped with my foot.','Never have I ever remembered a song but not its name.','Never have I ever laughed at my own joke.','Never have I ever walked into a room and forgotten what I needed.','Never have I ever sung loudly in the shower.','Never have I ever bought something just because it was on sale.','Never have I ever stayed up late playing a game.','Never have I ever rewatched a favourite movie more than five times.'
+,
+ "Never have I ever made a playlist for a very specific mood.",
+ "Never have I ever tried a food I could not pronounce.",
+ "Never have I ever missed a bus or train by seconds.",
+ "Never have I ever forgotten a password I had just created.",
+ "Never have I ever started a hobby and bought all the equipment first.",
+ "Never have I ever laughed while trying to stay serious.",
+ "Never have I ever watched a film twice in the same week.",
+ "Never have I ever taken a photo of my food before eating.",
+ "Never have I ever used a filter on a selfie.",
+ "Never have I ever stayed in pyjamas all day.",
+ "Never have I ever made up lyrics to a song.",
+ "Never have I ever danced in the kitchen.",
+ "Never have I ever binge-watched a show past midnight.",
+ "Never have I ever searched for my phone while holding it.",
+ "Never have I ever forgotten someone’s birthday.",
+ "Never have I ever learnt a dance from a video.",
+ "Never have I ever tried to fix something and made it worse.",
+ "Never have I ever eaten the last slice without asking.",
+ "Never have I ever sent a voice note longer than two minutes.",
+ "Never have I ever fallen asleep with the lights on.",
+ "Never have I ever gone somewhere just for the food.",
+ "Never have I ever made a bucket list.",
+ "Never have I ever changed outfits more than three times.",
+ "Never have I ever sung along to a song I barely knew.",
+ "Never have I ever accidentally liked an old social media post.",
+ "Never have I ever forgotten where I parked.",
+ "Never have I ever been scared by my own reflection.",
+ "Never have I ever made a new friend online.",
+ "Never have I ever tried to learn a language using an app.",
+ "Never have I ever spent too long choosing what to watch.",
+ "Never have I ever cooked a meal without following a recipe.",
+ "Never have I ever taken a spontaneous trip.",
+ "Never have I ever lost a game and immediately asked for a rematch.",
+ "Never have I ever built something from a kit.",
+ "Never have I ever kept a souvenir from a trip.",
+ "Never have I ever laughed so much my stomach hurt.",
+ "Never have I ever forgotten an umbrella on a rainy day.",
+ "Never have I ever had a song stuck in my head all day.",
+ "Never have I ever tried to recreate a restaurant meal at home.",
+ "Never have I ever made a handmade gift.",
+ "Never have I ever gone swimming at night.",
+ "Never have I ever watched the sunrise.",
+ "Never have I ever stayed up to finish a book.",
+ "Never have I ever entered a competition.",
+ "Never have I ever won something unexpectedly.",
+ "Never have I ever tried a new sport.",
+ "Never have I ever been on a boat.",
+ "Never have I ever visited a museum on holiday.",
+ "Never have I ever got lost in a shopping centre.",
+ "Never have I ever made a wish at a birthday cake.",
+ "Never have I ever forgotten why I opened an app.",
+ "Never have I ever used a map to explore a new place.",
+ "Never have I ever helped a stranger.",
+ "Never have I ever made a playlist for a friend.",
+ "Never have I ever had a picnic outdoors.",
+ "Never have I ever tried to grow a plant.",
+ "Never have I ever watched a thunderstorm from indoors.",
+ "Never have I ever taken a long walk just to think.",
+ "Never have I ever tried a recipe from social media.",
+ "Never have I ever played a board game for hours.",
+ "Never have I ever worn a costume.",
+ "Never have I ever sent a message and immediately regretted it.",
+ "Never have I ever forgotten an appointment.",
+ "Never have I ever found money in an old pocket.",
+ "Never have I ever learned a magic trick.",
+ "Never have I ever made a snowball.",
+ "Never have I ever travelled to another province.",
+ "Never have I ever visited a national park.",
+ "Never have I ever tried karaoke.",
+ "Never have I ever made someone laugh when they were upset."
 ];
 const knowsQuestions=[
  ['Pick a perfect weekend:',['Beach day','Movie marathon','Adventure trip','Relax at home']],['Choose a favourite snack:',['Pizza','Chips','Chocolate','Fruit']],['Choose a dream holiday:',['Paris','Tokyo','New York','A tropical island']],['Pick a superpower:',['Flying','Time travel','Invisibility','Reading minds']],['Choose a music mood:',['Pop','Hip-hop','Amapiano','R&B']],['Choose a pet:',['Dog','Cat','Bird','Fish']],['Pick a night out:',['Concert','Dinner','Gaming','Dancing']],['Choose a colour:',['Purple','Blue','Pink','Black']],['Pick a breakfast:',['Pancakes','Eggs and toast','Cereal','Fruit bowl']],['Choose a movie type:',['Comedy','Action','Romance','Horror']],['Pick a dream job:',['Artist','Entrepreneur','Athlete','Scientist']],['Choose a season:',['Summer','Winter','Spring','Autumn']],['Pick a drink:',['Juice','Coffee','Tea','Smoothie']],['Choose a game night:',['Trivia','Board games','Video games','Charades']],['Pick a place to live:',['Big city','Small town','Countryside','By the sea']],['Choose a super skill:',['Cooking','Singing','Dancing','Drawing']],['Pick a treat:',['Ice cream','Cake','Doughnuts','Cookies']],['Choose a travel style:',['Road trip','Flying abroad','Train journey','Camping']],['Pick a phone app category:',['Music','Social media','Games','Photography']],['Choose a perfect gift:',['New phone','Holiday','Shopping spree','Concert tickets']]
+,
+ ["What would I choose to do on a rainy afternoon?", ["Read or watch a film", "Bake something", "Play a game", "Call a friend"]],
+ ["Which meal would I happily eat twice in one day?", ["Pizza", "Pasta", "Sushi", "A big breakfast"]],
+ ["What kind of surprise would I enjoy most?", ["A surprise trip", "A handwritten note", "A party with friends", "A useful gift"]],
+ ["Which place would I choose for a first visit?", ["A beach town", "A busy city", "A nature reserve", "A historic village"]],
+ ["What would I most likely buy with a small bonus?", ["Books", "A meal out", "A game or gadget", "Save it"]],
+ ["Which activity would help me unwind after a busy day?", ["Listen to music", "Go for a walk", "Take a nap", "Do something creative"]],
+ ["What would I choose for a long journey?", ["A playlist", "A podcast", "A book", "A good conversation"]],
+ ["Which type of competition would I enter?", ["Trivia", "A sports match", "A talent show", "A puzzle contest"]],
+ ["What would I be most excited to learn?", ["A new language", "Photography", "Cooking", "A musical instrument"]],
+ ["Which celebration would I plan first?", ["A birthday party", "A picnic", "A games night", "A weekend trip"]],
+ ["What would I choose for a dream birthday?", ["A concert", "A special dinner", "An adventure day", "A relaxed get-together"]],
+ ["Which outdoor activity sounds most fun to me?", ["Hiking", "Cycling", "Swimming", "A nature walk"]],
+ ["What would I choose at a food festival?", ["Street food", "Sweet treats", "Local favourites", "Trying something unusual"]],
+ ["Which room in a dream home would matter most?", ["Kitchen", "Bedroom", "Garden", "Entertainment room"]],
+ ["What would I do first in a new city?", ["Find a great café", "Explore the streets", "Visit a landmark", "Shop locally"]],
+ ["Which kind of book would I pick up?", ["Mystery", "Fantasy", "Biography", "Science fiction"]],
+ ["What would I choose for a creative project?", ["Make a video", "Create artwork", "Build something", "Write a story"]],
+ ["Which event would I most like to attend?", ["Music festival", "Sports final", "Comedy show", "Art exhibition"]],
+ ["What would I do with a completely free Saturday?", ["Explore outdoors", "Rest at home", "See friends", "Try a new activity"]],
+ ["Which new experience would I try with a friend?", ["Escape room", "Cooking class", "Hiking trail", "Dance lesson"]],
+ ["What would I choose for a quick lunch?", ["Burger", "Wrap", "Salad", "Sandwich"]],
+ ["Which type of weather makes me happiest?", ["Sunny and warm", "Cool and cloudy", "Rainy and cosy", "Crisp and breezy"]],
+ ["What would I pick for a relaxing holiday?", ["Island escape", "Mountain cabin", "City break", "Safari trip"]],
+ ["Which subject would I enjoy learning more about?", ["Science", "History", "Art", "Technology"]],
+ ["What would I choose for a family outing?", ["Zoo visit", "Beach day", "Picnic", "Mini road trip"]],
+ ["Which kind of game would I play with friends?", ["Word games", "Strategy games", "Party games", "Sports games"]],
+ ["What would I most likely take photos of?", ["Food", "Nature", "Architecture", "People and moments"]],
+ ["Which way would I prefer to explore a new place?", ["Walking", "Cycling", "Driving", "Guided tour"]],
+ ["What would I choose for a midnight snack?", ["Popcorn", "Fruit", "Chocolate", "Something savoury"]],
+ ["Which kind of show would I watch next?", ["Comedy", "Crime", "Documentary", "Adventure"]],
+ ["What would I do if I had a free plane ticket?", ["Visit somewhere new", "Relax somewhere quiet", "See a famous place", "Try local food"]],
+ ["Which item would I take to a deserted island?", ["A map", "A camera", "A book", "A multi-tool"]],
+ ["What would I choose to collect?", ["Stamps", "Books", "Plants", "Memories and photos"]],
+ ["Which place would I visit on a day trip?", ["A waterfall", "A market", "A museum", "A nearby town"]],
+ ["What would I pick for a team activity?", ["Team quiz", "Relay race", "Creative challenge", "Treasure hunt"]],
+ ["Which kind of art would I try making?", ["Painting", "Pottery", "Photography", "Music"]],
+ ["What would I choose for a cosy evening?", ["Board games", "A movie", "Cooking", "Reading"]],
+ ["Which type of restaurant would I pick?", ["Share a meal", "Plan an outing", "Call loved ones", "Dance to music"]],
+ ["What would I do to celebrate good news?", ["A creative task", "A brain teaser", "A physical challenge", "A teamwork mission"]],
+ ["Which type of challenge would motivate me?", ["Coastal escape", "Countryside stay", "City hotel", "Camping trip"]],
+ ["What would I choose for a weekend away?", ["Music", "Maps", "Games", "Audiobooks"]],
+ ["Which app would I use most on a long trip?", ["Sandwiches", "Fresh fruit", "Baked treats", "Snacks to share"]],
+ ["What would I pick for a picnic?", ["Live music", "Theatre", "Comedy", "Dance performance"]],
+ ["Which live performance would I enjoy most?", ["Public speaking", "Drawing", "Problem solving", "A sport"]],
+ ["What would I choose to improve at?", ["Elephant", "Dolphin", "Giraffe", "Penguin"]],
+ ["Which animal would I most like to see in the wild?", ["Go exploring", "Catch up on rest", "Visit someone", "Start a project"]],
+ ["What would I do with an unexpected day off?", ["Bookshop", "Sports store", "Clothing shop", "Tech store"]],
+ ["Which kind of shop would I browse for fun?", ["Pop hits", "Amapiano", "R&B", "Old favourites"]],
+ ["What would I choose for a road-trip soundtrack?", ["A nature reserve", "A cultural site", "A big city", "A quiet coastal town"]],
+ ["Which destination would I choose for a school or work trip?", ["Try a ride", "Play a game", "Find the best snack", "Explore the park"]],
+ ["What would I do first at an amusement park?", ["Cupcakes", "Chips and dip", "Fruit platter", "Homemade cookies"]],
+ ["Which treat would I bring to share?", ["A slow breakfast", "A workout", "Music and coffee", "A quiet start"]],
+ ["What would I choose for a morning routine?", ["Football", "Rugby", "Tennis", "Basketball"]],
+ ["Which sport would I most enjoy watching live?", ["Explore it", "Take photos", "Sit and relax", "Invite a friend"]],
+ ["What would I do if I found a hidden garden?", ["Art museum", "Science centre", "History museum", "Transport museum"]],
+ ["Which gadget would make my daily life easier?", ["Gardening", "Baking", "Dancing", "Learning an instrument"]],
+ ["What would I choose for a creative weekend?", ["A homemade meal", "Takeaway favourites", "A barbecue", "A dessert spread"]],
+ ["Which kind of trip would I plan with friends?", ["A ticket or postcard", "A photo", "A handmade item", "A little keepsake"]],
+ ["What would I choose to do on a beach day?", ["Art class", "Fitness class", "Cooking class", "Language class"]],
+ ["Which type of museum would I visit first?", ["Live music", "Dinner with friends", "A movie", "A night walk"]],
+ ["What would I choose for a new hobby?", ["A quiet beach", "A green park", "A cosy room", "A peaceful café"]],
+ ["Which meal would I cook for guests?", ["Trivia quiz", "Bowling", "Mini golf", "Board game"]],
+ ["What would I most likely save as a keepsake?", ["Music", "Travel", "Films", "Interesting facts"]],
+ ["Which kind of class would I sign up for?", ["Watch the sunrise", "Go for a run", "Take photos", "Enjoy a quiet moment"]],
+ ["What would I choose for a perfect evening out?", ["A local craft", "A postcard", "A photo", "A food souvenir"]],
+ ["Which place would I go to recharge?", ["Take a scenic route", "Try a new activity", "Visit a new place", "Taste something new"]],
+ ["What would I pick for a friendly contest?", ["A live concert", "A DJ set", "An acoustic show", "A music festival"]],
+ ["Which topic could I talk about for ages?", ["Bring friends", "Explore the area", "Relax at a spa", "Try local food"]],
+ ["What would I choose to do before sunrise?", ["Cooking", "A language", "A sport", "A creative skill"]],
+ ["Which kind of souvenir would I bring home?", ["Hot chocolate", "A cosy film", "A winter walk", "Baking"]],
+ ["What would I choose for a spontaneous adventure?", ["Book café", "Coffee shop", "Tea room", "Juice bar"]],
+ ["Which type of music event would I attend?", ["A planned day out", "A favourite snack", "A personal message", "A small keepsake"]],
+ ["What would I do if I won a weekend getaway?", ["The food", "The scenery", "The activities", "The people"]],
+ ["Which skill would I want to master quickly?", ["Stretch and move", "Listen to one song", "Get some fresh air", "Have a snack"]],
+ ["What would I choose for a winter day?", ["A coffee shop", "A park bench", "A casual restaurant", "A walk by the water"]],
+ ["Which kind of café would I visit?", ["Explore a new place", "Relax somewhere familiar", "Spend time with friends", "Try something creative"]],
+ ["What would I pick for a thoughtful surprise for someone?", ["Explore a new place", "Relax somewhere familiar", "Spend time with friends", "Try something creative"]],
+ ["Which part of a holiday would I look forward to most?", ["Explore a new place", "Relax somewhere familiar", "Spend time with friends", "Try something creative"]],
+ ["What would I choose for a quick reset between tasks?", ["Explore a new place", "Relax somewhere familiar", "Spend time with friends", "Try something creative"]],
+ ["Which kind of place would I choose for a catch-up with a friend?", ["Explore a new place", "Relax somewhere familiar", "Spend time with friends", "Try something creative"]]
 ];
 const riddles=[
  ['What has keys but cannot open locks?','piano',['piano','keyboard']],['What has a face and two hands but no arms or legs?','clock',['clock']],['What gets wetter the more it dries?','towel',['towel']],['What has to be broken before you can use it?','egg',['egg']],['What has one eye but cannot see?','needle',['needle']],['What goes up but never comes down?','age',['age']],['What has many teeth but cannot bite?','comb',['comb']],['What can travel around the world while staying in one corner?','stamp',['stamp']],['What has a neck but no head?','bottle',['bottle']],['What has words but never speaks?','book',['book']],['What has cities but no houses, forests but no trees, and rivers but no water?','map',['map']],['What belongs to you but other people use it more?','name',['name']],['What has four legs but cannot walk?','table',['table']],['What can you catch but not throw?','cold',['cold']],['What has a thumb and four fingers but is not alive?','glove',['glove']],['What begins with T, ends with T and has T inside?','teapot',['teapot']],['What has a head and a tail but no body?','coin',['coin']],['What runs but never walks?','river',['river']],['What has a ring but no finger?','telephone',['telephone','phone']],['What comes down but never goes up?','rain',['rain']]
+,
+ ["What has a bed but never sleeps?", "river", ["river"]],
+ ["What has a bark but no bite?", "tree", ["tree"]],
+ ["What can fill a room but takes up no space?", "light", ["light"]],
+ ["What has many pages but is not a book?", "calendar", ["calendar"]],
+ ["What has a bottom at the top?", "leg", ["leg"]],
+ ["What goes through towns and over hills but never moves?", "road", ["road"]],
+ ["What has a spine but no bones?", "book", ["book"]],
+ ["What has a tongue but cannot talk?", "shoe", ["shoe"]],
+ ["What has a head, a foot and four legs?", "bed", ["bed"]],
+ ["What can you serve but never eat?", "tennis ball", ["tennisball", "ball"]],
+ ["What has branches but no fruit, trunk or leaves?", "bank", ["bank"]],
+ ["What has one head, one foot and four legs?", "bed", ["bed"]],
+ ["What gets bigger the more you take away?", "hole", ["hole"]],
+ ["What has an end but no beginning?", "stick", ["stick"]],
+ ["What has 13 hearts but no other organs?", "deck of cards", ["deckofcards", "cards"]],
+ ["What can run but has no legs?", "water", ["water"]],
+ ["What has a ring but no finger and can connect people?", "phone", ["phone", "telephone"]],
+ ["What has a face but no eyes, nose or mouth?", "clock", ["clock"]],
+ ["What is full of holes but still holds water?", "sponge", ["sponge"]],
+ ["What can you break without touching it?", "promise", ["promise"]],
+ ["What has four wheels and flies?", "garbage truck", ["garbagetruck", "truck"]],
+ ["What has a tail and a head but no body?", "coin", ["coin"]],
+ ["What has ears but cannot hear?", "corn", ["corn"]],
+ ["What has a neck and wears a cap?", "bottle", ["bottle"]],
+ ["What can be cracked, made, told and played?", "joke", ["joke"]],
+ ["What has a thumb but no fingers?", "mitten", ["mitten"]],
+ ["What goes up and down but stays in one place?", "stairs", ["stairs"]],
+ ["What has lots of eyes but cannot see?", "potato", ["potato"]],
+ ["What has a heart that does not beat?", "artichoke", ["artichoke"]],
+ ["What is always in front of you but cannot be seen?", "future", ["future"]],
+ ["What can you hold in your right hand but not your left?", "left elbow", ["leftelbow", "elbow"]],
+ ["What has cities, roads and water but no people?", "map", ["map"]],
+ ["What kind of coat is always wet when you put it on?", "coat of paint", ["coatofpaint", "paint"]],
+ ["What has a single eye and spins?", "needle", ["needle"]],
+ ["What can fly without wings and cry without eyes?", "cloud", ["cloud"]],
+ ["What has a crown but is not a king?", "tooth", ["tooth"]],
+ ["What is easy to lift but hard to throw?", "feather", ["feather"]],
+ ["What has a mouth but never eats?", "river", ["river"]],
+ ["What has a foot but no legs?", "ruler", ["ruler"]],
+ ["What comes once in a minute, twice in a moment, but never in a thousand years?", "m", ["m", "letterm"]],
+ ["What is orange and sounds like a parrot?", "carrot", ["carrot"]],
+ ["What has a lot of keys but no doors?", "piano", ["piano", "keyboard"]],
+ ["What can you keep after giving it to someone?", "your word", ["yourword", "word"]],
+ ["What has a head and a tail and is brown all over?", "penny", ["penny", "coin"]],
+ ["What kind of room has no doors or windows?", "mushroom", ["mushroom"]],
+ ["What has a neck but no head and two arms but no hands?", "shirt", ["shirt"]],
+ ["What has to be answered but never asks a question?", "telephone", ["telephone", "phone"]],
+ ["What can go up a chimney down but not down a chimney up?", "umbrella", ["umbrella"]],
+ ["What has a bottom but no top?", "legs", ["legs"]],
+ ["What has many rings but no fingers?", "tree", ["tree"]],
+ ["What is always coming but never arrives?", "tomorrow", ["tomorrow"]],
+ ["What can you hear but not touch or see?", "sound", ["sound"]],
+ ["What has a web but is not on the internet?", "spider", ["spider"]],
+ ["What has a shell but is not a nut?", "turtle", ["turtle"]],
+ ["What has a handle but no door?", "cup", ["cup"]],
+ ["What is black when clean and white when dirty?", "blackboard", ["blackboard", "chalkboard"]],
+ ["What has a foot on each side and a seat in the middle?", "chair", ["chair"]],
+ ["What gets sharper the more you use it?", "brain", ["brain", "mind"]],
+ ["What has a golden head and a golden tail but no body?", "coin", ["coin"]],
+ ["What can be seen in water but never gets wet?", "reflection", ["reflection"]],
+ ["What has a ring around it but no finger?", "saturn", ["saturn"]],
+ ["What has no life but can die?", "battery", ["battery"]],
+ ["What has a roof but no walls?", "umbrella", ["umbrella"]],
+ ["What has a face and hands but no arms?", "clock", ["clock"]],
+ ["What is bought by the yard and worn by the foot?", "carpet", ["carpet"]],
+ ["What has a thousand needles but does not sew?", "pine tree", ["pinetree", "pine"]],
+ ["What has a head but never thinks?", "lettuce", ["lettuce"]],
+ ["What can be opened but cannot be closed?", "egg", ["egg"]],
+ ["What is lighter than air but a hundred people cannot lift it?", "bubble", ["bubble"]],
+ ["What has a foot but cannot walk and a mouth but cannot speak?", "river", ["river"]],
+ ["What kind of table has no legs?", "timetable", ["timetable"]],
+ ["What can you catch but not pass?", "a cold", ["cold", "acold"]],
+ ["What has four fingers and a thumb but is not alive?", "glove", ["glove"]],
+ ["What has an eye but cannot see and is used for sewing?", "needle", ["needle"]],
+ ["What has a lot of teeth but never goes to the dentist?", "zipper", ["zipper"]],
+ ["What has a head and a tail but no middle?", "coin", ["coin"]],
+ ["What has no beginning, middle or end?", "circle", ["circle"]],
+ ["What has words but never talks?", "book", ["book"]],
+ ["What is so fragile that saying its name breaks it?", "silence", ["silence"]],
+ ["What can travel around the world while staying in a corner?", "stamp", ["stamp"]]
 ];
 const wordChallenges=[
  ['A place where books are kept','LIBRARY'],['A person who teaches students','TEACHER'],['A large body of salt water','OCEAN'],['A vehicle that travels on tracks','TRAIN'],['A bright object seen in the night sky','STAR'],['A building where films are shown','CINEMA'],['A frozen treat made from milk','ICECREAM'],['The season after winter','SPRING'],['A tool used to cut paper','SCISSORS'],['A person who writes books','AUTHOR'],['A place where planes take off','AIRPORT'],['A shape with three sides','TRIANGLE'],['The opposite of ancient','MODERN'],['A musical instrument with black and white keys','PIANO'],['A person who looks after sick animals','VET'],['A home for bees','HIVE'],['The planet known as the Red Planet','MARS'],['A device used to take photographs','CAMERA'],['A meal eaten in the morning','BREAKFAST'],['A journey taken by car','ROADTRIP']
+,
+ ["A place where people borrow books", "LIBRARY"],
+ ["A person who designs buildings", "ARCHITECT"],
+ ["A machine that washes clothes", "WASHINGMACHINE"],
+ ["A person who flies an aircraft", "PILOT"],
+ ["A place where stars and planets are studied", "OBSERVATORY"],
+ ["A tool used to measure temperature", "THERMOMETER"],
+ ["A large area covered with trees", "FOREST"],
+ ["A person who takes photographs", "PHOTOGRAPHER"],
+ ["A vehicle with two wheels and pedals", "BICYCLE"],
+ ["A container used to keep flowers", "VASE"],
+ ["A person who makes bread and cakes", "BAKER"],
+ ["A place where you can see sea animals", "AQUARIUM"],
+ ["The study of living things", "BIOLOGY"],
+ ["A person who writes music", "COMPOSER"],
+ ["A device that tells the time", "CLOCK"],
+ ["A person who treats teeth", "DENTIST"],
+ ["A place where planes are kept", "HANGAR"],
+ ["A journey across a desert", "EXPEDITION"],
+ ["A person who explores space", "ASTRONAUT"],
+ ["A strong wind that spins in a funnel", "TORNADO"],
+ ["A place where paintings are displayed", "GALLERY"],
+ ["A person who repairs water pipes", "PLUMBER"],
+ ["A musical instrument with six strings", "GUITAR"],
+ ["A person who studies the weather", "METEOROLOGIST"],
+ ["A large natural stream of flowing water", "RIVER"],
+ ["A place where court cases are heard", "COURTHOUSE"],
+ ["A person who acts in films", "ACTOR"],
+ ["A vehicle used to put out fires", "FIREENGINE"],
+ ["A person who studies rocks", "GEOLOGIST"],
+ ["A building where objects from history are kept", "MUSEUM"],
+ ["A tool used to see very small things", "MICROSCOPE"],
+ ["A person who creates computer programs", "PROGRAMMER"],
+ ["A place where trains stop for passengers", "STATION"],
+ ["A large body of ice moving slowly", "GLACIER"],
+ ["A person who designs clothes", "FASHIONDESIGNER"],
+ ["A device used to find direction", "COMPASS"],
+ ["A place where sick people receive care", "HOSPITAL"],
+ ["A person who prepares food in a restaurant", "CHEF"],
+ ["A vehicle that travels under the sea", "SUBMARINE"],
+ ["A person who studies stars", "ASTRONOMER"],
+ ["A place where books and documents are stored", "ARCHIVE"],
+ ["A tool used to cut wood", "SAW"],
+ ["A person who looks after a garden", "GARDENER"],
+ ["A large area of sand with little rain", "DESERT"],
+ ["A person who reports the news", "JOURNALIST"],
+ ["A device that records moving pictures", "CAMERA"],
+ ["A place where sports are played", "STADIUM"],
+ ["A person who teaches music", "MUSICIAN"],
+ ["A machine used to print documents", "PRINTER"],
+ ["A person who studies ancient objects", "ARCHAEOLOGIST"],
+ ["A place where ships load and unload", "HARBOUR"],
+ ["A tool used to tighten screws", "SCREWDRIVER"],
+ ["A person who travels to discover new places", "EXPLORER"],
+ ["A natural light display in the night sky near the poles", "AURORA"],
+ ["A place where plants are grown for sale", "NURSERY"],
+ ["A person who trains athletes", "COACH"],
+ ["A device that turns sunlight into electricity", "SOLARPANEL"],
+ ["A person who makes maps", "CARTOGRAPHER"],
+ ["A place where money is kept safely", "BANK"],
+ ["A tool used to see faraway objects", "TELESCOPE"],
+ ["A person who makes jewellery", "JEWELLER"],
+ ["A vehicle that carries astronauts into space", "ROCKET"],
+ ["A place where bread is made and sold", "BAKERY"],
+ ["A person who studies the mind", "PSYCHOLOGIST"],
+ ["A device that cools a room", "AIRCONDITIONER"],
+ ["A place where animals are cared for and displayed", "ZOO"],
+ ["A person who protects forests and wildlife", "RANGER"],
+ ["A tool used to weigh objects", "SCALE"],
+ ["A place where artworks are created", "STUDIO"],
+ ["A person who repairs electrical wiring", "ELECTRICIAN"],
+ ["A large group of stars forming a pattern", "CONSTELLATION"],
+ ["A device used to navigate using satellites", "GPS"],
+ ["A place where people watch live performances", "THEATRE"],
+ ["A person who writes poems", "POET"],
+ ["A machine that cleans floors by suction", "VACUUM"],
+ ["A person who studies insects", "ENTOMOLOGIST"],
+ ["A place where fruit and vegetables are sold", "MARKET"],
+ ["A tool used to paint walls", "PAINTBRUSH"],
+ ["A person who makes furniture from wood", "CARPENTER"],
+ ["A large wave caused by an underwater disturbance", "TSUNAMI"]
 ];
 const songQuestions=[
  ['🧊 🧊 👶',['Ice Ice Baby','Baby','Cold Heart'],0],['💃 👑',['Dancing Queen','Queen of Hearts','Dance Monkey'],0],['🌧️ ☂️',['Umbrella','Rain On Me','Set Fire to the Rain'],0],['🕛 🌃',['Blinding Lights','Midnight City','Night Changes'],0],['🦁 😴 🌙',['The Lion Sleeps Tonight','Roar','Circle of Life'],0],['🍉 🍬',['Watermelon Sugar','Sugar','Sweet Dreams'],0],['👋 👋 👋',['Hello','Goodbye','Hey Ya!'],0],['⭐ 👦',['Starboy','Lucky Star','Counting Stars'],0],['🔥 🎆',['Firework','Burn','Set Fire to the Rain'],0],['💔 🏨',['Heartbreak Hotel','Hotel California','Love Story'],0],['🕺 🐒',['Dance Monkey','Monkey Wrench','Dancing Queen'],0],['🌊 🏖️',['Ocean Eyes','Waves','California Gurls'],0],['🛣️ 🏡',['Old Town Road','Take Me Home, Country Roads','Life Is a Highway'],1],['☀️ 🌞',['Here Comes the Sun','Walking on Sunshine','Ain’t No Sunshine'],0],['🎂 🎉',['Birthday','Birthday Cake','Celebration'],0],['👀 🐅',['Eye of the Tiger','Tiger','The Look'],0],['🚀 👨',['Rocket Man','Space Oddity','Starman'],0],['💜 🌧️',['Purple Rain','November Rain','Rain'],0],['🧍‍♀️ 🔥',['Girl on Fire','Hot Stuff','Firework'],0],['🌍 🌬️',['Earth Song','Wind of Change','What a Wonderful World'],0]
+,
+ ["🕺 🌙", ["Dancing in the Moonlight", "Moonlight", "Night Fever"], 0],
+ ["🌈 🎵", ["Somewhere Over the Rainbow", "Rainbow", "True Colors"], 0],
+ ["👋 🌍", ["Hello", "Goodbye", "Hey Ya!"], 0],
+ ["🌹 🏷️", ["Kiss from a Rose", "Every Rose Has Its Thorn", "Wildflower"], 0],
+ ["🚗 🛣️", ["Life Is a Highway", "Fast Car", "Drive"], 0],
+ ["🌊 👁️", ["Ocean Eyes", "Waves", "Under the Sea"], 0],
+ ["☔ 💜", ["Purple Rain", "Rain On Me", "Umbrella"], 0],
+ ["🐦 🪽", ["Free Bird", "Three Little Birds", "Birdhouse"], 0],
+ ["🌟 🌃", ["A Sky Full of Stars", "Counting Stars", "Starboy"], 0],
+ ["🧍‍♂️ 🪞", ["Man in the Mirror", "Mirrorball", "Reflection"], 0],
+ ["💃 🐒", ["Dance Monkey", "Dancing Queen", "Monkey Wrench"], 0],
+ ["🔥 ❤️", ["This Girl Is on Fire", "Girl on Fire", "Burning Love"], 0],
+ ["🌞 🚶", ["Walking on Sunshine", "Here Comes the Sun", "Sunny"], 0],
+ ["🛏️ 🌹", ["Bed of Roses", "Sweet Dreams", "Dream On"], 0],
+ ["🧊 ❤️", ["Cold Heart", "Ice Ice Baby", "Frozen"], 0],
+ ["🛤️ 🏡", ["Take Me Home, Country Roads", "Old Town Road", "Home"], 0],
+ ["🌌 🚀", ["Space Oddity", "Rocket Man", "Starman"], 0],
+ ["🎸 🏨", ["Hotel California", "Heartbreak Hotel", "Last Resort"], 0],
+ ["🍬 🍉", ["Watermelon Sugar", "Sugar", "Candy Shop"], 0],
+ ["👑 💃", ["Dancing Queen", "Queen of Hearts", "Royals"], 0],
+ ["🦋 🪽", ["Butterfly", "Wings", "Blackbird"], 0],
+ ["🌙 🌠", ["Talking to the Moon", "Moon River", "Fly Me to the Moon"], 0],
+ ["💔 🎶", ["Someone Like You", "Heartless", "Love Story"], 0],
+ ["🎉 🎂", ["Birthday", "Celebration", "Party Rock Anthem"], 0],
+ ["🐯 👁️", ["Eye of the Tiger", "Tiger", "Roar"], 0],
+ ["🚶‍♀️ ☀️", ["Ain’t No Sunshine", "Walking on Sunshine", "Sunshine of Your Love"], 0],
+ ["🌧️ 🔥", ["Set Fire to the Rain", "Rain On Me", "Firework"], 0],
+ ["🌍 🙏", ["Heal the World", "Earth Song", "What a Wonderful World"], 0],
+ ["🕰️ ⏳", ["Time After Time", "The Time", "Yesterday"], 0],
+ ["🛌 😴", ["Sweet Dreams", "Dream On", "Daydream Believer"], 0],
+ ["🌃 🏙️", ["Midnight City", "Blinding Lights", "Night Changes"], 0],
+ ["💎 🌧️", ["Diamonds", "Shine Bright", "Diamonds Are Forever"], 0],
+ ["🧑‍🚀 🌕", ["Fly Me to the Moon", "Rocket Man", "Moonlight"], 0],
+ ["🧡 🐅", ["The Lion Sleeps Tonight", "Eye of the Tiger", "Roar"], 0],
+ ["🌻 🌞", ["Sunflower", "Sunshine", "Flowers"], 0],
+ ["🎤 ⭐", ["Starboy", "Rockstar", "Fame"], 0],
+ ["💃 🪩", ["Levitating", "Dancing Queen", "Dance the Night"], 0],
+ ["🛣️ 🌆", ["Boulevard of Broken Dreams", "City of Stars", "Midnight City"], 0],
+ ["🧠 💭", ["Sweet but Psycho", "Dreams", "Mind Games"], 0],
+ ["🦁 👑", ["Circle of Life", "The Lion Sleeps Tonight", "Roar"], 0],
+ ["🍒 🍷", ["Cherry Wine", "Watermelon Sugar", "Red Red Wine"], 0],
+ ["🌊 🏄", ["Waves", "Ocean Eyes", "Surfin USA"], 0],
+ ["💌 📮", ["Please Mr. Postman", "Message in a Bottle", "Return to Sender"], 0],
+ ["🕊️ 🌍", ["Imagine", "Free Bird", "One Love"], 0],
+ ["🌠 🙏", ["A Sky Full of Stars", "Counting Stars", "Lucky Star"], 0],
+ ["🚀 🌌", ["Starman", "Space Oddity", "Rocket Man"], 0],
+ ["🌹 🌧️", ["November Rain", "Kiss from a Rose", "Purple Rain"], 0],
+ ["💃 🌧️", ["Rain on Me", "Umbrella", "It’s Raining Men"], 0],
+ ["🧑‍🎤 🎸", ["Bohemian Rhapsody", "Rockstar", "Piano Man"], 0],
+ ["🎹 👨", ["Piano Man", "Rocket Man", "Uptown Girl"], 0],
+ ["🏙️ 🌃", ["Empire State of Mind", "Midnight City", "New York, New York"], 0],
+ ["🌴 🏖️", ["California Gurls", "Island in the Sun", "Kokomo"], 0],
+ ["🧡 🔒", ["Locked Out of Heaven", "Heaven Is a Place on Earth", "Paradise"], 0],
+ ["🛫 ✈️", ["Leaving on a Jet Plane", "Come Fly with Me", "Jet Airliner"], 0],
+ ["💃 🐝", ["Crazy in Love", "Dance Monkey", "Be My Baby"], 0],
+ ["👸 🐝", ["Dancing Queen", "Royals", "Queen of Hearts"], 0],
+ ["🌅 🏞️", ["Here Comes the Sun", "Beautiful Day", "Sunrise"], 0],
+ ["🌙 💤", ["The Lion Sleeps Tonight", "Talking to the Moon", "Dreams"], 0],
+ ["💔 🧊", ["Heart of Glass", "Cold Heart", "Brokenhearted"], 0],
+ ["🎆 🌃", ["Firework", "Blinding Lights", "Night Changes"], 0],
+ ["🪞 👀", ["Man in the Mirror", "The Look", "Reflection"], 0],
+ ["🍭 🌈", ["Lollipop", "Candy", "Sugar"], 0],
+ ["🌍 🎶", ["We Are the World", "Earth Song", "What a Wonderful World"], 0],
+ ["🧑‍🚀 👨‍🚀", ["Rocket Man", "Space Oddity", "Starman"], 0],
+ ["🕺 🏙️", ["Uptown Funk", "Uptown Girl", "Dancing in the Street"], 0],
+ ["🧸 🧑", ["Teddy Bear", "Puppy Love", "Build Me Up Buttercup"], 0],
+ ["🌺 🌸", ["Flowers", "Wildflowers", "Kiss from a Rose"], 0],
+ ["🛣️ 🏍️", ["Born to Be Wild", "Life Is a Highway", "Fast Car"], 0],
+ ["📞 👩", ["Call Me Maybe", "Telephone", "Hello"], 0],
+ ["💋 👑", ["Kiss", "Kiss from a Rose", "Royals"], 0],
+ ["🌊 🏝️", ["Island in the Sun", "Ocean Eyes", "Kokomo"], 0],
+ ["🧑‍🎓 🎓", ["School’s Out", "Another Brick in the Wall", "Graduation"], 0],
+ ["💃 🌟", ["Dance the Night", "Dancing Queen", "Levitating"], 0],
+ ["❤️ 🛑", ["Stop! In the Name of Love", "Crazy in Love", "Love Story"], 0],
+ ["🌌 💤", ["Dreams", "Sweet Dreams", "Dream On"], 0],
+ ["☀️ 🌻", ["Flowers", "Sunflower", "Here Comes the Sun"], 0],
+ ["👀 👁️", ["I Can See Clearly Now", "Eye of the Tiger", "The Look"], 0],
+ ["🚪 🏃", ["Runaway", "Go Your Own Way", "Take the Long Way Home"], 0],
+ ["🎭 🎶", ["The Show Must Go On", "Show Me Love", "That’s Entertainment"], 0],
+ ["🌍 🧭", ["Around the World", "Wherever I May Roam", "On Top of the World"], 0]
 ];
 function renderNever(){
  if(index>=gameDecks.never.length)return finish(score,'Never Have I Ever complete!');
@@ -955,26 +1396,47 @@ function completeDaily(){
 }
 
 async function shareText(message){
+ const inviteURL=location.origin+location.pathname;
  try{
   if(navigator.share){
-   await navigator.share({title:'VibeZone',text:message,url:location.origin+location.pathname});
-  }else if(navigator.clipboard){
-   await navigator.clipboard.writeText(message+' '+location.origin+location.pathname);
-   alert('Copied! Share it with your friends.');
+   await navigator.share({title:'VibeZone',text:message,url:inviteURL});
+  }else if(navigator.clipboard&&window.isSecureContext){
+   await navigator.clipboard.writeText(message+' '+inviteURL);
+   alert('VibeZone invite copied! Send it to your friends. 💜');
   }else{
-   alert(message+' '+location.origin+location.pathname);
+   const shareBox=document.createElement('textarea');
+   shareBox.value=message+' '+inviteURL;document.body.appendChild(shareBox);shareBox.select();
+   const copied=document.execCommand('copy');shareBox.remove();
+   alert(copied?'VibeZone invite copied! Send it to your friends. 💜':message+' '+inviteURL);
   }
- }catch(e){}
+ }catch(e){if(e?.name!=='AbortError')alert('Sharing is unavailable right now. You can copy this link: '+inviteURL)}
 }
 
 function shareSite(){
- shareText('Come hang out with me on VibeZone! Your world. Your vibe.');
+ shareText('Come hang out with me on VibeZone! Play games, earn points and share the fun. 💜');
+}
+
+function dismissWelcome(){
+ const modal=$('vzWelcome');
+ if(modal)modal.classList.remove('show');
+ try{localStorage.setItem('vz_welcomed_v1','yes')}catch(e){}
+}
+
+function hideVibeLoading(){
+ const loading=$('vzLoading');
+ if(loading)loading.classList.add('vz-hidden');
+ if(senderInboxID)return;
+ try{
+  if(!localStorage.getItem('vz_welcomed_v1')){
+   setTimeout(()=>{const modal=$('vzWelcome');if(modal)modal.classList.add('show')},350);
+  }
+ }catch(e){}
 }
 
 updateProfile();
 updatePendingPoints();
 loadDaily();
-showScreen('messages');
+showScreen('home');
 
 /* Dedicated anonymous message page */
 const inboxFromURL=new URLSearchParams(location.search).get('inbox');
@@ -1484,9 +1946,12 @@ async function startVibeZoneOnline(){
    document.getElementById('privateInbox').innerHTML=
     '<p class="muted">Your inbox is unavailable until your account connects.</p>';
   }
+ }finally{
+  hideVibeLoading();
  }
 }
 
+window.addEventListener('load',()=>setTimeout(hideVibeLoading,1800),{once:true});
 startVibeZoneOnline();
 </script>
 
