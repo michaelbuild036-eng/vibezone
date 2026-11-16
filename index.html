@@ -4,7 +4,7 @@
 <meta name="google-site-verification" content="oj1_2uZlsKGQ_lzIH79tbiHXnirYRISWRm3eC4zT7Bs">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#10091f">
+<meta name="theme-color" content="#fff4e8">
 <title>VibeZone | Your world. Your vibe.</title>
 
 <style>
@@ -182,6 +182,109 @@ body.sender-mode{background:var(--bg)}
 body.sender-mode header,
 body.sender-mode main,
 body.sender-mode footer{display:none!important}
+
+
+/* Warm, welcoming VibeZone refresh */
+:root{
+ --bg:#fff5eb;--panel:#fffaf4;--panel2:#f8e6d6;
+ --purple:#d66b45;--pink:#ee9367;--blue:#e8ad73;
+ --text:#493126;--muted:#94796b;--line:#9e694326;
+}
+body{
+ color:var(--text);
+ background:
+  radial-gradient(ellipse at 8% 0%,#ffe0c8 0,transparent 39%),
+  radial-gradient(ellipse at 92% 32%,#f8dfc7 0,transparent 36%),
+  linear-gradient(135deg,#fff8f1,#fff0e2 55%,#fff7ed);
+}
+header{
+ background:#fff8f1ed;
+ border-bottom:1px solid #e9cdb9;
+ box-shadow:0 5px 24px #8753340c;
+}
+.logo span,.gradient{
+ background:linear-gradient(90deg,#c95e3d,#e58b54,#bd754c);
+ background-clip:text;color:transparent;
+}
+nav button{color:#806658}
+nav button:hover,nav button.active{
+ color:#9d4f35;background:#f5dfd0;border-color:#e7bda5;
+}
+.hero{padding-top:82px}
+.eyebrow{color:#b66c4e}
+.hero p{color:#8b7163}
+.btn{
+ background:linear-gradient(115deg,#c95f40,#e58b55);
+ color:#fffaf5;box-shadow:0 8px 22px #b75c3b2b;
+ border-radius:14px;
+}
+.btn:hover{filter:brightness(1.06);box-shadow:0 11px 27px #b75c3b35}
+.secondary{background:#f4e2d4;color:#86513b;border:1px solid #e6c6b1;box-shadow:none}
+.card,.panel{
+ background:linear-gradient(145deg,#fffdf9,#fff4e9);
+ border:1px solid #efd9c8;border-radius:22px;
+ box-shadow:0 12px 32px #8c553014;
+}
+.game-card{
+ min-height:228px;padding:22px;position:relative;overflow:hidden;
+ transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+}
+.game-card:before{
+ content:"";position:absolute;width:145px;height:145px;border-radius:50%;
+ right:-42px;top:-48px;background:var(--game-glow,#f7dfcf);opacity:.75;
+}
+.game-card:hover{
+ transform:translateY(-6px);box-shadow:0 18px 35px #8c553022;
+ border-color:#e7b89e;
+}
+.game-card:nth-child(4n+1){--game-glow:#f8d9c8}
+.game-card:nth-child(4n+2){--game-glow:#f7e5bd}
+.game-card:nth-child(4n+3){--game-glow:#f4d8d4}
+.game-card:nth-child(4n){--game-glow:#f5dfc9}
+.game-card h3{position:relative;color:#51382c;font-size:18px}
+.game-card p{position:relative;color:#907567;line-height:1.55}
+.game-card .btn{position:relative;margin-top:10px}
+.emoji{
+ position:relative;display:grid;place-items:center;width:67px;height:67px;
+ border-radius:20px;margin-bottom:17px;font-size:35px;
+ background:linear-gradient(145deg,#fff0df,#f5d9c4);
+ box-shadow:inset 0 1px 0 #fff,0 7px 15px #9e69431a;
+}
+#pendingPointsPanel{background:linear-gradient(120deg,#fff1df,#fffaf3);border-color:#efd0b7}
+#pendingPointsPanel .stat,.stat{color:#b85d3d}
+.ad{color:#ad8d7b;border-color:#e7cdbb;background:#fff9f3}
+.question{color:#54382c}
+.choice{background:#fff7ef;color:#624536;border:1px solid #ecd5c3}
+.choice:hover{border-color:#d98963;background:#fbe8da}
+.answer,.status-message{color:#ad6347}
+input,select,textarea{
+ background:#fffaf5;color:#543b30;border:1px solid #e7cdbb;
+}
+input::placeholder,textarea::placeholder{color:#b39a8b}
+.avatar{background:#f6e3d5}
+.chat{background:#fff4e9;border:1px solid #efd9c8}
+.chat p{background:#f8e5d7;color:#654737}
+.chat .me{background:#f0d2bf}
+.inbox-link{background:#fff7ef;border-color:#e8cdb8;color:#a65d40}
+.message-card{background:linear-gradient(145deg,#fffdf9,#fff3e8);border-color:#efd9c8}
+.message-date,.small{color:#9b8172}
+.sender-box{background:linear-gradient(145deg,#fffdf9,#fff1e5);border-color:#efd6c3;box-shadow:0 20px 60px #81502b20}
+.sender-box p{color:#907567}
+.sender-icon{color:#c96b49}
+footer{border-color:#ead3c2;color:#94796b}
+body.sender-mode{
+ background:radial-gradient(circle at 50% 0%,#ffe2cd,#fff5eb 65%);
+}
+.pulse{animation:pulse-warm 2.5s infinite}
+@keyframes pulse-warm{
+ 0%,100%{box-shadow:0 0 0 #d66b4500}
+ 50%{box-shadow:0 0 30px #d66b4538}
+}
+@media(max-width:650px){
+ .hero{padding:56px 0 36px}
+ .game-card{min-height:210px}
+}
+
 </style>
 </head>
 
