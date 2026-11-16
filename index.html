@@ -4,7 +4,7 @@
 <meta name="google-site-verification" content="oj1_2uZlsKGQ_lzIH79tbiHXnirYRISWRm3eC4zT7Bs">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#fff4e8">
+<meta name="theme-color" content="#10091f">
 <title>VibeZone | Your world. Your vibe.</title>
 
 <style>
@@ -183,107 +183,25 @@ body.sender-mode header,
 body.sender-mode main,
 body.sender-mode footer{display:none!important}
 
-
-/* Warm, welcoming VibeZone refresh */
-:root{
- --bg:#fff5eb;--panel:#fffaf4;--panel2:#f8e6d6;
- --purple:#d66b45;--pink:#ee9367;--blue:#e8ad73;
- --text:#493126;--muted:#94796b;--line:#9e694326;
-}
-body{
- color:var(--text);
- background:
-  radial-gradient(ellipse at 8% 0%,#ffe0c8 0,transparent 39%),
-  radial-gradient(ellipse at 92% 32%,#f8dfc7 0,transparent 36%),
-  linear-gradient(135deg,#fff8f1,#fff0e2 55%,#fff7ed);
-}
-header{
- background:#fff8f1ed;
- border-bottom:1px solid #e9cdb9;
- box-shadow:0 5px 24px #8753340c;
-}
-.logo span,.gradient{
- background:linear-gradient(90deg,#c95e3d,#e58b54,#bd754c);
- background-clip:text;color:transparent;
-}
-nav button{color:#806658}
-nav button:hover,nav button.active{
- color:#9d4f35;background:#f5dfd0;border-color:#e7bda5;
-}
-.hero{padding-top:82px}
-.eyebrow{color:#b66c4e}
-.hero p{color:#8b7163}
-.btn{
- background:linear-gradient(115deg,#c95f40,#e58b55);
- color:#fffaf5;box-shadow:0 8px 22px #b75c3b2b;
- border-radius:14px;
-}
-.btn:hover{filter:brightness(1.06);box-shadow:0 11px 27px #b75c3b35}
-.secondary{background:#f4e2d4;color:#86513b;border:1px solid #e6c6b1;box-shadow:none}
-.card,.panel{
- background:linear-gradient(145deg,#fffdf9,#fff4e9);
- border:1px solid #efd9c8;border-radius:22px;
- box-shadow:0 12px 32px #8c553014;
-}
+/* Warm, polished game cards — keeps VibeZone's original purple/pink/blue identity. */
 .game-card{
- min-height:228px;padding:22px;position:relative;overflow:hidden;
- transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+ min-height:246px;position:relative;overflow:hidden;isolation:isolate;
+ padding:20px;border-radius:22px;
+ background:linear-gradient(145deg,rgba(48,29,76,.98),rgba(25,16,43,.98));
+ border:1px solid rgba(255,255,255,.12);
+ box-shadow:0 13px 30px rgba(0,0,0,.20);
+ transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
 }
-.game-card:before{
- content:"";position:absolute;width:145px;height:145px;border-radius:50%;
- right:-42px;top:-48px;background:var(--game-glow,#f7dfcf);opacity:.75;
-}
-.game-card:hover{
- transform:translateY(-6px);box-shadow:0 18px 35px #8c553022;
- border-color:#e7b89e;
-}
-.game-card:nth-child(4n+1){--game-glow:#f8d9c8}
-.game-card:nth-child(4n+2){--game-glow:#f7e5bd}
-.game-card:nth-child(4n+3){--game-glow:#f4d8d4}
-.game-card:nth-child(4n){--game-glow:#f5dfc9}
-.game-card h3{position:relative;color:#51382c;font-size:18px}
-.game-card p{position:relative;color:#907567;line-height:1.55}
-.game-card .btn{position:relative;margin-top:10px}
-.emoji{
- position:relative;display:grid;place-items:center;width:67px;height:67px;
- border-radius:20px;margin-bottom:17px;font-size:35px;
- background:linear-gradient(145deg,#fff0df,#f5d9c4);
- box-shadow:inset 0 1px 0 #fff,0 7px 15px #9e69431a;
-}
-#pendingPointsPanel{background:linear-gradient(120deg,#fff1df,#fffaf3);border-color:#efd0b7}
-#pendingPointsPanel .stat,.stat{color:#b85d3d}
-.ad{color:#ad8d7b;border-color:#e7cdbb;background:#fff9f3}
-.question{color:#54382c}
-.choice{background:#fff7ef;color:#624536;border:1px solid #ecd5c3}
-.choice:hover{border-color:#d98963;background:#fbe8da}
-.answer,.status-message{color:#ad6347}
-input,select,textarea{
- background:#fffaf5;color:#543b30;border:1px solid #e7cdbb;
-}
-input::placeholder,textarea::placeholder{color:#b39a8b}
-.avatar{background:#f6e3d5}
-.chat{background:#fff4e9;border:1px solid #efd9c8}
-.chat p{background:#f8e5d7;color:#654737}
-.chat .me{background:#f0d2bf}
-.inbox-link{background:#fff7ef;border-color:#e8cdb8;color:#a65d40}
-.message-card{background:linear-gradient(145deg,#fffdf9,#fff3e8);border-color:#efd9c8}
-.message-date,.small{color:#9b8172}
-.sender-box{background:linear-gradient(145deg,#fffdf9,#fff1e5);border-color:#efd6c3;box-shadow:0 20px 60px #81502b20}
-.sender-box p{color:#907567}
-.sender-icon{color:#c96b49}
-footer{border-color:#ead3c2;color:#94796b}
-body.sender-mode{
- background:radial-gradient(circle at 50% 0%,#ffe2cd,#fff5eb 65%);
-}
-.pulse{animation:pulse-warm 2.5s infinite}
-@keyframes pulse-warm{
- 0%,100%{box-shadow:0 0 0 #d66b4500}
- 50%{box-shadow:0 0 30px #d66b4538}
-}
-@media(max-width:650px){
- .hero{padding:56px 0 36px}
- .game-card{min-height:210px}
-}
+.game-card:after{content:"";position:absolute;z-index:-1;width:155px;height:155px;right:-72px;top:-76px;border-radius:50%;background:linear-gradient(135deg,rgba(255,79,163,.20),rgba(66,202,255,.10));}
+.game-card:hover{transform:translateY(-6px);border-color:rgba(193,154,255,.55);box-shadow:0 20px 38px rgba(0,0,0,.30),0 0 24px rgba(161,92,255,.12)}
+.game-art{width:76px;height:76px;margin:0 0 17px;display:grid;place-items:center;border-radius:23px;background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.13);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 20px rgba(0,0,0,.16)}
+.game-art svg{width:68px;height:68px;display:block;filter:drop-shadow(0 5px 8px rgba(0,0,0,.18))}
+.game-card h3{font-size:17px;letter-spacing:.1px;margin:0 0 7px;color:#fff}
+.game-card p{font-size:13px;line-height:1.55;color:#c9bddb;flex:1;margin:0 0 15px}
+.game-card .btn{width:100%;margin-top:auto;border-radius:12px;padding:11px 15px;background:linear-gradient(105deg,#9250ee,#e94fba);box-shadow:0 7px 18px rgba(161,92,255,.22)}
+.game-card:nth-child(3n+2) .btn{background:linear-gradient(105deg,#8c56ee,#398fe9)}
+.game-card:nth-child(3n) .btn{background:linear-gradient(105deg,#7654db,#c04fca)}
+@media(max-width:650px){.game-card{min-height:225px;padding:17px}.game-art{width:68px;height:68px}.game-art svg{width:61px;height:61px}}
 
 </style>
 </head>
@@ -320,20 +238,20 @@ body.sender-mode{
   <button class="btn" id="bankCollectButton" onclick="collectAllPoints()" disabled>Collect all points</button>
  </div>
  <div class="grid">
-  <div class="card game-card"><div class="emoji">⚡</div><h3>Would You Rather</h3><p>Two choices. Which side are you on?</p><button class="btn" onclick="start('rather')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">🧩</div><h3>Guess the Emoji</h3><p>Crack the emoji clues.</p><button class="btn" onclick="start('emoji')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">🧠</div><h3>Trivia Challenge</h3><p>Show off what you know.</p><button class="btn" onclick="start('trivia')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">🎲</div><h3>Truth or Dare</h3><p>Fun, friendly party prompts.</p><button class="btn" onclick="start('truth')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">✨</div><h3>Personality Quiz</h3><p>Discover your vibe.</p><button class="btn" onclick="start('personality')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">🧠</div><h3>Memory Match</h3><p>Find matching emoji pairs.</p><button class="btn" onclick="start('memory')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">⏱️</div><h3>Reaction Test</h3><p>How fast are your reactions?</p><button class="btn" onclick="start('reaction')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">✊</div><h3>Rock Paper Scissors</h3><p>Can you beat the computer?</p><button class="btn" onclick="start('rps')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">🔤</div><h3>Word Scramble</h3><p>Unscramble the mystery word.</p><button class="btn" onclick="start('word')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">🙈</div><h3>Never Have I Ever</h3><p>Reveal your experiences with fun prompts.</p><button class="btn" onclick="start('never')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">🫶</div><h3>Who Knows Me Best?</h3><p>Challenge a friend to guess your choices.</p><button class="btn" onclick="start('knows')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">🧩</div><h3>Riddles</h3><p>Think carefully and solve each riddle.</p><button class="btn" onclick="start('riddles')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">⚡</div><h3>Word Challenge</h3><p>Use the clue to find the right word.</p><button class="btn" onclick="start('wordchallenge')">Play now</button></div>
-  <div class="card game-card"><div class="emoji">🎵</div><h3>Guess the Song</h3><p>Decode emoji clues to name the song.</p><button class="btn" onclick="start('song')">Play now</button></div>
+  <div class="card game-card"><div class="game-art pink" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-16-pink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff4fa3"/><stop offset="1" stop-color="#ff83c0"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-16-pink)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">↔</text></svg></div><h3>Would You Rather</h3><p>Two choices. Which side are you on?</p><button class="btn" onclick="start('rather')">Play now</button></div>
+  <div class="card game-card"><div class="game-art blue" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-15-blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42caff"/><stop offset="1" stop-color="#8ce4ff"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-15-blue)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">☺</text></svg></div><h3>Guess the Emoji</h3><p>Crack the emoji clues.</p><button class="btn" onclick="start('emoji')">Play now</button></div>
+  <div class="card game-card"><div class="game-art purple" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-16-purple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a15cff"/><stop offset="1" stop-color="#c39aff"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-16-purple)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="900" fill="#fff">123</text></svg></div><h3>Trivia Challenge</h3><p>Show off what you know.</p><button class="btn" onclick="start('trivia')">Play now</button></div>
+  <div class="card game-card"><div class="game-art pink" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-13-pink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff4fa3"/><stop offset="1" stop-color="#ff83c0"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-13-pink)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">!</text></svg></div><h3>Truth or Dare</h3><p>Fun, friendly party prompts.</p><button class="btn" onclick="start('truth')">Play now</button></div>
+  <div class="card game-card"><div class="game-art blue" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-16-blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42caff"/><stop offset="1" stop-color="#8ce4ff"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-16-blue)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">✦</text></svg></div><h3>Personality Quiz</h3><p>Discover your vibe.</p><button class="btn" onclick="start('personality')">Play now</button></div>
+  <div class="card game-card"><div class="game-art purple" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-12-purple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a15cff"/><stop offset="1" stop-color="#c39aff"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-12-purple)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">▦</text></svg></div><h3>Memory Match</h3><p>Find matching emoji pairs.</p><button class="btn" onclick="start('memory')">Play now</button></div>
+  <div class="card game-card"><div class="game-art blue" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-13-blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42caff"/><stop offset="1" stop-color="#8ce4ff"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-13-blue)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">⚡</text></svg></div><h3>Reaction Test</h3><p>How fast are your reactions?</p><button class="btn" onclick="start('reaction')">Play now</button></div>
+  <div class="card game-card"><div class="game-art pink" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-19-pink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff4fa3"/><stop offset="1" stop-color="#ff83c0"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-19-pink)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">✊</text></svg></div><h3>Rock Paper Scissors</h3><p>Can you beat the computer?</p><button class="btn" onclick="start('rps')">Play now</button></div>
+  <div class="card game-card"><div class="game-art purple" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-13-purple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a15cff"/><stop offset="1" stop-color="#c39aff"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-13-purple)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">Aa</text></svg></div><h3>Word Scramble</h3><p>Unscramble the mystery word.</p><button class="btn" onclick="start('word')">Play now</button></div>
+  <div class="card game-card"><div class="game-art pink" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-17-pink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff4fa3"/><stop offset="1" stop-color="#ff83c0"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-17-pink)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">♡</text></svg></div><h3>Never Have I Ever</h3><p>Reveal your experiences with fun prompts.</p><button class="btn" onclick="start('never')">Play now</button></div>
+  <div class="card game-card"><div class="game-art blue" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-18-blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42caff"/><stop offset="1" stop-color="#8ce4ff"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-18-blue)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">♡</text></svg></div><h3>Who Knows Me Best?</h3><p>Challenge a friend to guess your choices.</p><button class="btn" onclick="start('knows')">Play now</button></div>
+  <div class="card game-card"><div class="game-art purple" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-7-purple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a15cff"/><stop offset="1" stop-color="#c39aff"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-7-purple)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">?</text></svg></div><h3>Riddles</h3><p>Think carefully and solve each riddle.</p><button class="btn" onclick="start('riddles')">Play now</button></div>
+  <div class="card game-card"><div class="game-art pink" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-14-pink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff4fa3"/><stop offset="1" stop-color="#ff83c0"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-14-pink)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">A+</text></svg></div><h3>Word Challenge</h3><p>Use the clue to find the right word.</p><button class="btn" onclick="start('wordchallenge')">Play now</button></div>
+  <div class="card game-card"><div class="game-art blue" aria-hidden="true"><svg viewBox="0 0 100 100" role="img" focusable="false"><defs><linearGradient id="g-14-blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42caff"/><stop offset="1" stop-color="#8ce4ff"/></linearGradient></defs><circle cx="50" cy="50" r="43" fill="url(#g-14-blue)"/><circle cx="19" cy="25" r="7" fill="#fff" opacity=".42"/><circle cx="82" cy="73" r="5" fill="#fff" opacity=".55"/><path d="M16 68 Q29 85 45 82" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/><rect x="22" y="20" width="56" height="60" rx="18" fill="#170d2b" opacity=".16"/><text x="50" y="59" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#fff">♫</text></svg></div><h3>Guess the Song</h3><p>Decode emoji clues to name the song.</p><button class="btn" onclick="start('song')">Play now</button></div>
  </div>
 </section>
 
