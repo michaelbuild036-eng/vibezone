@@ -336,7 +336,10 @@ body.sender-mode footer{display:none!important}
  <div class="panel" style="margin-top:20px">
   <div class="heading">
    <div><h3>📥 My private messages</h3><p>Only your account can read messages sent to your inbox.</p></div>
-   <button class="btn secondary" onclick="refreshInbox()">Refresh</button>
+   <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn secondary" onclick="enableVibeNotifications()">🔔 Notifications</button>
+    <button class="btn secondary" onclick="refreshInbox()">Refresh</button>
+   </div>
   </div>
   <div id="privateInbox"><p class="muted">Connecting to your inbox...</p></div>
  </div>
@@ -376,6 +379,11 @@ body.sender-mode footer{display:none!important}
   </div>
   <label>Nickname</label>
   <input id="nickname" maxlength="18" placeholder="Your nickname">
+  <label>About you</label>
+  <textarea id="profileBio" maxlength="160" placeholder="Tell the VibeZone community a little about yourself..." style="min-height:85px"></textarea>
+  <label>Profile picture</label>
+  <input id="profilePhotoInput" type="file" accept="image/*">
+  <p class="small">Choose a picture. It is resized before it is saved to your public VibeZone profile.</p>
   <label>Avatar</label><br>
   <select id="avatar">
    <option>😎</option><option>🦋</option><option>🐼</option><option>🐸</option>
@@ -383,7 +391,8 @@ body.sender-mode footer{display:none!important}
    <option>🐱</option><option>🐉</option>
   </select><br>
   <button class="btn" onclick="saveProfile()">Save profile</button>
-  <p class="small">Your nickname and score appear on the global leaderboard.</p>
+  <button class="btn secondary" onclick="inviteFriends()">💌 Invite friends to VibeZone</button>
+  <p class="small">Your nickname, avatar, profile picture, short bio and score appear on the public leaderboard. Do not add private information.</p>
  </div>
 
 </section>
@@ -430,6 +439,11 @@ body.sender-mode footer{display:none!important}
  Your world. Your vibe.<br>
  Have fun, respect others and keep personal information private.<br>
  <span class="small">VibeZone is free to use. Ad spaces are placeholders, not live advertisements.</span>
+ <div class="small" style="margin-top:12px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+  <a href="about.html">About & Support</a>
+  <a href="privacy-policy.html">Privacy Policy</a>
+  <a href="terms-of-service.html">Terms of Service</a>
+ </div>
 </footer>
 
 <script>
@@ -508,7 +522,16 @@ function safe(s){
 function updateProfile(){
  $('nameView').textContent=profile.name;
  $('avatarView').textContent=profile.avatar;
+ if(profile.photoData){
+  $('avatarView').style.backgroundImage=`url("${profile.photoData}")`;
+  $('avatarView').style.backgroundSize='cover';
+  $('avatarView').style.backgroundPosition='center';
+  $('avatarView').textContent='';
+ }else{
+  $('avatarView').style.backgroundImage='';
+ }
  $('pointsView').textContent=points;
+ if($('profileBio'))$('profileBio').value=profile.bio||'';
  $('nickname').value=profile.name==='Guest Player'?'':profile.name;
  $('avatar').value=profile.avatar;
  renderLeaders();
@@ -525,12 +548,63 @@ function addPoints(n){
 
 function saveProfile(){
  let nickname=$('nickname').value.trim().slice(0,18);
- profile={name:nickname||'Guest Player',avatar:$('avatar').value};
+ profile={
+  ...profile,
+  name:nickname||'Guest Player',
+  avatar:$('avatar').value,
+  bio:($('profileBio')?.value||'').trim().slice(0,160)
+ };
  save('vz_profile',profile);
  updateProfile();
- if(window.vzSyncOnline)window.vzSyncOnline();
+ if(window.vzSyncOnline)window.vzSyncOnline().catch(error=>console.error('Profile sync failed:',error));
  alert('Profile saved!');
 }
+
+
+// Profile images are resized and compressed before being stored.
+document.addEventListener('DOMContentLoaded',()=>{
+ const picker=document.getElementById('profilePhotoInput');
+ if(!picker)return;
+ picker.addEventListener('change',()=>{
+  const file=picker.files&&picker.files[0];
+  if(!file)return;
+  if(!file.type.startsWith('image/')){alert('Please choose an image file.');return;}
+  const reader=new FileReader();
+  reader.onload=()=>{
+   const image=new Image();
+   image.onload=()=>{
+    const canvas=document.createElement('canvas');
+    const scale=Math.min(1,320/Math.max(image.width,image.height));
+    canvas.width=Math.max(1,Math.round(image.width*scale));
+    canvas.height=Math.max(1,Math.round(image.height*scale));
+    canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+    const compressed=canvas.toDataURL('image/jpeg',0.62);
+    if(compressed.length>115000){alert('That image is too large. Please choose a smaller picture.');return;}
+    profile={...profile,photoData:compressed};
+    save('vz_profile',profile);
+    updateProfile();
+    if(window.vzSyncOnline)window.vzSyncOnline().catch(error=>console.error(error));
+   };
+   image.onerror=()=>alert('Could not read that image.');
+   image.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+ });
+});
+
+window.inviteFriends=async function(){
+ const url=location.origin+location.pathname;
+ const shareData={title:'Join me on VibeZone',text:'Play games, take challenges and share your vibe on VibeZone! ✨',url};
+ try{
+  if(navigator.share)await navigator.share(shareData);
+  else{
+   await navigator.clipboard.writeText(shareData.text+' '+url);
+   alert('VibeZone invitation copied. Share it with your friends!');
+  }
+ }catch(error){
+  if(error.name!=='AbortError')alert('Could not open sharing. Copy this link: '+url);
+ }
+};
 
 function renderLeaders(){
  let sorted=[...records].sort((a,b)=>b.points-a.points).slice(0,10);
@@ -1527,7 +1601,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig={
- apiKey:"AIzaSyCPPyathJ76lGoKLsDWZtIN2BUyvgL5css",
+ apiKey:"AIzaSyCPPyathJ76gLoKLsDWZtIN2BUyvgL5css",
  authDomain:"vibezone-2f23f.firebaseapp.com",
  projectId:"vibezone-2f23f",
  storageBucket:"vibezone-2f23f.firebasestorage.app",
@@ -1551,6 +1625,9 @@ window.vzGetPublicProfile=function(){
  try{savedPoints=Number(JSON.parse(localStorage.getItem('vz_points')||'0'))||0}catch(e){}
  return {
   nickname:String(savedProfile.name||'Guest Player').trim().slice(0,18)||'Guest Player',
+  avatar:String(savedProfile.avatar||'😎').slice(0,8),
+  bio:String(savedProfile.bio||'').slice(0,160),
+  photoData:String(savedProfile.photoData||'').slice(0,115000),
   points:Math.max(0,Math.floor(savedPoints)),
   pendingPoints:Math.max(0,Math.floor(Number(JSON.parse(localStorage.getItem('vz_pending_points')||'0'))||0)),
   dailyDone:String(localStorage.getItem('vz_daily')||'')
@@ -1611,11 +1688,69 @@ window.vzSyncOnline=async function(){
 
  await setDoc(doc(db,'leaderboard',currentUID),{
   nickname:publicProfile.nickname,
+  avatar:publicProfile.avatar,
+  bio:publicProfile.bio,
+  photoData:publicProfile.photoData,
   points:publicProfile.points,
   pendingPoints:publicProfile.pendingPoints,
   dailyDone:publicProfile.dailyDone,
   updatedAt:serverTimestamp()
  },{merge:true});
+};
+
+
+let inboxFirstSnapshot=true;
+let notificationPermissionAsked=false;
+
+window.enableVibeNotifications=async function(){
+ if(!('Notification' in window)){
+  alert('This browser does not support notifications.');
+  return;
+ }
+ const permission=await Notification.requestPermission();
+ notificationPermissionAsked=true;
+ if(permission==='granted'){
+  alert('Notifications are enabled while VibeZone is open in this browser.');
+ }else{
+  alert('Notifications are not enabled. You can change this in your browser settings.');
+ }
+};
+
+window.vzReportInboxMessage=async function(messageId){
+ if(!currentUID)return;
+ const reason=prompt('Why are you reporting this message? (Harassment, threats, spam, or other)');
+ if(!reason)return;
+ try{
+  const messageRef=doc(db,'inboxes',currentUID,'messages',messageId);
+  const messageSnap=await getDocs(query(collection(db,'inboxes',currentUID,'messages'),limit(50)));
+  const found=messageSnap.docs.find(item=>item.id===messageId);
+  const data=found?found.data():{};
+  await addDoc(collection(db,'reports'),{
+   type:'inbox_message',
+   inboxOwnerId:currentUID,
+   messageId,
+   senderUid:String(data.senderUid||'').slice(0,128),
+   reason:String(reason).slice(0,500),
+   message:String(data.message||'').slice(0,500),
+   reporterUid:currentUID,
+   createdAt:serverTimestamp(),
+   status:'new'
+  });
+  alert('Thank you. Your report has been submitted for review.');
+ }catch(error){
+  console.error('Report submission failed:',error);
+  alert('Could not submit your report: '+errorText(error));
+ }
+};
+
+window.vzBlockSender=function(senderUid){
+ if(!senderUid||senderUid===currentUID)return;
+ if(!confirm('Block this sender on this browser? Their messages will be hidden from your inbox here.'))return;
+ const blocked=JSON.parse(localStorage.getItem('vz_blocked_senders')||'[]');
+ if(!blocked.includes(senderUid))blocked.push(senderUid);
+ localStorage.setItem('vz_blocked_senders',JSON.stringify(blocked));
+ listenToInbox();
+ alert('Sender blocked on this browser. This does not stop messages at the server.');
 };
 
 function listenToInbox(){
@@ -1632,12 +1767,34 @@ function listenToInbox(){
  inboxUnsubscribe=onSnapshot(inboxQuery,snapshot=>{
   const container=document.getElementById('privateInbox');
 
+  if(!inboxFirstSnapshot){
+   snapshot.docChanges().filter(change=>change.type==='added').forEach(change=>{
+    const data=change.doc.data();
+    if(data.senderUid===currentUID)return;
+    const title='New VibeZone message 💌';
+    const body=String(data.message||'You received a new anonymous message.').slice(0,110);
+    const toast=document.createElement('div');
+    toast.textContent=title+' — '+body;
+    toast.style.cssText='position:fixed;right:18px;bottom:18px;z-index:99999;max-width:min(360px,calc(100vw - 36px));padding:14px 18px;border-radius:14px;background:#30204b;color:white;box-shadow:0 8px 30px #0008;border:1px solid #ffffff30';
+    document.body.appendChild(toast);
+    setTimeout(()=>toast.remove(),6500);
+    if('Notification' in window&&Notification.permission==='granted'&&document.hidden){
+     try{new Notification(title,{body,icon:'./favicon.ico'});}catch(error){console.warn('Notification unavailable:',error);}
+    }
+   });
+  }
+  inboxFirstSnapshot=false;
+
   if(snapshot.empty){
    container.innerHTML='<p class="muted">No messages yet. Share your personal link to receive your first message! 💌</p>';
    return;
   }
 
-  container.innerHTML=snapshot.docs.map(item=>{
+  const blockedSenders=JSON.parse(localStorage.getItem('vz_blocked_senders')||'[]');
+  container.innerHTML=snapshot.docs.filter(item=>{
+   const sender=item.data().senderUid;
+   return !sender||!blockedSenders.includes(sender);
+  }).map(item=>{
    const data=item.data();
    const message=escapeHTML(data.message||'');
    let date='Recently';
@@ -1652,6 +1809,8 @@ function listenToInbox(){
      <div class="message-content">${message}</div>
      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:15px">
       <button class="btn" onclick="window.vzToggleReply('${item.id}')">💜 Reply with VibeZone</button>
+      <button class="btn secondary" onclick="window.vzReportInboxMessage('${item.id}')">🚩 Report</button>
+      ${data.senderUid?`<button class="btn secondary" onclick="window.vzBlockSender('${escapeHTML(data.senderUid)}')">🚫 Block sender</button>`:''}
       <button class="btn secondary" onclick="window.vzDeleteInboxMessage('${item.id}')">Delete message</button>
      </div>
      <div id="vzReplyBox-${item.id}" class="hidden" style="margin-top:15px">
@@ -1897,6 +2056,7 @@ window.sendLandingMessage=async function(){
  try{
   await addDoc(collection(db,'inboxes',senderInboxID,'messages'),{
    message:message,
+   senderUid:currentUID,
    createdAt:serverTimestamp(),
    read:false
   });
@@ -1976,8 +2136,14 @@ async function startVibeZoneOnline(){
      '<p class="muted">Be the first player on the leaderboard!</p>';
    }else{
     document.getElementById('leaders').innerHTML=entries.map((player,index)=>`
-     <div class="leader-row">
-      <b>${['🥇','🥈','🥉'][index]||'#'+(index+1)} ${escapeHTML(player.nickname||'Guest Player')}</b>
+     <div class="leader-row" style="display:flex;align-items:center;gap:12px">
+      ${player.photoData
+       ?`<img src="${escapeHTML(player.photoData)}" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover">`
+       :`<span style="font-size:28px">${escapeHTML(player.avatar||'😎')}</span>`}
+      <div style="flex:1;min-width:0">
+       <b>${['🥇','🥈','🥉'][index]||'#'+(index+1)} ${escapeHTML(player.nickname||'Guest Player')}</b>
+       ${player.bio?`<div class="small">${escapeHTML(player.bio)}</div>`:''}
+      </div>
       <span class="stat">${Number(player.points)||0}</span>
      </div>
     `).join('');
@@ -2012,5 +2178,85 @@ window.addEventListener('unhandledrejection',event=>console.error('VibeZone unha
 startVibeZoneOnline();
 </script>
 
-</body>
+
+<script>
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+ window.addEventListener('load',()=>navigator.serviceWorker.register('./vibezone-sw.js').catch(error=>console.warn('Service worker registration failed:',error)));
+}
+</script>
+\n</body>
 </html>
+const CACHE_NAME = 'vibezone-shell-v1';
+const SHELL = ['./', './index.html', './privacy-policy.html', './terms-of-service.html', './about.html'];
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)));
+  self.skipWaiting();
+});
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+  event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => {
+    const copy = response.clone();
+    caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+    return response;
+  }).catch(() => caches.match('./index.html'))));
+});
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy Policy | VibeZone</title><style>
+*{box-sizing:border-box}body{margin:0;padding:28px 16px;background:#10091f;color:#f7f1ff;font:16px/1.7 Arial,sans-serif}
+main{max-width:850px;margin:auto;padding:28px;border:1px solid #ffffff25;border-radius:22px;background:#1c1231}
+a{color:#65caff}h1,h2{color:#ff79c6}.notice{padding:14px;border-radius:12px;background:#38234f}
+</style></head><body><main><p><a href="./index.html">← Back to VibeZone</a></p><h1>Privacy Policy</h1>
+<div class="notice"><strong>Owner action required:</strong> This is a starter policy template, not legal advice. Before launch, replace every bracketed placeholder and make sure it accurately describes your actual Firebase configuration, analytics, advertising, retention and moderation practices.</div>
+<h2>1. Who operates VibeZone</h2><p>VibeZone is operated by <strong>[INSERT LEGAL OWNER / BUSINESS NAME]</strong> in <strong>[INSERT COUNTRY]</strong>. Contact: <strong>[INSERT SUPPORT EMAIL]</strong>.</p>
+<h2>2. Information we process</h2><p>Depending on the features you use, VibeZone may process a randomly generated Firebase anonymous account identifier, nickname, avatar, optional profile picture, optional biography, game scores, challenge progress, and messages sent to an inbox. Reports may include the reported message, the reason for the report, and account identifiers needed to review abuse.</p>
+<h2>3. Public profile information</h2><p>Your nickname, avatar, optional biography, optional profile picture and leaderboard score may be visible to other visitors. Do not include your address, phone number, passwords, school, workplace or other private information in public profile fields.</p>
+<h2>4. Anonymous messages</h2><p>Messages are displayed as anonymous to the recipient. VibeZone may process technical identifiers to operate the service, prevent abuse and investigate reports. Do not assume messages are impossible to associate with technical activity.</p>
+<h2>5. Service providers and storage</h2><p>VibeZone currently uses Firebase services provided by Google to support authentication and database features. Identify all other providers actually used before launch, including hosting, analytics, advertising, crash reporting and push notification providers. Data may be processed in countries where those providers operate.</p>
+<h2>6. Notifications</h2><p>If you grant browser notification permission, VibeZone may show notifications about new inbox messages while the website is open. You can revoke notification permission in your browser or device settings. Background push notifications are not included by this starter implementation.</p>
+<h2>7. Retention and deletion</h2><p>Messages, reports, profile records and technical data may remain until deleted or until no longer needed for the purposes described. Explain your actual retention periods here: <strong>[INSERT RETENTION PERIODS AND DELETION PROCESS]</strong>. To request help, contact [INSERT SUPPORT EMAIL].</p>
+<h2>8. Children and safety</h2><p>VibeZone is not intended for children below the minimum age required by applicable law. Add your actual age requirements and parental-consent process here: <strong>[INSERT AGE POLICY]</strong>. Do not send threats, harassment, sexual exploitation, hate, personal data or illegal content.</p>
+<h2>9. Your choices and rights</h2><p>Depending on your location, you may have rights to access, correct, delete or object to certain processing of your personal information. Contact [INSERT SUPPORT EMAIL] to make a request. State the process and response times that your business can support.</p>
+<h2>10. Changes</h2><p>We may update this policy. The current version will be published on this page with its latest update date.</p>
+
+<p><small>Last updated: 17 November 2026</small></p></main></body></html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Terms of Service | VibeZone</title><style>
+*{box-sizing:border-box}body{margin:0;padding:28px 16px;background:#10091f;color:#f7f1ff;font:16px/1.7 Arial,sans-serif}
+main{max-width:850px;margin:auto;padding:28px;border:1px solid #ffffff25;border-radius:22px;background:#1c1231}
+a{color:#65caff}h1,h2{color:#ff79c6}.notice{padding:14px;border-radius:12px;background:#38234f}
+</style></head><body><main><p><a href="./index.html">← Back to VibeZone</a></p><h1>Terms of Service</h1>
+<div class="notice"><strong>Owner action required:</strong> This starter is not legal advice. Have the final terms reviewed for the countries where VibeZone will operate. Replace all bracketed placeholders before public launch.</div>
+<h2>1. Agreement</h2><p>By using VibeZone, you agree to these Terms. VibeZone is operated by [INSERT LEGAL OWNER / BUSINESS NAME], contact [INSERT SUPPORT EMAIL].</p>
+<h2>2. Eligibility</h2><p>You must meet the minimum age required by applicable law and any age limit published by VibeZone. If you are not eligible, do not use the service.</p>
+<h2>3. Acceptable use</h2><p>You may not use VibeZone to harass, threaten, bully, impersonate, exploit, defraud, spam, distribute illegal material, infringe rights, or share another person's private information without permission.</p>
+<h2>4. Profiles and content</h2><p>You are responsible for the nickname, picture, biography, messages and other content you submit. Do not upload content you do not have the right to use. Public profile information may be visible to other users.</p>
+<h2>5. Anonymous messaging</h2><p>Anonymous messaging means your identity is not displayed to the recipient by the interface. It is not a promise of absolute anonymity or immunity from lawful investigation or abuse-prevention measures.</p>
+<h2>6. Reporting and blocking</h2><p>You may report messages using the available report control. Blocking in this starter hides messages from that sender on the current browser only; it does not yet guarantee server-side blocking or prevent messages being sent. Do not rely on the current block control for emergency protection.</p>
+<h2>7. Moderation</h2><p>VibeZone may review reported content and restrict, remove or suspend access where reasonably necessary to protect users, comply with law or enforce these Terms. Insert your real moderation contact and review process: [INSERT PROCESS].</p>
+<h2>8. Games, points and availability</h2><p>Scores, points, challenges and leaderboard positions are for entertainment. They have no cash value unless VibeZone expressly states otherwise. Features may change or be unavailable.</p>
+<h2>9. Third-party services</h2><p>VibeZone relies on third-party services, including Firebase. Their availability and terms may affect the service.</p>
+<h2>10. Disclaimers and liability</h2><p>To the extent permitted by law, VibeZone is provided without guarantees of uninterrupted availability. Nothing in these Terms excludes rights or liability that cannot legally be excluded. Obtain local legal review and insert any lawful limitation appropriate to your operation.</p>
+<h2>11. Changes and contact</h2><p>We may update these Terms. Questions or complaints: [INSERT SUPPORT EMAIL]. Governing law and dispute process: [INSERT JURISDICTION AND PROCESS AFTER LEGAL REVIEW].</p>
+
+<p><small>Last updated: 17 November 2026</small></p></main></body></html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About VibeZone & Support | VibeZone</title><style>
+*{box-sizing:border-box}body{margin:0;padding:28px 16px;background:#10091f;color:#f7f1ff;font:16px/1.7 Arial,sans-serif}
+main{max-width:850px;margin:auto;padding:28px;border:1px solid #ffffff25;border-radius:22px;background:#1c1231}
+a{color:#65caff}h1,h2{color:#ff79c6}.notice{padding:14px;border-radius:12px;background:#38234f}
+</style></head><body><main><p><a href="./index.html">← Back to VibeZone</a></p><h1>About VibeZone & Support</h1>
+<h2>Your world. Your vibe.</h2><p>VibeZone is a place to play quick games, take daily challenges, earn points, climb the leaderboard and connect through anonymous messages.</p>
+<h2>What you can do</h2><ul><li>Play mini-games and quizzes.</li><li>Complete daily challenges.</li><li>Compete on the global leaderboard.</li><li>Share your VibeZone profile and invite friends.</li><li>Receive anonymous messages through your personal inbox link.</li></ul>
+<h2>Community safety</h2><p>Be respectful. Never share passwords, banking details, home addresses or other sensitive information. Report inappropriate messages using the report control. If you are in immediate danger, contact local emergency services or a trusted person.</p>
+<h2>Contact and support</h2><p>For support, privacy requests, safety concerns or legal notices, contact <strong>[ADD YOUR REAL SUPPORT EMAIL BEFORE LAUNCH]</strong>.</p>
+<p><a href="./privacy-policy.html">Privacy Policy</a> · <a href="./terms-of-service.html">Terms of Service</a></p>
+
+<p><small>Last updated: 17 November 2026</small></p></main></body></html>
